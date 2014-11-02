@@ -20,6 +20,7 @@ gem "sinatra-router"
 gem "sucker_punch"
 
 gem "omniauth-rdio"
+gem "omniauth-spotify"
 
 group :development, :test do
   gem "pry-byebug"

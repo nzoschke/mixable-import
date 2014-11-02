@@ -11,6 +11,11 @@ module Endpoints
     set :raise_errors, true
     set :show_exceptions, false
 
+    use Rack::Session::Cookie
+    use OmniAuth::Builder do
+      provider :rdio, ENV['RDIO_APP_KEY'], ENV['RDIO_APP_SECRET']
+    end
+
     configure :development do
       register Sinatra::Reloader
       also_reload '../**/*.rb'

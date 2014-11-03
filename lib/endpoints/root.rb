@@ -19,6 +19,7 @@ module Endpoints
       spotify_consumer = OAuth2::Client.new(ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'], site: 'https://api.spotify.com/v1')
       spotify_access_token = OAuth2::AccessToken.new(spotify_consumer, spotify_credentials['token'])
 
+      # TODO: omniauth-spotify gets the user id, persist in session?
       spotify_user = JSON.parse(spotify_access_token.get('me').body)
       spotify_playlists = JSON.parse(spotify_access_token.get("users/#{spotify_user['id']}/playlists").body)
 
@@ -31,12 +32,12 @@ module Endpoints
     end
 
     get "/auth/rdio/callback" do
+      puts request.env['omniauth.auth'].inspect
       env['rack.session']['rdio_credentials'] = request.env['omniauth.auth']['credentials'].to_h
       redirect "/"
     end
 
     get "/auth/spotify/callback" do
-      puts request.env['omniauth.auth'].inspect
       env['rack.session']['spotify_credentials'] = request.env['omniauth.auth']['credentials'].to_h
       redirect "/"
     end

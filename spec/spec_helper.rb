@@ -45,6 +45,8 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = 'random'
 
+  config.expect_with :minitest
+
   # the rack app to be tested with rack-test:
   def app
     @rack_app || fail("Missing @rack_app")

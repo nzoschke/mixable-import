@@ -14,7 +14,7 @@ module Endpoints
     use Rack::Session::Cookie
     use OmniAuth::Builder do
       provider :rdio, ENV['RDIO_APP_KEY'], ENV['RDIO_APP_SECRET']
-      provider :spotify, ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'], scope: 'playlist-modify-private'
+      provider :spotify, ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'], scope: 'playlist-read-private playlist-modify-private'
     end
 
     configure :development do

@@ -33,6 +33,19 @@ module Endpoints
       encode env['rack.session']['rdio_credentials']
     end
 
+    get "/playlists" do
+      content_type :json, charset: 'utf-8'
+      halt 401, "No OAuth" unless rdio_credentials = env['rack.session']['rdio_credentials']
+
+      rdio_consumer = OAuth::Consumer.new(ENV['RDIO_APP_KEY'], ENV['RDIO_APP_SECRET'], { site: 'http://api.rdio.com' })
+      rdio_access_token = OAuth::AccessToken.new(rdio_consumer, rdio_credentials['token'], rdio_credentials['secret'])
+
+      rdio_access_token.post('http://api.rdio.com/1/',
+        method: 'getPlaylists',
+        extras: '[{ "field": "tracks", "extras": [{ "field": "*", "exclude": true }, {"field": "album"}, {"field": "artist"}, {"field": "duration"}, {"field": "isrcs"}, {"field": "key"}, {"field": "name"}] }]'
+      ).body
+    end
+
     get "/clear" do
       env['rack.session'].clear
       redirect "/"

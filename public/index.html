@@ -1,5 +1,5 @@
 <!doctype html>
-<html ng-app="phonecatApp">
+<html ng-app="streamsApp">
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular-resource.min.js"></script>
@@ -13,6 +13,23 @@
       <div ng-if="me != null">
         Hello {{me}}
       </div>
+    </div>
+
+    <div ng-controller="PlaylistCtrl">
+      <ul class="playlists">
+        <li ng-repeat="playlist in playlists.result.owned">
+          <span>{{playlist.name}}</span>
+
+          <ul class="tracks">
+            <li ng-repeat="track in playlist.tracks">
+              <span>{{track.name}}</span>
+              <span>{{track.artist}}</span>
+              <span>{{track.album}}</span>
+              <span>{{track.isrcs[0]}}</span>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </div>
   </body>
 </html>

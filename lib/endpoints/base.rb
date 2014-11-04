@@ -10,6 +10,7 @@ module Endpoints
     set :dump_errors, false
     set :raise_errors, true
     set :show_exceptions, false
+    set :public_folder, 'public'
 
     use Rack::Session::Cookie
     use OmniAuth::Builder do

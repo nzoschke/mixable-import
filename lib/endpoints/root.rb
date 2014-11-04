@@ -3,6 +3,8 @@ require "json"
 module Endpoints
   class Root < Base
     get "/" do
+      redirect '/index.html'
+
       # Display Rdio and Spotify info or initiate OAuth flow
       redirect "/auth/rdio" unless rdio_credentials = env['rack.session']['rdio_credentials']
       redirect "/auth/spotify" unless spotify_credentials = env['rack.session']['spotify_credentials']
@@ -32,7 +34,6 @@ module Endpoints
     end
 
     get "/auth/rdio/callback" do
-      puts request.env['omniauth.auth'].inspect
       env['rack.session']['rdio_credentials'] = request.env['omniauth.auth']['credentials'].to_h
       redirect "/"
     end

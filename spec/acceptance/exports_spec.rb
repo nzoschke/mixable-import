@@ -13,8 +13,7 @@ describe Endpoints::Exports do
   end
 
   before do
-    e = Export.create(rdio_username: "nzoschke", state: "pending")
-    e.save
+    e = Export.create(rdio_username: "nzoschke", state: "pending").save
     @uuid = e.uuid
   end
 

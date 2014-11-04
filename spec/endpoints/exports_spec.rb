@@ -8,5 +8,10 @@ describe Endpoints::Exports do
       get "/exports"
       assert_equal 200, last_response.status
     end
+
+    it "POST /exports with an rdio_user_id to enqueue a new job" do
+      post "/exports", { foo: "bar" }
+      assert_equal 201, last_response.status
+    end
   end
 end

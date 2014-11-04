@@ -22,6 +22,18 @@ definitions:
     format: date-time
     type:
     - string
+  rdio_username:
+    description: owner of export
+    example: 'nzoschke'
+    format: string
+    type:
+    - string
+  state:
+    description: current state of export
+    example: 'pending'
+    format: string
+    type:
+    - string
 description: FIXME
 links:
 - description: Create a new export.
@@ -64,6 +76,10 @@ properties:
     "$ref": "/schemata/export#/definitions/id"
   updated_at:
     "$ref": "/schemata/export#/definitions/updated_at"
+  rdio_username:
+    "$ref": "/schemata/export#/definitions/rdio_username"
+  state:
+    "$ref": "/schemata/export#/definitions/state"
 type:
 - object
 id: schemata/export

@@ -12,6 +12,12 @@ describe Endpoints::Exports do
     "./docs/schema.json"
   end
 
+  before do
+    e = Export.create(rdio_username: "nzoschke", state: "pending")
+    e.save
+    @uuid = e.uuid
+  end
+
   describe 'GET /exports' do
     it 'returns correct status code and conforms to schema' do
       get '/exports'
@@ -31,7 +37,7 @@ describe Endpoints::Exports do
 
   describe 'GET /exports/:id' do
     it 'returns correct status code and conforms to schema' do
-      get "/exports/123"
+      get "/exports/#{@uuid}"
       assert_equal 200, last_response.status
       assert_schema_conform
     end
@@ -40,7 +46,7 @@ describe Endpoints::Exports do
   describe 'PATCH /exports/:id' do
     it 'returns correct status code and conforms to schema' do
       header "Content-Type", "application/json"
-      patch '/exports/123', MultiJson.encode({})
+      patch "/exports/#{@uuid}", MultiJson.encode({})
       assert_equal 200, last_response.status
       assert_schema_conform
     end
@@ -48,7 +54,7 @@ describe Endpoints::Exports do
 
   describe 'DELETE /exports/:id' do
     it 'returns correct status code and conforms to schema' do
-      delete '/exports/123'
+      delete "/exports/#{@uuid}"
       assert_equal 200, last_response.status
       assert_schema_conform
     end

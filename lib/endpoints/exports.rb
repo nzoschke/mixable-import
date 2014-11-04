@@ -17,15 +17,19 @@ module Endpoints
       end
 
       get "/:id" do
-        encode({ id: "01234567-89ab-cdef-0123-456789abcdef", created_at: '2012-01-01T12:00:00Z', updated_at: '2012-01-01T12:00:00Z', rdio_username: 'nzoschke', state: 'pending' })
+        e = Export[params[:id]]
+        encode Serializers::Export.new(:default).serialize(e)
       end
 
       patch "/:id" do |id|
-        encode({ id: "01234567-89ab-cdef-0123-456789abcdef", created_at: '2012-01-01T12:00:00Z', updated_at: '2012-01-01T12:00:00Z', rdio_username: 'nzoschke', state: 'pending' })
+        e = Export[params[:id]]
+        encode Serializers::Export.new(:default).serialize(e)
       end
 
       delete "/:id" do |id|
-        encode({ id: "01234567-89ab-cdef-0123-456789abcdef", created_at: '2012-01-01T12:00:00Z', updated_at: '2012-01-01T12:00:00Z', rdio_username: 'nzoschke', state: 'pending' })
+        e = Export[params[:id]]
+        e.delete
+        encode Serializers::Export.new(:default).serialize(e)
       end
     end
   end

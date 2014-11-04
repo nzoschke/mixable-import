@@ -9,6 +9,8 @@ Sequel.migration do
       text         :url
       text         :token
       text         :secret
+
+      json         :playlists
     end
   end
 end

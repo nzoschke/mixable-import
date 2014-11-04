@@ -28,6 +28,11 @@ module Endpoints
       "<pre>#{JSON.pretty_generate(spotify_playlists)}</pre>"
     end
 
+    get "/me" do
+      content_type :json, charset: 'utf-8'
+      encode env['rack.session']['rdio_credentials']
+    end
+
     get "/clear" do
       env['rack.session'].clear
       redirect "/"

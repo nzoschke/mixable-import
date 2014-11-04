@@ -1,6 +1,8 @@
-function Hello($scope, $http) {
-  $http.get('http://rest-service.guides.spring.io/greeting').
-    success(function(data) {
-      $scope.greeting = data;
-    });
-}
+var phonecatApp = angular.module('phonecatApp', []);
+
+phonecatApp.controller('AuthCtrl', function ($scope, $http) {
+  $http.get('me').success(function(data) {
+    console.log(data)
+    $scope.me = data;
+  });
+});

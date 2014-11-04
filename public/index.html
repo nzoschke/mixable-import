@@ -1,19 +1,18 @@
 <!doctype html>
-<html ng-app>
+<html ng-app="phonecatApp">
   <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular-resource.min.js"></script>
     <script src="app.js"></script>
   </head>
   <body>
-    <div>
-      <label>Name:</label>
-      <input type="text" ng-model="yourName" placeholder="Enter a name here">
-      <hr>
-      <h1>Hello {{yourName}}!</h1>
-    </div>
-    <div ng-controller="Hello">
-      <p>The ID is {{greeting.id}}</p>
-      <p>The content is {{greeting.content}}</p>
+    <div ng-controller="AuthCtrl">
+      <div ng-if="me == null">
+        <a href="/auth/rdio">OAuth to Rdio</a>
+      </div>
+      <div ng-if="me != null">
+        Hello {{me}}
+      </div>
     </div>
   </body>
 </html>

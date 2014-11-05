@@ -1,0 +1,5 @@
+#!/bin/bash
+set -x
+
+AUTH=$(echo -n ${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET} | base64)
+curl -H "Authorization: Basic $AUTH" -d grant_type=client_credentials https://accounts.spotify.com/api/token

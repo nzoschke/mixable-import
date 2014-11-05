@@ -18,4 +18,16 @@ describe Track do
     assert_equal "The Trickster", t.name
     assert_equal 282, t.duration
   end
+
+  it "gets metadata from Spotify by ISRC" do
+    t = Track.spotify_find_or_create_by_isrc(@isrc)
+
+    assert t.uuid
+    assert_equal @isrc, t.isrc
+    assert_equal "5ikIFKeCuGCKX9foh8ToyN", t.spotify_id
+    assert_equal "Radiohead", t.artist
+    assert_equal "The Bends [Collectors Edition]", t.album
+    assert_equal "The Trickster", t.name
+    assert_equal 282, t.duration
+  end
 end

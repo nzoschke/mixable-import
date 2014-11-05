@@ -1,37 +1,15 @@
 require "spec_helper"
 
 describe Track do
-  it "true" do
-    assert true
+  before do
+    @rdio_credentials = { "token" => ENV['RDIO_USER_TOKEN'], "secret" => ENV['RDIO_USER_SECRET'] }
+    @isrc = "GBAYE9400673"
   end
 
-  it "saves to the database" do
-    Track.new(isrc: "USRC11301695").save
-    t = Track.first
-    assert_equal "USRC11301695", t.isrc
-  end
+  it "gets metadata from Rdio by ISRC" do
+    t = Track.find_or_create_by_isrc(@isrc)
 
-  context "Rdio" do
-    it "populates track metadata with an rdio_key" do
-      t = Track.new(rdio_key: "t38018328")
-      t.rdio_get
-
-      assert_equal "USRC11301695",  t.isrc
-      assert_equal "Pitbull",       t.artist
-      assert_equal "Timber",        t.album
-      assert_equal "Timber",        t.name
-      assert_equal 204,             t.duration
-    end
-
-    it "populates track metadata with an ISRC" do
-    end
-  end
-
-  context "Spotify" do
-    it "populates track metadata for an spotify_id" do
-    end
-
-    it "populates track metadata for an ISRC" do
-    end
+    assert t.uuid
+    assert_equal @isrc, t.isrc
   end
 end

@@ -1,11 +1,23 @@
 class Track < Sequel::Model
   plugin :timestamps
 
-  def rdio_get
-    self.isrc = "USRC11301695"
-    self.artist = "Pitbull"
-    self.album = "Timber"
-    self.name = "Timber"
-    self.duration = 204
+  def self.find_or_create_by_isrc(isrc)
+    unless track = Track[isrc: isrc]
+      # client = self.rdio_client(creds)
+      # r = JSON.parse(client.post('http://api.rdio.com/1/',
+      #   method: 'currentUser'
+      # ).body)['result']
+
+      track = Track.create(
+        isrc:     isrc,
+        # rdio_key: track['key'],
+        # artist:   track['artist'],
+        # album:    track['album'],
+        # name:     track['name'],
+        # duration: track['duration']
+      ).save
+    end
+
+    track
   end
 end

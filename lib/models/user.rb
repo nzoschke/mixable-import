@@ -12,12 +12,33 @@ class User < Sequel::Model
     update(playlists: Sequel.pg_json(r))
   end
 
+  def save_tracks!
+    self.playlists.each do |kind, lists|
+      lists.each do |list|
+        list['tracks'].each do |track|
+          # TODO: how to handle no ISRC?
+          # TODO: is this the right way to handle multiple ISRCs?
+          track['isrcs'].each do |isrc|
+            Track.create(
+              isrc:     isrc,
+              rdio_key: track['key'],
+              artist:   track['artist'],
+              album:    track['album'],
+              name:     track['name'],
+              duration: track['duration']
+            ).save
+          end
+        end
+      end
+    end
+  end
+
   def playlists_isrcs
     isrcs = []
     self.playlists.each do |kind, lists|
       lists.each do |list|
-        list["tracks"].each do |track|
-          isrcs.push track["isrcs"]
+        list['tracks'].each do |track|
+          isrcs.push track['isrcs']
         end
       end
     end

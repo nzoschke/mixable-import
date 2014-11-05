@@ -24,8 +24,8 @@ describe User do
   end
 
   it "saves a JSON snapshot of Rdio playlists" do
-    @user.save_playlists
-    assert_equal "April Fools!", @user.playlists["owned"][0]["name"]
+    @user.save_playlists!
+    assert_equal "April Fools!", @user.playlists["owned"][1]["name"]
 
     # TODO: How to query into the JSON?!
     # User.db["SELECT * FROM users WHERE 'April Fools!' IN (SELECT value->>'name' FROM json_array_elements(playlists))"].all.inspect

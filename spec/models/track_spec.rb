@@ -2,8 +2,6 @@ require "spec_helper"
 
 describe Track do
   before do
-    @credentials = { "token" => ENV['RDIO_USER_TOKEN'], "secret" => ENV['RDIO_USER_SECRET'] }
-    @user = User.find_or_create_by_credentials @credentials
     @isrc = "GBAYE9400673"
   end
 

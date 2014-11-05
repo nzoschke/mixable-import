@@ -2,13 +2,10 @@ class Track < Sequel::Model
   plugin :timestamps
 
   def self.rdio_client
-    # TODO: Figure out right way to do unauthorized API call
-    # https://groups.google.com/forum/#!topic/rdio-api/ShfZ2p0aQgg
-    user = User.first
-    creds = { 'token' => user.token, 'secret' => user.secret }
-
+    # Unauthorized Rdio client
+    # http://www.rdio.com/developers/docs/web-service/oauth/ref-signing-requests
     consumer = OAuth::Consumer.new(ENV['RDIO_APP_KEY'], ENV['RDIO_APP_SECRET'], { site: 'http://api.rdio.com' })
-    OAuth::AccessToken.new(consumer, creds['token'], creds['secret'])
+    OAuth::AccessToken.new(consumer)
   end
 
   def self.find_or_create_by_isrc(isrc)
@@ -35,8 +32,9 @@ class Track < Sequel::Model
   end
 
   def self.spotify_find_or_create_by_isrc(isrc)
+    # Unauthorized Spotify client
     # https://developer.spotify.com/web-api/authorization-guide/#client_credentials_flow
-    # curl "https://api.spotify.com/v1/search?type=track&q=isrc:GBAYE9400673"
+    # Access token generated with `foreman run bin/keys`
     consumer = OAuth2::Client.new(ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'], site: 'https://api.spotify.com/v1')
     client = OAuth2::AccessToken.new(consumer, ENV['SPOTIFY_ACCESS_TOKEN'])
 

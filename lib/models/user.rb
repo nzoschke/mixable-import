@@ -12,6 +12,18 @@ class User < Sequel::Model
     update(playlists: Sequel.pg_json(r))
   end
 
+  def playlists_isrcs
+    isrcs = []
+    self.playlists.each do |kind, lists|
+      lists.each do |list|
+        list["tracks"].each do |track|
+          isrcs.push track["isrcs"]
+        end
+      end
+    end
+    isrcs.flatten
+  end
+
   def self.rdio_client(creds)
     consumer = OAuth::Consumer.new(ENV['RDIO_APP_KEY'], ENV['RDIO_APP_SECRET'], { site: 'http://api.rdio.com' })
     OAuth::AccessToken.new(consumer, creds['token'], creds['secret'])

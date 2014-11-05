@@ -5,7 +5,7 @@ Sequel.migration do
       timestamptz  :created_at, default: Sequel.function(:now), null: false
       timestamptz  :updated_at
 
-      text         :key
+      text         :key, index: true
       text         :url
       text         :token
       text         :secret

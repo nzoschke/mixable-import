@@ -5,7 +5,7 @@ Sequel.migration do
       timestamptz  :created_at, default: Sequel.function(:now), null: false
       timestamptz  :updated_at
 
-      text         :isrc
+      text         :isrc, index: true
       text         :rdio_key
       text         :spotify_id
 

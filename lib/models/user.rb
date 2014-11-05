@@ -1,7 +1,7 @@
 class User < Sequel::Model
   plugin :timestamps
 
-  def save_playlists
+  def save_playlists!
     client = User.rdio_client({ "token" => self.token, "secret" => self.secret })
     r = client.post('http://api.rdio.com/1/',
       method: 'getPlaylists',
@@ -46,6 +46,7 @@ class User < Sequel::Model
   end
 
   def self.rdio_client(creds)
+    # Authorized Rdio client
     consumer = OAuth::Consumer.new(ENV['RDIO_APP_KEY'], ENV['RDIO_APP_SECRET'], { site: 'http://api.rdio.com' })
     OAuth::AccessToken.new(consumer, creds['token'], creds['secret'])
   end

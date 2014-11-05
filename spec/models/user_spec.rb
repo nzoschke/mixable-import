@@ -41,6 +41,7 @@ describe User do
     it "collects all ISRCs" do
       isrcs = ["GBAYE9400673", "USJMZ0800027", "TCABM1364901", "USAT21101923", "USA370999316", "GBCEL0500643", "USSM10004739", "USA560311898", "USSM19804363", "USCA20501226", "USCA20501217", "SEWKZ1000122", "USLZJ1138076", "GBBPW9500097", "USSI10100106"]
       assert_equal isrcs, @user.playlists_isrcs
+      assert_equal 15, @user.playlists_isrcs.count
     end
 
     it "creates Tracks" do

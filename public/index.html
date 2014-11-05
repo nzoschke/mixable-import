@@ -6,30 +6,103 @@
     <script src="app.js"></script>
   </head>
   <body>
-    <div ng-controller="AuthCtrl">
-      <div ng-if="me == null">
+    <div ng-controller="SessionCtrl">
+      <div ng-if="session == null">
         <a href="/auth/rdio">OAuth to Rdio</a>
       </div>
-      <div ng-if="me != null">
-        Hello {{me}}
+      <div ng-if="session != null">
+        Hello {{session}}. <a href="/logout">End or restart session</a>
       </div>
     </div>
 
-    <div ng-controller="PlaylistCtrl">
-      <ul class="playlists">
-        <li ng-repeat="playlist in playlists.result.owned">
-          <span>{{playlist.name}}</span>
+    <div ng-controller="PlaylistsCtrl">
+      Owned
+      <table ng-repeat="playlist in playlists.owned" border=1>
+        <thead>
+          <tr>
+            <td><input type="checkbox" ng-model="checked"> {{playlist.name}} ({{playlist.tracks.length}} tracks)</td>
+            <td>-></td>
+            <td>Rdio/{{playlist.name}} (0 matched)</td>
+          </tr>
+        </thead>
+        <tbody ng-show="checked">
+          <tr>
+            <td>Name</td>
+            <td>Artist</td>
+            <td>Album</td>
+            <td>ISRC</td>
+            <td>Rdio Key</td>
+            <td>Spotify ID</td>
+          </tr>
+          <tr ng-repeat="track in playlist.tracks">
+            <td>{{track.name}}</td>
+            <td>{{track.artist}}</td>
+            <td>{{track.album}}</td>
+            <td>{{track.isrcs[0]}}</td>
+            <td>{{track.key}}</td>
+            <td>{{track.spotify_id}} pending</td>
+          </tr>
+        </tbody>
+      </table>
 
-          <ul class="tracks">
-            <li ng-repeat="track in playlist.tracks">
-              <span>{{track.name}}</span>
-              <span>{{track.artist}}</span>
-              <span>{{track.album}}</span>
-              <span>{{track.isrcs[0]}}</span>
-            </li>
-          </ul>
-        </li>
-      </ul>
+      Collabed
+      <table ng-repeat="playlist in playlists.collab" border=1>
+        <thead>
+          <tr>
+            <td><input type="checkbox" ng-model="checked"> {{playlist.name}} ({{playlist.tracks.length}} tracks)</td>
+            <td>-></td>
+            <td>Rdio/{{playlist.name}} (0 matched)</td>
+          </tr>
+        </thead>
+        <tbody ng-show="checked">
+          <tr>
+            <td>Name</td>
+            <td>Artist</td>
+            <td>Album</td>
+            <td>ISRC</td>
+            <td>Rdio Key</td>
+            <td>Spotify ID</td>
+          </tr>
+          <tr ng-repeat="track in playlist.tracks">
+            <td>{{track.name}}</td>
+            <td>{{track.artist}}</td>
+            <td>{{track.album}}</td>
+            <td>{{track.isrcs[0]}}</td>
+            <td>{{track.key}}</td>
+            <td>{{track.spotify_id}} pending</td>
+          </tr>
+        </tbody>
+      </table>
+
+      Subscribed
+      <table ng-repeat="playlist in playlists.subscribed" border=1>
+        <thead>
+          <tr>
+            <td><input type="checkbox" ng-model="checked"> {{playlist.name}} ({{playlist.tracks.length}} tracks)</td>
+            <td>-></td>
+            <td>Rdio/{{playlist.name}} (0 matched)</td>
+          </tr>
+        </thead>
+        <tbody ng-show="checked">
+          <tr>
+            <td>Name</td>
+            <td>Artist</td>
+            <td>Album</td>
+            <td>ISRC</td>
+            <td>Rdio Key</td>
+            <td>Spotify ID</td>
+          </tr>
+          <tr ng-repeat="track in playlist.tracks">
+            <td>{{track.name}}</td>
+            <td>{{track.artist}}</td>
+            <td>{{track.album}}</td>
+            <td>{{track.isrcs[0]}}</td>
+            <td>{{track.key}}</td>
+            <td>{{track.spotify_id}} pending</td>
+          </tr>
+        </tbody>
+      </table>
+
     </div>
   </body>
 </html>

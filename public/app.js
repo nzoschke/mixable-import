@@ -1,15 +1,17 @@
 var streamsApp = angular.module('streamsApp', []);
 
-streamsApp.controller('AuthCtrl', function ($scope, $http) {
-  $http.get('me').success(function(data) {
-    console.log(data)
-    $scope.me = data;
-  });
+streamsApp.controller('SessionCtrl', function ($scope, $http) {
+  $http.get('session').
+    success(function(data) {
+      $scope.session = data;
+    }).
+    error(function(data, status, headers, config) {
+      $scope.session = null;
+    });
 });
 
-streamsApp.controller('PlaylistCtrl', function ($scope, $http) {
+streamsApp.controller('PlaylistsCtrl', function ($scope, $http) {
   $http.get('playlists').success(function(data) {
-    console.log(data)
     $scope.playlists = data;
   });
 });

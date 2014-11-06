@@ -19,6 +19,8 @@ class User < Sequel::Model
           # TODO: how to handle no ISRC?
           # TODO: is this the right way to handle multiple ISRCs?
           track['isrcs'].each do |isrc|
+            next if Track[isrc: isrc]
+
             Track.create(
               isrc:     isrc,
               rdio_key: track['key'],

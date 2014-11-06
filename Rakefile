@@ -12,3 +12,17 @@ task :spec do
 end
 
 task :default => :spec
+
+task :analytics do
+  # # Load all the data into an analytics database
+  # `heroku pgbackups:capture`
+  # `curl -o latest.dump $(heroku pgbackups:url)`
+  # `pg_restore --verbose --clean --no-acl --no-owner -h localhost -d myapp-analytics latest.dump`
+
+  # Run some tests against the database
+  require "rspec/core"
+  code = RSpec::Core::Runner.run(
+    ["./analytics"],
+    $stderr, $stdout)
+  exit(code) unless code == 0
+end

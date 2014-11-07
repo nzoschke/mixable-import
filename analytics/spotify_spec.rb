@@ -1,25 +1,55 @@
 require_relative "./analytics_helper"
 
 class ISRC
-  attr_accessor :isrc
+  attr_accessor :isrc, :rdio_tracks, :spotify_tracks
 
   def initialize(isrc)
     @isrc = isrc
   end
 
   def get_rdio_tracks
-    r = JSON.parse(ISRC.rdio_client.post('http://api.rdio.com/1/',
+    @rdio_tracks ||= JSON.parse(ISRC.rdio_client.post('http://api.rdio.com/1/',
       method: 'getTracksByISRC',
       isrc:   @isrc,
-      extras: "isrc"  # TODO: better extras
+      extras: "isrcs"  # TODO: better extras
     ).body)['result']
   end
 
   def get_spotify_tracks
-    r = JSON.parse(ISRC.spotify_client.get("search", params: {
+    @spotify_tracks ||= JSON.parse(ISRC.spotify_client.get("search", params: {
       type: "track",
       q:    "isrc:#{isrc}"
     }).body)['tracks']['items']
+  end
+
+  def rdio_metadata(r)
+    {
+      isrc:     r['isrcs'][0],
+      # rdio_key: r['key'],
+      artist:   r['artist'],
+      album:    r['album'],
+      name:     r['name'],
+      duration: r['duration']
+    }
+  end
+
+  def spotify_metadata(r)
+    {
+      isrc:       r['external_ids']['isrc'],
+      # spotify_id: r['id'],
+      artist:     r['artists'][0]['name'],
+      album:      r['album']['name'],
+      name:       r['name'],
+      duration:   r['duration_ms'] / 1000
+    }
+  end
+
+  def match
+    # match a single Rdio Key to a Spotify ID with a confidence interval
+    r = get_rdio_tracks.first
+    s = get_spotify_tracks.first
+
+    [rdio_metadata(r), spotify_metadata(s)]
   end
 
   def self.rdio_client
@@ -40,12 +70,6 @@ class ISRC
 end
 
 describe ISRC do
-  it "gets tracks via Rdio and Spotify API" do
-    i = ISRC.new("GBAYE9400673")
-    assert_equal 2, i.get_rdio_tracks.length
-    assert_equal 2, i.get_spotify_tracks.length
-  end
-
   xit "dumps the number of tracks on Rdio and Spotify" do
     puts ""
     Track.each do |track|
@@ -89,6 +113,9 @@ describe ISRC do
       isrc = ISRC.new("USCA29401248")
       assert_equal 1, isrc.get_rdio_tracks.length
       assert_equal 1, isrc.get_spotify_tracks.length
+
+      rdio_track, spotify_track = isrc.match
+      assert_equal rdio_track, spotify_track
     end
 
     it "corresponds to 2 Spotify Track(s)" do

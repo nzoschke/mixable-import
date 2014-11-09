@@ -70,10 +70,15 @@ class Track < Sequel::Model
 
   def search_spotify
     begin
-      @spotify_search_results ||= Track.spotify_client.get("search", params: {
-        type: "track",
-        q:    "isrc:#{isrcs[0]}"
-      }).parsed['tracks']['items']
+      items = []
+      isrcs.each do |isrc|
+        items += Track.spotify_client.get("search", params: {
+          type: "track",
+          q:    "isrc:#{isrc}"
+        }).parsed['tracks']['items']
+      end
+
+      items
     rescue OAuth2::Error => e
       if e.code["message"] =~ /token expired/
         Track.spotify_client_refresh!

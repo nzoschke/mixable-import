@@ -20,6 +20,23 @@ describe User do
       user.save_tracks!
     end
   end
+
+  it "asserts database counts" do
+    assert_equal 424, Track.count
+
+    assert_equal 0,   Track.where(key: nil).count
+    assert_equal 0,   Track.where(name: nil).count
+    assert_equal 0,   Track.where(artist: nil).count
+    assert_equal 0,   Track.where(album: nil).count
+    assert_equal 0,   Track.where(duration: nil).count
+    assert_equal 0,   Track.where(isrcs: nil).count
+
+    assert_equal 0,   Track.db["SELECT * FROM tracks WHERE array_length(isrcs,1) = 0"].count
+    assert_equal 399, Track.db["SELECT * FROM tracks WHERE array_length(isrcs,1) = 1"].count
+    assert_equal 24,  Track.db["SELECT * FROM tracks WHERE array_length(isrcs,1) = 2"].count
+    assert_equal 0,   Track.db["SELECT * FROM tracks WHERE array_length(isrcs,1) = 3"].count
+    assert_equal 1,   Track.db["SELECT * FROM tracks WHERE array_length(isrcs,1) = 4"].count
+  end
 end
 
 # describe Analytics do

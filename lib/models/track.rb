@@ -1,13 +1,7 @@
 class Track < Sequel::Model
   plugin :timestamps
 
-  def get_rdio
-    r = JSON.parse(Track.rdio_client.post('http://api.rdio.com/1/',
-      method: 'get',
-      keys:   rdio_key,
-      extras: "isrcs"  # TODO: better extras
-    ).body)['result'][rdio_key]
-
+  def rdio_metadata(r)
     {
       isrc:     r['isrcs'][0],
       artist:   r['artist'],
@@ -17,9 +11,7 @@ class Track < Sequel::Model
     }
   end
 
-  def get_spotify
-    r = JSON.parse(Track.spotify_client.get("tracks/#{spotify_id}").body)
-
+  def spotify_metadata(r)
     {
       isrc:       r['external_ids']['isrc'],
       artist:     r['artists'][0]['name'],
@@ -27,6 +19,32 @@ class Track < Sequel::Model
       name:       r['name'],
       duration:   r['duration_ms'] / 1000
     }
+  end
+
+  def get_rdio
+    r = JSON.parse(Track.rdio_client.post('http://api.rdio.com/1/',
+      method: 'get',
+      keys:   rdio_key,
+      extras: "isrcs"  # TODO: better extras
+    ).body)['result'][rdio_key]
+
+    rdio_metadata(r)
+  end
+
+  def spotify_metadata(r)
+    {
+      isrc:       r['external_ids']['isrc'],
+      artist:     r['artists'][0]['name'],
+      album:      r['album']['name'],
+      name:       r['name'],
+      duration:   r['duration_ms'] / 1000
+    }
+  end
+
+  def get_spotify
+    r = JSON.parse(Track.spotify_client.get("tracks/#{spotify_id}").body)
+
+    spotify_metadata(r)
   end
 
   def search_spotify
@@ -42,7 +60,9 @@ class Track < Sequel::Model
     }).body)['tracks']['items']
   end
 
-  def match_by_diff_attribute_count
+  def match_by_total_edit_distance
+    search_spotify.each do |i|
+    end
   end
 
   def self.rdio_client

@@ -1,203 +1,99 @@
 require_relative "./analytics_helper"
 
-class ISRC
-  attr_accessor :isrc, :rdio_tracks, :spotify_tracks
+class Analytics; end
 
-  def initialize(isrc)
-    @isrc = isrc
-  end
-
-  def get_rdio_tracks
-    @rdio_tracks ||= JSON.parse(ISRC.rdio_client.post('http://api.rdio.com/1/',
-      method: 'getTracksByISRC',
-      isrc:   @isrc,
-      extras: "isrcs"  # TODO: better extras
-    ).body)['result']
-  end
-
-  def get_spotify_tracks
-    @spotify_tracks ||= JSON.parse(ISRC.spotify_client.get("search", params: {
-      type: "track",
-      q:    "isrc:#{isrc}"
-    }).body)['tracks']['items']
-  end
-
-  def rdio_metadata(r)
-    {
-      isrc:     r['isrcs'][0],
-      # rdio_key: r['key'],
-      artist:   r['artist'],
-      album:    r['album'],
-      name:     r['name'],
-      duration: r['duration']
-    }
-  end
-
-  def spotify_metadata(r)
-    {
-      isrc:       r['external_ids']['isrc'],
-      # spotify_id: r['id'],
-      artist:     r['artists'][0]['name'],
-      album:      r['album']['name'],
-      name:       r['name'],
-      duration:   r['duration_ms'] / 1000
-    }
-  end
-
-  def match
-    # match a single Rdio Key to a Spotify ID with a confidence interval
-    r = get_rdio_tracks.first
-    s = get_spotify_tracks.first
-
-    [rdio_metadata(r), spotify_metadata(s)]
-  end
-
-  def self.rdio_client
-    # Unauthorized Rdio client
-    # http://www.rdio.com/developers/docs/web-service/oauth/ref-signing-requests
-    consumer = OAuth::Consumer.new(ENV['RDIO_APP_KEY'], ENV['RDIO_APP_SECRET'], { site: 'http://api.rdio.com' })
-    OAuth::AccessToken.new(consumer)
-  end
-
-  def self.spotify_client
-    # Unauthorized Spotify client
-    # https://developer.spotify.com/web-api/authorization-guide/#client_credentials_flow
-    # Access token generated with `foreman run bin/keys`
-    # TODO: handle key expiration
-    consumer = OAuth2::Client.new(ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'], site: 'https://api.spotify.com/v1')
-    client = OAuth2::AccessToken.new(consumer, ENV['SPOTIFY_ACCESS_TOKEN'])
-  end
-end
-
-describe ISRC do
-  xit "dumps the number of tracks on Rdio and Spotify" do
-    puts ""
-    Track.each do |track|
-      i = ISRC.new(track.isrc)
-      puts "#{track.rdio_key}\t#{i.isrc}\t#{i.get_rdio_tracks.length}\t#{i.get_spotify_tracks.length}"
-    end
-  end
-
-  xit "some songs dont have an ISRC" do
-    "t35264922"
-  end
-
-  context "corresponds to 0 Rdio Track(s)" do
-    it "corresponds to 0 Spotify Track(s)" do
-      isrc = ISRC.new("USABC1400001")
-      assert_equal 0, isrc.get_rdio_tracks.length
-      assert_equal 0, isrc.get_spotify_tracks.length
+describe User do
+  it "loads fixtures" do
+    Dir["analytics/*.json"].each do |path|
+      values = JSON.parse(File.read(path))
+      values.reject! { |k,v| ["uuid", "created_at", "updated_at"].include? k }
+      values["playlists"] = Sequel.pg_json(values["playlists"])
+      User.create(values)
     end
 
-    xit "corresponds to 1 Spotify Track(s)" do
-      isrc = ISRC.new("USA371087682")
-      assert_equal 0, isrc.get_rdio_tracks.length
-      assert_equal 1, isrc.get_spotify_tracks.length
-    end
-
-    xit "corresponds to 2 Spotify Track(s)" do
-      isrc = ISRC.new("USA371087682")
-      assert_equal 0, isrc.get_rdio_tracks.length
-      assert_equal 2, isrc.get_spotify_tracks.length
-    end
+    assert_equal 3, User.count
+    assert_equal 0, Track.count
   end
 
-  context "corresponds to 1 Rdio Track(s)" do
-    it "corresponds to 0 Spotify Track(s)" do
-      isrc = ISRC.new("USZXT1055823")
-      assert_equal 1, isrc.get_rdio_tracks.length
-      assert_equal 0, isrc.get_spotify_tracks.length
-    end
-
-    it "corresponds to 1 Spotify Track(s)" do
-      isrc = ISRC.new("USCA29401248")
-      assert_equal 1, isrc.get_rdio_tracks.length
-      assert_equal 1, isrc.get_spotify_tracks.length
-
-      rdio_track, spotify_track = isrc.match
-      assert_equal rdio_track, spotify_track
-    end
-
-    it "corresponds to 2 Spotify Track(s)" do
-      isrc = ISRC.new("GBAAA0900975")
-      assert_equal 1, isrc.get_rdio_tracks.length
-      assert_equal 2, isrc.get_spotify_tracks.length
-    end
-  end
-
-  context "corresponds to 2 Rdio Track(s)" do
-    it "corresponds to 0 Spotify Track(s)" do
-      isrc = ISRC.new("USUS10610239")
-      assert_equal 2, isrc.get_rdio_tracks.length
-      assert_equal 0, isrc.get_spotify_tracks.length
-    end
-
-    it "corresponds to 1 Spotify Track(s)" do
-      isrc = ISRC.new("GB2LD0900911")
-      assert_equal 2, isrc.get_rdio_tracks.length
-      assert_equal 1, isrc.get_spotify_tracks.length
-    end
-
-    it "corresponds to 2 Spotify Track(s)" do
-      isrc = ISRC.new("USK110617810")
-      assert_equal 2, isrc.get_rdio_tracks.length
-      assert_equal 2, isrc.get_spotify_tracks.length
-    end
-  end
-
-  context "corresponds to N Rdio Track(s)" do
-    it "corresponds to N Spotify Track(s)" do
-      isrc = ISRC.new("GBZN81300014")
-      assert_equal 17, isrc.get_rdio_tracks.length
-      assert_equal 16, isrc.get_spotify_tracks.length
-    end
-  end
-end
-
-xdescribe User do
-  it "asserts analytics data" do
-    num_tracks = 0
-    isrcs = []
-
-    User.each do |user|
-      user.playlists.each do |kind, lists|
-        lists.each do |list|
-          list['tracks'].each do |track|
-            num_tracks += 1
-            isrcs += track["isrcs"]
-
-            assert track["isrcs"].length > 0
-          end
-        end
-      end
-
+  it "processes playlist JSON" do
+    User.all.each do |user|
       user.save_tracks!
     end
-
-    assert_equal 3,   User.count
-    assert_equal 444, Track.count
-    assert_equal 662, num_tracks
-    assert_equal 710, isrcs.length
-    assert_equal 444, isrcs.uniq.length
-  end
-
-  xit "looks up every ISRC on spotify" do
-    Track.each do |track|
-      track.search_spotify!
-    end
-
-    assert_equal 28, Track.where(spotify_id: nil).count
-  end
-
-  xit "does something about multiple ISRC search results" do
-  end
-
-  xit "tries a fuzzy search" do
-    Track.where(spotify_id: nil).each do |track|
-      track.fuzzy_search_spotify
-    end
-  end
-
-  xit "lists the number of tracks on each service by ISRC" do
   end
 end
+
+# describe Analytics do
+#   context "processes entire dataset" do
+#     it "turns User.playlist JSON collection into Track objects" do
+#       isrcs = []
+
+#       User.all.each do |user|
+#         puts JSON.pretty_generate(user.values)
+#         puts "\n\n\n\n\n"
+#         isrcs += user.playlists_isrcs
+#         # user.save_tracks!
+#       end
+
+#       assert_equal 444, isrcs.uniq.count
+#     end
+
+#     xit "matches and saves spotify_id for every Track" do
+#       Track.all.each do |track|
+#         track.match_spotify!
+#       end
+#     end
+#   end
+
+#   context "validates entire dataset" do
+#     it "asserts database counts" do
+#       assert_equal 3,   User.all.count
+#       assert_equal 536, Track.all.count
+
+#       assert_equal 0,   Track.where(rdio_key: nil).count
+#       assert_equal 0,   Track.where(name: nil).count
+#       assert_equal 0,   Track.where(artist: nil).count
+#       assert_equal 0,   Track.where(album: nil).count
+#       assert_equal 0,   Track.where(duration: nil).count
+#       assert_equal 1,   Track.where(isrc: nil).count
+#       assert_equal 29,  Track.where(spotify_id: nil).count
+#     end
+#   end
+
+#   context "explores missing data" do
+#     it "debugs missing rdio ISRC" do
+#     end
+
+#     it "debugs missing spotify_ids" do
+#       Track.where(spotify_id: nil).each do |track|
+#         # puts track.get_rdio.inspect
+#         # r = track.search_spotify
+#         # puts r.inspect
+#         # track.match_spotify!
+#         # track.get_rdio!
+#         # puts track.match_by_total_edit_distance.inspect
+#       end
+#     end
+#   end
+
+#   context "compares matching strategies" do
+#   end
+
+#   context "tricky ISRCs" do
+#     # {:isrc=>"GBZN81300014", :artist=>"CHVRCHES", :album=>"The Bones Of What You Believe (Special Edition)", :name=>"The Mother We Share", :duration=>190}
+#     # {:isrc=>"DEAR41185973", :artist=>"Mantra Mindware", :album=>"Forgivness", :name=>"Isrc", :duration=>428}
+#     # {:isrc=>"FRY680300093", :artist=>"Alain Chamfort", :album=>"Le Plaisir", :name=>"Titre 14 (indexé avec code ISRC)", :duration=>54}
+
+#     # {:isrc=>"GBUM71300113", :artist=>"Haim", :album=>"Days Are Gone", :name=>"Falling", :duration=>257}
+#     # {:isrc=>"USSM11300646", :artist=>"Haim", :album=>"Falling", :name=>"Falling", :duration=>258}
+#     # {:isrc=>"USSM11300646", :artist=>"Haim", :album=>"Days Are Gone", :name=>"Falling", :duration=>257}
+
+#     # {:isrc=>"GBCEL1300216", :artist=>"Washed Out", :album=>"Paracosm", :name=>"It All Feels Right", :duration=>245}
+#     # {:isrc=>"USSUB1305502", :artist=>"Washed Out", :album=>"It All Feels Right", :name=>"It All Feels Right", :duration=>245}
+#     # {:isrc=>"USSUB1305502", :artist=>"Washed Out", :album=>"Paracosm", :name=>"It All Feels Right", :duration=>245}
+
+#     # {:isrc=>"USSM11304478", :artist=>"Haim", :album=>"Days Are Gone", :name=>"The Wire", :duration=>245}
+#     # {:isrc=>"GBUM71304660", :artist=>"Haim", :album=>"Days Are Gone (Deluxe Edition)", :name=>"The Wire", :duration=>245}
+#     # {:isrc=>"GBUM71304660", :artist=>"Haim", :album=>"Days Are Gone", :name=>"The Wire", :duration=>245}
+#   end
+
+# end

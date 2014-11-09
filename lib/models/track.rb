@@ -28,13 +28,22 @@ class Track < Sequel::Model
   end
 
   def get_rdio
-    r = Track.rdio_client.post('http://api.rdio.com/1/',
+    r = JSON.parse(Track.rdio_client.post('http://api.rdio.com/1/',
       method: 'get',
       keys:   rdio_key,
       extras: "isrcs"  # TODO: better extras
-    ).parsed['result'][rdio_key]
+    ).body)['result'][rdio_key]
+    puts r.inspect
 
     rdio_metadata(r)
+  end
+
+  def search_rdio_isrc
+    r = Track.rdio_client.post('http://api.rdio.com/1/',
+      method: 'getTracksByISRC',
+      keys:   rdio_key,
+      extras: "isrcs"  # TODO: better extras
+    ).parsed['result'][rdio_key]
   end
 
   def spotify_metadata(r)

@@ -61,4 +61,19 @@ describe User do
       assert_equal 15, ds.count
     end
   end
+
+  context "fixtures" do
+    before do
+      Dir["analytics/*.json"].each do |path|
+        values = JSON.parse(File.read(path))
+        values.reject! { |k,v| ["uuid", "created_at", "updated_at"].include? k }
+        values["playlists"] = Sequel.pg_json(values["playlists"])
+        User.create(values)
+      end
+    end
+  
+    it "analytics" do
+      
+    end
+  end
 end

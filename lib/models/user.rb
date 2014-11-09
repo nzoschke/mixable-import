@@ -24,7 +24,7 @@ class User < Sequel::Model
             album:    track['album'],
             name:     track['name'],
             duration: track['duration'],
-            isrcs:    "{#{track['isrcs'].join(',')}}"
+            isrcs:    "{#{track['isrcs'].compact.join(',')}}"
             # isrcs:    Sequel.pg_array(track['isrcs']) # TODO: why doesn't Sequel.pg_array work?!
           )
         end

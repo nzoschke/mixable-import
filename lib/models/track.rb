@@ -28,11 +28,11 @@ class Track < Sequel::Model
   end
 
   def get_rdio
-    r = JSON.parse(Track.rdio_client.post('http://api.rdio.com/1/',
+    r = Track.rdio_client.post('http://api.rdio.com/1/',
       method: 'get',
       keys:   rdio_key,
       extras: "isrcs"  # TODO: better extras
-    ).body)['result'][rdio_key]
+    ).parsed['result'][rdio_key]
 
     rdio_metadata(r)
   end
@@ -61,10 +61,10 @@ class Track < Sequel::Model
     ]
 
     begin
-      @spotify_search_results ||= JSON.parse(Track.spotify_client.get("search", params: {
+      @spotify_search_results ||= Track.spotify_client.get("search", params: {
         type: "track",
         q:    qs[0]
-      }).body)['tracks']['items']
+      }).parsed['tracks']['items']
     rescue OAuth2::Error => e
       if e.code["message"] =~ /token expired/
         Track.spotify_client_refresh!

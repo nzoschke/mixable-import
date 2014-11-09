@@ -25,12 +25,14 @@ GEM
     erubis (2.7.0)
     faraday (0.9.0)
       multipart-post (>= 1.2, < 3)
+    hashdiff (0.2.2)
     hashie (3.3.1)
     http_accept (0.1.6)
     i18n (0.6.11)
     json (1.8.1)
     json_schema (0.3.0)
     jwt (1.0.0)
+    levenshtein (0.2.2)
     method_source (0.8.2)
     minitest (5.4.2)
     multi_json (1.10.1)
@@ -144,6 +146,8 @@ DEPENDENCIES
   committee
   database_cleaner
   dotenv
+  hashdiff
+  levenshtein
   multi_json
   oj
   omniauth-rdio

@@ -19,6 +19,8 @@ gem "sinatra-contrib", require: ["sinatra/namespace", "sinatra/reloader"]
 gem "sinatra-router"
 gem "sucker_punch"
 
+gem "hashdiff"
+gem "levenshtein"
 gem "omniauth-rdio"
 gem "omniauth-spotify"
 

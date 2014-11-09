@@ -30,10 +30,9 @@ class Track < Sequel::Model
   def get_rdio
     r = JSON.parse(Track.rdio_client.post('http://api.rdio.com/1/',
       method: 'get',
-      keys:   rdio_key,
+      keys:   key,
       extras: "isrcs"  # TODO: better extras
-    ).body)['result'][rdio_key]
-    puts r.inspect
+    ).body)['result'][key]
 
     rdio_metadata(r)
   end
@@ -41,9 +40,9 @@ class Track < Sequel::Model
   def search_rdio_isrc
     r = Track.rdio_client.post('http://api.rdio.com/1/',
       method: 'getTracksByISRC',
-      keys:   rdio_key,
+      keys:   key,
       extras: "isrcs"  # TODO: better extras
-    ).parsed['result'][rdio_key]
+    ).parsed['result'][key]
   end
 
   def spotify_metadata(r)
@@ -57,22 +56,23 @@ class Track < Sequel::Model
   end
 
   def get_spotify
-    r = JSON.parse(Track.spotify_client.get("tracks/#{spotify_id}").body)
+    begin
+      r = JSON.parse(Track.spotify_client.get("tracks/#{spotify_id}").body)
+    rescue OAuth2::Error => e
+      if e.code["message"] =~ /token expired/
+        Track.spotify_client_refresh!
+        retry
+      end
+    end
 
     spotify_metadata(r)
   end
 
   def search_spotify
-    qs = [
-      "isrc:#{isrc}",
-      "track:#{name} artist:#{artist} album:#{album}",
-      "track:#{name} artist:#{artist}",
-    ]
-
     begin
       @spotify_search_results ||= Track.spotify_client.get("search", params: {
         type: "track",
-        q:    qs[0]
+        q:    "isrc:#{isrcs[0]}"
       }).parsed['tracks']['items']
     rescue OAuth2::Error => e
       if e.code["message"] =~ /token expired/

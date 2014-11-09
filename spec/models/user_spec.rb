@@ -46,7 +46,19 @@ describe User do
 
     it "creates Tracks" do
       @user.save_tracks!
-      assert_equal 15, Track.count
+      assert_equal 12, Track.count
+
+      # TODO: move this array malarkey to track spec and make it work better
+      r = Track.where("isrcs @> '{USCA20501217}'")
+      assert_equal 1, r.count
+      assert_equal ["USCA20501226", "USCA20501217"], r.first.isrcs
+
+      r = Track.where("'USCA20501217' = ANY(isrcs)")
+      assert_equal 1, r.count
+      assert_equal ["USCA20501226", "USCA20501217"], r.first.isrcs
+
+      ds = Track.db["SELECT *, UNNEST(isrcs) AS isrc FROM tracks"]
+      assert_equal 15, ds.count
     end
   end
 end

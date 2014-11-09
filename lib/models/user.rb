@@ -16,20 +16,17 @@ class User < Sequel::Model
     self.playlists.each do |kind, lists|
       lists.each do |list|
         list['tracks'].each do |track|
-          # TODO: how to handle no ISRC?
-          # TODO: is this the right way to handle multiple ISRCs?
-          track['isrcs'].each do |isrc|
-            next if Track[isrc: isrc]
+          next if Track[key: track['key']]
 
-            Track.create(
-              isrc:     isrc,
-              rdio_key: track['key'],
-              artist:   track['artist'],
-              album:    track['album'],
-              name:     track['name'],
-              duration: track['duration']
-            ).save
-          end
+          Track.create(
+            key:      track['key'],
+            artist:   track['artist'],
+            album:    track['album'],
+            name:     track['name'],
+            duration: track['duration'],
+            isrcs:    "{#{track['isrcs'].join(',')}}"
+            # isrcs:    Sequel.pg_array(track['isrcs']) # TODO: why doesn't Sequel.pg_array work?!
+          )
         end
       end
     end

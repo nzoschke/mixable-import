@@ -67,15 +67,18 @@ class Track < Sequel::Model
   end
 
   def match_by_first_result
-    match = search_spotify.first
-    { match["id"] => spotify_metadata(match) }
+    if match = search_spotify.first
+      { match["id"] => spotify_metadata(match) }
+    else
+      { nil => {} }
+    end
   end
 
   def match_by_total_edit_distance
     rs = name_artist_album_duration_s(values)
 
     min_d = rs.length
-    match = nil
+    match = { nil => {} }
 
     search_spotify.each do |r|
       ss = name_artist_album_duration_s(spotify_metadata(r))

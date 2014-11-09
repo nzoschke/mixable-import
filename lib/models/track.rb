@@ -126,9 +126,9 @@ class Track < Sequel::Model
   end
 
   def match_spotify!
-    # spotify_id = match_by_first_result.keys[0]
-    spotify_id = match_by_total_edit_distance.keys[0]
-    update(spotify_id: spotify_id)
+    matches = match_by_total_edit_distance
+    spotify_id = matches.keys[0]
+    update(spotify_id: spotify_id, spotify_isrc: matches[spotify_id][:isrc])
   end
 
   def self.rdio_client

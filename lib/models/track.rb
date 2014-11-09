@@ -1,5 +1,11 @@
+require 'levenshtein'
+
 class Track < Sequel::Model
   plugin :timestamps
+
+  def name_artist_album_s(h)
+    "#{h[:name]} - #{h[:artist]} - #{h[:album]}"
+  end
 
   def rdio_metadata(r)
     {
@@ -56,13 +62,33 @@ class Track < Sequel::Model
 
     @spotify_search_results ||= JSON.parse(ISRC.spotify_client.get("search", params: {
       type: "track",
-      q:    q[0]
+      q:    qs[0]
     }).body)['tracks']['items']
   end
 
+  def match_by_first_result
+    match = search_spotify.first
+    { match["id"] => spotify_metadata(match) }
+  end
+
   def match_by_total_edit_distance
-    search_spotify.each do |i|
+    rs = name_artist_album_s(values)
+
+    min_d = rs.length
+    match = nil
+
+    search_spotify.each do |r|
+      ss = name_artist_album_s(spotify_metadata(r))
+      d = Levenshtein.distance rs, ss
+      if d < min_d
+        match = { r["id"] => spotify_metadata(r) }
+        min_d = d
+      elsif d == min_d
+        # TODO
+      end
     end
+
+    match
   end
 
   def self.rdio_client

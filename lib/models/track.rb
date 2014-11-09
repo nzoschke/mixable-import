@@ -3,8 +3,8 @@ require 'levenshtein'
 class Track < Sequel::Model
   plugin :timestamps
 
-  def name_artist_album_s(h)
-    "#{h[:name]} - #{h[:artist]} - #{h[:album]}"
+  def name_artist_album_duration_s(h)
+    "#{h[:name]} - #{h[:artist]} - #{h[:album]} - #{h[:duration]}"
   end
 
   def rdio_metadata(r)
@@ -72,13 +72,13 @@ class Track < Sequel::Model
   end
 
   def match_by_total_edit_distance
-    rs = name_artist_album_s(values)
+    rs = name_artist_album_duration_s(values)
 
     min_d = rs.length
     match = nil
 
     search_spotify.each do |r|
-      ss = name_artist_album_s(spotify_metadata(r))
+      ss = name_artist_album_duration_s(spotify_metadata(r))
       d = Levenshtein.distance rs, ss
       if d < min_d
         match = { r["id"] => spotify_metadata(r) }
@@ -89,6 +89,12 @@ class Track < Sequel::Model
     end
 
     match
+  end
+
+  def match_by_total_edit_distance_different_format
+  end
+
+  def match_by_diff_attribute_count
   end
 
   def self.rdio_client

@@ -16,16 +16,16 @@ class User < Sequel::Model
     self.playlists.each do |kind, lists|
       lists.each do |list|
         list['tracks'].each do |track|
-          next if Track[key: track['key']]
+          next if Track[rdio_key: track['key']]
 
           Track.create(
-            key:      track['key'],
-            artist:   track['artist'],
-            album:    track['album'],
-            name:     track['name'],
-            duration: track['duration'],
-            isrcs:    "{#{track['isrcs'].compact.join(',')}}"
-            # isrcs:    Sequel.pg_array(track['isrcs']) # TODO: why doesn't Sequel.pg_array work?!
+            rdio_key:      track['key'],
+            rdio_artist:   track['artist'],
+            rdio_album:    track['album'],
+            rdio_name:     track['name'],
+            rdio_duration: track['duration'],
+            rdio_isrcs:    "{#{track['isrcs'].compact.join(',')}}"
+            # rdio_isrcs:    Sequel.pg_array(track['isrcs']) # TODO: why doesn't Sequel.pg_array work?!
           )
         end
       end

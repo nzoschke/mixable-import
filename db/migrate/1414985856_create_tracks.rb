@@ -5,17 +5,23 @@ Sequel.migration do
       timestamptz  :created_at, default: Sequel.function(:now), null: false
       timestamptz  :updated_at
 
-      text         :key, index: true
+      text         :rdio_key, index: true
 
-      text         :artist
-      text         :album
-      text         :name
-      integer      :duration
+      text         :rdio_name
+      text         :rdio_artist
+      text         :rdio_album
+      integer      :rdio_duration
+      column       :rdio_isrcs, "text[]"
 
-      column       :isrcs, "text[]"
+      text         :spotify_id, index: true
 
-      text         :spotify_id
-      text         :spotify_isrc
+      text         :spotify_name
+      text         :spotify_album
+      text         :spotify_artist
+      float        :spotify_duration_ms
+      column       :spotify_isrcs, "text[]"
+
+      text         :isrc, index: true
     end
   end
 end

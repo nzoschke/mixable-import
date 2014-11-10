@@ -1,6 +1,15 @@
 class User < Sequel::Model
   plugin :timestamps
 
+  def self.find_or_create_by_credentials(creds)
+    temp_user = User.new(token: creds['token'], secret: creds['secret'])
+    r = RdioClient.get_user(temp_user)
+
+    user = User[key: r['key']] || User.create(key: r['key'], url: r['url'])
+    user.update(token: creds['token'], secret: creds['secret'])
+    user
+  end
+
   def save_playlists!
     update(playlists: Sequel.pg_json(RdioClient.get_playlists(self)))
   end
@@ -35,14 +44,5 @@ class User < Sequel::Model
       end
     end
     isrcs.flatten
-  end
-
-  def self.find_or_create_by_credentials(creds)
-    temp_user = User.new(token: creds['token'], secret: creds['secret'])
-    r = RdioClient.get_user(temp_user)
-
-    user = User[key: r['key']] || User.create(key: r['key'], url: r['url'])
-    user.update(token: creds['token'], secret: creds['secret'])
-    user
   end
 end

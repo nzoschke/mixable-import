@@ -14,12 +14,11 @@ end
 task :default => :spec
 
 task :analytics do
-  # # Load all the data into an analytics database
-  # `heroku pgbackups:capture`
-  # `curl -o latest.dump $(heroku pgbackups:url)`
-  # `pg_restore --verbose --clean --no-acl --no-owner -h localhost -d myapp-analytics latest.dump`
+  # Optionally
+  #   Dump playlist jsons from production into analytics/*.json
+  #   private API w/ curl? database backup, restore, extract?
 
-  # Run some tests against the database
+  # Run some tests against the fixtures
   require "rspec/core"
   code = RSpec::Core::Runner.run(
     ["./analytics"],

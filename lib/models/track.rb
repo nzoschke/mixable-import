@@ -9,21 +9,23 @@ class Track < Sequel::Model
 
   def rdio_metadata(r)
     {
-      isrc:     r['isrcs'][0],
-      artist:   r['artist'],
-      album:    r['album'],
-      name:     r['name'],
-      duration: r['duration']
+      isrc:         r['isrcs'][0],
+      artist:       r['artist'],
+      album:        r['album'],
+      name:         r['name'],
+      duration:     r['duration'],
+      duration_ms:  r['duration'] * 1000
     }
   end
 
   def spotify_metadata(r)
     {
-      isrc:       r['external_ids']['isrc'],
-      artist:     r['artists'][0]['name'],
-      album:      r['album']['name'],
-      name:       r['name'],
-      duration:   r['duration_ms'] / 1000
+      isrc:         r['external_ids']['isrc'],
+      artist:       r['artists'][0]['name'],
+      album:        r['album']['name'],
+      name:         r['name'],
+      duration:     r['duration_ms'] / 1000,
+      duration_ms:  r['duration_ms']
     }
   end
 
@@ -45,16 +47,6 @@ class Track < Sequel::Model
     ).parsed['result'][key]
   end
 
-  def spotify_metadata(r)
-    {
-      isrc:       r['external_ids']['isrc'],
-      artist:     r['artists'][0]['name'],
-      album:      r['album']['name'],
-      name:       r['name'],
-      duration:   r['duration_ms'] / 1000
-    }
-  end
-
   def get_spotify
     begin
       r = JSON.parse(Track.spotify_client.get("tracks/#{spotify_id}").body)
@@ -71,7 +63,7 @@ class Track < Sequel::Model
   def search_spotify
     begin
       items = []
-      isrcs.each do |isrc|
+      rdio_isrcs.each do |isrc|
         items += Track.spotify_client.get("search", params: {
           type: "track",
           q:    "isrc:#{isrc}"
@@ -101,7 +93,7 @@ class Track < Sequel::Model
   end
 
   def match_by_total_edit_distance
-    rs = name_artist_album_duration_s(values)
+    rs = "#{rdio_name} - #{rdio_artist} - #{rdio_album} - #{rdio_duration}"
 
     min_d = rs.length + 1
     match = { nil => {} }
@@ -127,8 +119,24 @@ class Track < Sequel::Model
 
   def match_spotify!
     matches = match_by_total_edit_distance
+
     spotify_id = matches.keys[0]
-    update(spotify_id: spotify_id, spotify_isrc: matches[spotify_id][:isrc])
+    match = matches[spotify_id]
+
+    isrcs = []
+    matches.each do |id, h|
+      isrcs << h[:isrc]
+    end
+
+    update(
+      spotify_id:           spotify_id,
+      spotify_name:         match[:name],
+      spotify_album:        match[:album],
+      spotify_artist:       match[:artist],
+      spotify_duration_ms:  match[:duration_ms],
+      spotify_isrcs:        "{#{isrcs.compact.join(',')}}",
+      isrc:                 match[:isrc]
+    )
   end
 
   def self.rdio_client

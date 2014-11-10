@@ -19,6 +19,19 @@ describe Track do
     )
   end
 
+  it "matches an rdio track to a spotify track" do
+    t = Track.create(rdio_key: "t3160205", rdio_isrcs: "{GBARA9800069}", :rdio_artist=>"Portishead", :rdio_album=>"Roseland NYC Live", :rdio_name=>"Glory Box (Live)", :rdio_duration=>337)
+    t.match_spotify!
+
+    assert_equal "Glory Box - Live",  t.spotify_name
+    assert_equal "Roseland NYC Live", t.spotify_album
+    assert_equal "Portishead",        t.spotify_artist
+    assert_equal 337153,              t.spotify_duration_ms
+    assert_equal "{GBARA9800069}",    t.spotify_isrcs
+
+    assert_equal "GBARA9800069",      t.isrc
+  end
+
   xit "gets rdio and spotify metadata" do
     t = Track.create(rdio_key: "t3160205", spotify_id: "2wEHxTBxLJk3vYzyW6dsAU")
     assert_equal({ :isrc=>"GBARA9800069", :artist=>"Portishead", :album=>"Roseland NYC Live", :name=>"Glory Box (Live)", :duration=>337 }, t.get_rdio)

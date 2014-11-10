@@ -1,0 +1,82 @@
+MIXBLE STREAMS
+
+Rdio/
+  Wedding Party (-2 x karen)
+  Acid August (synced)
+  Perfect Pstrangers (2 new)
+  mixable/ (20 not available)
+
+Spotify/
+  Wedding Party (pending)
+  Acid August (syncing)
+  Perfect Pstrangers (done)
+  mixable/ (error)
+
+ScratchPad/
+  Mixable Release Songs
+
+  Best White Strips Songs
+    Seven Nation Army
+    Hardest Button to Button
+    Doorbell
+
+  Shackleton ‎on Perlon
+    #PERL76CD 
+    B1  Let Go
+
+iTunes/
+--
+
+ISRC/Rdio/Spotify Explorer
+
+
+#GBAYE9400673
+  The Trickster @Radiohead 282
+    My Iron Lung
+      #t2117832
+      #2fLiisZYOeVcHa5IGFLyxb
+  
+    The Bends (Collector's Edition)
+    The Bends [Collector's Edition]
+      #t2062973 
+      #5ikIFKeCuGCKX9foh8ToyN
+
+
+  The Trickster @Radiohead [The Bends (Collector's Edition)] 282
+  The Trickster @Radiohead [The Bends [Collector's Edition]] 281
+    #t2062973 
+    #5ikIFKeCuGCKX9foh8ToyN
+
+
+100% Confidence
+  1-1 map
+  metadata exactly the same
+
+#GBAYE9400673
+
+  #t2117832 #2fLiisZYOeVcHa5IGFLyxb
+The Trickster @Radiohead 282
+  #GBAYE9400673             
+    #t2117832                 My Iron Lung
+    #2fLiisZYOeVcHa5IGFLyxb   My Iron Lung
+  #GBAYE9400673 
+    #t2062973                 The Bends (Collector's Edition)
+    #5ikIFKeCuGCKX9foh8ToyN   The Bends [Collector's Edition] 
+
+
+#GBAYE9400673
+
+--
+Rdio Key -> ISRC
+ISRC -> 1 Rdio Key and 1 Spotify ID     (1-1)
+ISRC -> 2 Rdio Key and 1 Spotify ID     (2-1)
+ISRC -> 2 Rdio Key and 2 Spotify ID     (2-2)
+ISRC -> 2 Rdio Key and 2 Spotify ID     (2-2)
+
+Rdio ID -> ISRC -> 1 Spotify Track
+Rdio ID -> ISRC -> 2+ Spotify Tracks
+  Nearest match of album name?
+Rdio ID -> ISRC -> 0 Spotify Track
+  Fuzzy search on title, artist, album
+  Fuzzy search on title, artist
+  Assert duration matches

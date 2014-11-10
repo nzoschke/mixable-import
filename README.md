@@ -1,5 +1,12 @@
-# Pliny Template app
+# TODO
 
-This is the template app used by the [Pliny](https://github.com/interagent/pliny) gem.
+Logging
+  database create
+Factor out Rdio and Spotify client stuff into User model
+Special User for client credentials flow
 
-For more information please refer to the gem docs.
+RdioTrack
+  key
+  artist, album, name, duration
+  isrcs[]
+  spotify_id, spotify_isrc

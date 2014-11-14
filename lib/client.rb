@@ -2,6 +2,60 @@ require "base64"
 require "net/https"
 require "uri"
 
+class OAuthAccessToken < OAuth::AccessToken
+  def request(http_method, path, *arguments)
+    request_start = Time.now
+
+    args = arguments[0].map { |k,v| "#{k}=#{v}" if v =~ /^[[:alnum:]]+$/ }.compact.join("&")
+
+    Pliny.log(
+      oauth_token:  true,
+      at:           "start",
+      method:       http_method.upcase,
+      path:         "#{path}?#{args}",
+    )
+
+    response = super
+
+    Pliny.log(
+      oauth_token: true,
+      at:          "finish",
+      method:      http_method.upcase,
+      path:        "#{path}?#{args}",
+      status:      response.code,
+      elapsed:     (Time.now - request_start).to_f
+    )
+
+    response
+  end
+end
+
+class OAuth2AccessToken < OAuth2::AccessToken
+  def request(verb, path, opts = {}, &block)
+    request_start = Time.now
+
+    Pliny.log(
+      oauth_token:  true,
+      at:           "start",
+      method:       verb.upcase,
+      path:         "#{@client.site}/#{path}",
+    )
+
+    response = super
+
+    Pliny.log(
+      oauth_token: true,
+      at:          "finish",
+      method:      verb.upcase,
+      path:        "#{@client.site}/#{path}",
+      status:      response.status,
+      elapsed:     (Time.now - request_start).to_f
+    )
+
+    response
+  end
+end
+
 module RdioClient
   def self.metadata(r)
     # Turns a response item into a normalized metadata hash
@@ -40,13 +94,13 @@ module RdioClient
     # Unauthorized Rdio client
     # http://www.rdio.com/developers/docs/web-service/oauth/ref-signing-requests
     consumer = OAuth::Consumer.new(ENV['RDIO_APP_KEY'], ENV['RDIO_APP_SECRET'], { site: 'http://api.rdio.com' })
-    OAuth::AccessToken.new(consumer)
+    OAuthAccessToken.new(consumer)
   end
 
   def self.authorized_client(user)
     # Authorized Rdio client
     consumer = OAuth::Consumer.new(ENV['RDIO_APP_KEY'], ENV['RDIO_APP_SECRET'], { site: 'http://api.rdio.com' })
-    OAuth::AccessToken.new(consumer, user.token, user.secret)
+    OAuthAccessToken.new(consumer, user.token, user.secret)
   end
 end
 
@@ -85,7 +139,7 @@ module SpotifyClient
 
     SpotifyClient.request_client_access_token
     consumer = OAuth2::Client.new(ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'], site: 'https://api.spotify.com/v1')
-    client = OAuth2::AccessToken.new(consumer, @@client_access_token)
+    client = OAuth2AccessToken.new(consumer, @@client_access_token)
   end
 
   def self.request_client_access_token

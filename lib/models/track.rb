@@ -1,4 +1,4 @@
-require "client"
+require_relative "../client"
 require "levenshtein"
 
 class Track < Sequel::Model

@@ -1,4 +1,5 @@
 require "json"
+require_relative "../worker"
 
 module Endpoints
   class Root < Base
@@ -42,6 +43,7 @@ module Endpoints
     get "/auth/rdio/callback" do
       user = User.find_or_create_by_credentials(request.env['omniauth.auth']['credentials'].to_h)
       user.save_playlists!
+      SpotifyTrackWorker.perform_async(user.uuid)
 
       env['rack.session']['user_uuid'] = user.uuid
       redirect "/"

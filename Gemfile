@@ -1,5 +1,5 @@
 source "https://rubygems.org"
-ruby "2.1.4"
+ruby "2.1.1"
 
 gem "multi_json"
 gem "oj"
@@ -23,6 +23,7 @@ gem "hashdiff"
 gem "levenshtein"
 gem "omniauth-rdio"
 gem "omniauth-spotify"
+gem "sidekiq"
 
 group :development, :test do
   gem "pry-byebug"

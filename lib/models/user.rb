@@ -15,12 +15,13 @@ class User < Sequel::Model
   end
 
   def save_tracks!
+    tracks = []
     self.playlists.each do |kind, lists|
       lists.each do |list|
         list['tracks'].each do |track|
           next if Track[rdio_key: track['key']]
 
-          Track.create(
+          tracks << Track.create(
             rdio_key:      track['key'],
             rdio_artist:   track['artist'],
             rdio_album:    track['album'],
@@ -32,6 +33,7 @@ class User < Sequel::Model
         end
       end
     end
+    tracks
   end
 
   def playlists_isrcs

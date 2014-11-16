@@ -35,6 +35,14 @@ module Endpoints
       encode user.playlists
     end
 
+    get "/tracks" do
+      content_type :json, charset: 'utf-8'
+      halt 401, '{"error": "No OAuth Session"}' unless user_uuid = env['rack.session']['user_uuid']
+      user = User[user_uuid]
+
+      encode user.tracks
+    end
+
     get "/logout" do
       env['rack.session'].clear
       redirect "/"
@@ -43,6 +51,7 @@ module Endpoints
     get "/auth/rdio/callback" do
       user = User.find_or_create_by_credentials(request.env['omniauth.auth']['credentials'].to_h)
       user.save_playlists!
+
       UserPlaylistsWorker.perform_async(user.uuid)
 
       env['rack.session']['user_uuid'] = user.uuid

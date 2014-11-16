@@ -10,6 +10,19 @@ class User < Sequel::Model
     user
   end
 
+  def tracks
+    rdio_keys = []
+    self.playlists.each do |kind, lists|
+      lists.each do |list|
+        list['tracks'].each do |track|
+          rdio_keys << track["key"]
+        end
+      end
+    end
+
+    Track.where(rdio_key: rdio_keys)
+  end
+
   def playlists_to_a
     playlists["owned"] + playlists["collab"] + playlists["subscribed"] + playlists["favorites"]
   end

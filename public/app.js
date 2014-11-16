@@ -15,3 +15,9 @@ streamsApp.controller('PlaylistsCtrl', function ($scope, $http) {
     $scope.playlists = data;
   });
 });
+
+streamsApp.controller('TracksCtrl', function ($scope, $http) {
+  $http.get('tracks').success(function(data) {
+    $scope.tracms = data;
+  });
+});

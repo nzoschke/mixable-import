@@ -2,37 +2,32 @@ module Endpoints
   class Playlists < Base
     namespace "/playlists" do
       before do
+        halt 401, '{"error": "No OAuth Session"}' unless user_uuid = env['rack.session']['user_uuid']
+        @user = User[user_uuid]
+
         content_type :json, charset: 'utf-8'
       end
 
       get do
-        encode serialize(Playlist.all)
+        encode serialize(@user.playlists_to_a, :spotify)
       end
 
       post do
-        # warning: not safe
-        playlist = Playlist.new(body_params)
-        playlist.save
-        status 201
-        encode serialize(playlist)
+        halt 403, '{"error": "Forbidden"}'
       end
 
       get "/:id" do |id|
-        playlist = Playlist.first(uuid: id) || halt(404)
-        encode serialize(playlist)
+        playlist = @user.playlists_to_a.detect { |p| p["key"] == id } || halt(404)
+        playlist.instance_eval { undef :map }
+        encode serialize(playlist, :spotify)
       end
 
       patch "/:id" do |id|
-        playlist = Playlist.first(uuid: id) || halt(404)
-        # warning: not safe
-        #playlist.update(body_params)
-        encode serialize(playlist)
+        halt 403, '{"error": "Forbidden"}'
       end
 
       delete "/:id" do |id|
-        playlist = Playlist.first(uuid: id) || halt(404)
-        playlist.destroy
-        encode serialize(playlist)
+        halt 403, '{"error": "Forbidden"}'
       end
 
       private

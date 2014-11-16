@@ -10,6 +10,10 @@ class User < Sequel::Model
     user
   end
 
+  def playlists_to_a
+    playlists["owned"] + playlists["collab"] + playlists["subscribed"] + playlists["favorites"]
+  end
+
   def save_playlists!
     update(playlists: Sequel.pg_json(RdioClient.get_playlists(self)))
   end

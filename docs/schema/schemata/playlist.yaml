@@ -22,6 +22,36 @@ definitions:
     format: date-time
     type:
     - string
+  name:
+    description: The name for the playlist. This name does not need to be unique; a user may have several playlists with the same name.
+    example: 'Dinner with Friends'
+    format: string
+    type:
+    - string
+  description:
+    description: The name for the playlist. This name does not need to be unique; a user may have several playlists with the same name.
+    example: 'Having friends over for dinner? Here´s the perfect playlist.'
+    format: string
+    type:
+    - string
+  type:
+    description: The type of the object.
+    example: 'playlist'
+    format: string
+    type:
+    - string
+  tracks:
+    description: Info about the collection of tracks.
+    example: '{ "total": 30, "items": [ { "track": { "album": { "id": $id, "type": "album", "name": "Pablo Honey" }, "artists": [ { "id": $id, "type": "artist", "name": "Radiohead" } ], "name": "Creep" } }, ...] }'
+    type:
+    - object
+    properties:
+      total:
+        type:
+        - integer
+      items:
+        type:
+        - array
 description: FIXME
 links:
 - description: Create a new playlist.
@@ -64,6 +94,14 @@ properties:
     "$ref": "/schemata/playlist#/definitions/id"
   updated_at:
     "$ref": "/schemata/playlist#/definitions/updated_at"
+  name:
+    "$ref": "/schemata/playlist#/definitions/name"
+  description:
+    "$ref": "/schemata/playlist#/definitions/description"
+  type:
+    "$ref": "/schemata/playlist#/definitions/type"
+  tracks:
+    "$ref": "/schemata/playlist#/definitions/tracks"
 type:
 - object
 id: schemata/playlist

@@ -9,13 +9,17 @@ class Serializers::Playlist < Serializers::Base
 
   structure(:spotify) do |rp|
     # Turns a Rdio playlist (in the Rdio API Playlist JSON format) into a Spotify-esque playlist object
+    rdio_keys = rp["tracks"].map { |rt| rt["key"] }
+    key_map   = Hash[Track.where(rdio_key: rdio_keys).select_map([:rdio_key, :spotify_id])]
+
     items = rp["tracks"].map do |rt|
       {
+        id:           key_map[rt["key"]],
         name:         rt["name"],
         duration_ms:  rt["duration"] * 1000,
         album:        { type: "album", name: rt["album"] },
         artists:      [{ type: "artist", name: rt["artist"] }],
-        external_ids: { isrc: rt["isrcs"][0] }
+        external_ids: { isrc: rt["isrcs"][0], rdio_key: rt["key"] }
       }
     end
 

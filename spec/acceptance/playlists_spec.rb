@@ -30,6 +30,7 @@ describe Endpoints::Playlists do
       header "Content-Type", "application/json"
       post '/playlists', MultiJson.encode({}), @env
       assert_equal 403, last_response.status
+      # TODO: How to define explcitly disabled endpoints in schema?
       # assert_schema_conform
     end
   end

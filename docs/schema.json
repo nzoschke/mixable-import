@@ -124,7 +124,7 @@
     },
     "playlist": {
       "$schema": "http://json-schema.org/draft-04/hyper-schema",
-      "title": "FIXME - Playlist",
+      "title": "Playlist",
       "definitions": {
         "created_at": {
           "description": "when playlist was created",
@@ -162,7 +162,7 @@
           ]
         },
         "description": {
-          "description": "The name for the playlist. This name does not need to be unique; a user may have several playlists with the same name.",
+          "description": "A description for the playlist.",
           "example": "Having friends over for dinner? Here´s the perfect playlist.",
           "format": "string",
           "type": [
@@ -170,7 +170,7 @@
           ]
         },
         "type": {
-          "description": "The type of the object.",
+          "description": "The type of the object -- 'playlist'",
           "example": "playlist",
           "format": "string",
           "type": [

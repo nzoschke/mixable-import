@@ -12,7 +12,7 @@ module Endpoints
       halt 401, '{"error": "No OAuth Session"}' unless user_uuid = env['rack.session']['user_uuid']
       user = User[user_uuid]
 
-      encode user.values.select { |k,v| [:uuid, :url].include? k }
+      encode user.values.select { |k,v| [:uuid, :url, :tracks_total, :tracks_processed].include? k }
     end
 
     get "/logout" do

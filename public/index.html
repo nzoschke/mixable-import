@@ -13,15 +13,16 @@
       <div ng-if="session != null">
         Hello {{session}}. <a href="/logout">End or restart session</a>
       </div>
-    </div>
 
-    <div ng-controller="PlaylistsCtrl">
       <table ng-repeat="playlist in playlists" border=1>
         <thead>
           <tr>
             <td><input type="checkbox" ng-model="checked"> {{playlist.name}} ({{playlist.tracks.total}} tracks)</td>
             <td>-></td>
-            <td>Rdio/{{playlist.name}} (0 matched)</td>
+            <td>
+              {{ (playlist.tracks.items | filter:{id: '!!'}).length }} matched,
+              {{ (playlist.tracks.items | filter:{id: '!'}).length }} unmatched
+            </td>
           </tr>
         </thead>
         <tbody ng-show="checked">
@@ -43,6 +44,9 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div ng-controller="PlaylistsCtrl">
     </div>
   </body>
 </html>

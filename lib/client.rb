@@ -167,7 +167,6 @@ module SpotifyClient
   def self.unauthorized_client
     # Unauthorized Spotify client
     # https://developer.spotify.com/web-api/authorization-guide/#client_credentials_flow
-
     SpotifyClient.request_client_access_token
     consumer = OAuth2::Client.new(ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'], site: 'https://api.spotify.com/v1')
     client = OAuth2AccessToken.new(consumer, @@client_access_token)
@@ -175,32 +174,60 @@ module SpotifyClient
 
   def self.authorized_client(user)
     # Authorized Spotify client
+    SpotifyClient.refresh!(user)
     consumer = OAuth2::Client.new(ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'], site: 'https://api.spotify.com/v1')
-    client = OAuth2AccessToken.new(consumer, user.spotify_token)
+    client = OAuth2AccessToken.new(consumer, user.spotify_token, { refresh_token: user.spotify_refresh_token, expires_at: user.spotify_expires_at })
+  end
+
+  def self.refresh!(user)
+    if r = SpotifyClient.post_token(user.spotify_expires_at, { "grant_type" => "refresh_token", "refresh_token" => user.spotify_refresh_token })
+      user.update(spotify_token: r["access_token"], spotify_expires_at: Time.now + r["expires_in"])
+    end
   end
 
   def self.request_client_access_token
-    return if Time.now <= @@client_access_token_expires_at
+    if r = SpotifyClient.post_token(@@client_access_token_expires_at, { "grant_type" => "client_credentials" })
+      @@client_access_token = r["access_token"]
+      @@client_access_token_expires_at = Time.now + r["expires_in"].to_i
+    end
+  end
 
-    auth = Base64.strict_encode64("#{ENV['SPOTIFY_CLIENT_ID']}:#{ENV['SPOTIFY_CLIENT_SECRET']}")
+  def self.post_token(expires_at, data={})
+    return if Time.now < expires_at
 
-    uri = URI.parse("https://accounts.spotify.com/api/token")
+    request_start = Time.now
+    path = "https://accounts.spotify.com/api/token"
+
+    Pliny.log(
+      post_token:   true,
+      at:           "start",
+      method:       "POST",
+      path:         "#{path}",
+    )
+
+    uri = URI.parse(path)
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
 
     request = Net::HTTP::Post.new(uri.request_uri)
+    auth = Base64.strict_encode64("#{ENV['SPOTIFY_CLIENT_ID']}:#{ENV['SPOTIFY_CLIENT_SECRET']}")
     request.add_field("Authorization", "Basic #{auth}")
-    request.set_form_data({ "grant_type" => "client_credentials" })
+    request.set_form_data(data)
 
     response = http.request(request)
 
+    Pliny.log(
+      post_token:  true,
+      at:          "finish",
+      method:      "POST",
+      path:        "#{path}",
+      status:      response.code,
+      elapsed:     (Time.now - request_start).to_f
+    )
+
     if response.code == "200"
-      r = JSON.parse(response.body)
-      puts "fn=spotify_client_refresh! code=#{response.code} at=success"
-      @@client_access_token = r["access_token"]
-      @@client_access_token_expires_at = Time.now + r["expires_in"].to_i
+      JSON.parse(response.body)
     else
-      puts "fn=spotify_client_refresh! code=#{response.code} at=error"
       raise Exception.new("Bad response #{response.body}")
     end
   end

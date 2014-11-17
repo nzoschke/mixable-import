@@ -116,5 +116,9 @@ describe Track do
 
       assert_equal nil, t2.spotify_id
     end
+
+    it "creates a Spotify playlist" do
+      @user.match_tracks!
+    end
   end
 end

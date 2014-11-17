@@ -15,30 +15,42 @@ class User < Sequel::Model
   end
 
   def save_playlists!
-    update(playlists: Sequel.pg_json(RdioClient.get_playlists(self)))
+    playlists = RdioClient.get_playlists(self)
+
+    tracks_total = 0
+    playlists.each do |kind, lists|
+      lists.each do |list|
+        tracks_total += list['tracks'].length
+      end
+    end
+
+    update(playlists: Sequel.pg_json(playlists), tracks_total: tracks_total, tracks_processed: 0)
+
+    # Async call match_tracks!
     UserPlaylistsWorker.perform_async(uuid)
   end
 
-  def save_tracks!
-    tracks = []
-    self.playlists.each do |kind, lists|
+  def match_tracks!
+    playlists.each do |kind, lists|
       lists.each do |list|
         list['tracks'].each do |track|
-          next if Track[rdio_key: track['key']]
 
-          tracks << Track.create(
-            rdio_key:      track['key'],
-            rdio_artist:   track['artist'],
-            rdio_album:    track['album'],
-            rdio_name:     track['name'],
-            rdio_duration: track['duration'],
-            rdio_isrcs:    "{#{track['isrcs'].compact.join(',')}}"
-            # rdio_isrcs:    Sequel.pg_array(track['isrcs']) # TODO: why doesn't Sequel.pg_array work?!
-          )
+          unless Track[rdio_key: track['key']]
+            t = Track.new
+            t.rdio_key      = track['key']
+            t.rdio_artist   = track['artist']
+            t.rdio_album    = track['album']
+            t.rdio_name     = track['name']
+            t.rdio_duration = track['duration']
+            t.rdio_isrcs    = track['isrcs'] # TODO: why doesn't Sequel.pg_array work?!
+
+            t.match_spotify!
+          end
+
+          update(tracks_processed: self.tracks_processed + 1)
         end
       end
     end
-    tracks
   end
 
   def playlists_isrcs

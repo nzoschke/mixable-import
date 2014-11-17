@@ -11,6 +11,9 @@ Sequel.migration do
       text         :secret
 
       json         :playlists
+
+      integer      :tracks_total
+      integer      :tracks_processed
     end
   end
 end

@@ -34,7 +34,7 @@ describe Track do
     end
   end
 
-  context "with saved JSON snapshot of Rdio playlists and no Spotify search results" do
+  context "with a JSON snapshot of Rdio playlists and no Spotify search results" do
     before do
       expect(RdioClient).to receive(:get_user) {
         { "key" => "s3385", "url" => "/people/nzoschke/" }
@@ -71,6 +71,50 @@ describe Track do
 
       ds = Track.db["SELECT *, UNNEST(rdio_isrcs) AS isrc FROM tracks"]
       assert_equal 15, ds.count
+    end
+  end
+
+  context "with a JSON snapshot of Rdio playlists and Spotify search results" do
+    before do
+      expect(RdioClient).to receive(:get_user) {
+        { "key" => "s3385", "url" => "/people/nzoschke/" }
+      }
+
+      expect(RdioClient).to receive(:get_playlists) {
+        {
+          "favorites"=>[], "subscribed"=>[], "collab"=>[], "owned"=>[{"ownerKey"=>"s3385", "name"=>"April Fools!", "baseIcon"=>"album/3/3/f/0000000000029f33/5/square-200.jpg", "url"=>"/people/nzoschke/playlists/8763814/April_Fools!/", "ownerIcon"=>"user/9/3/d/0000000000000d39/1/square-100.jpg", "ownerUrl"=>"/people/nzoschke/", 
+          "tracks"=>[
+            {"album"=>"The Bends (Collector's Edition)", "isrcs"=>["GBAYE9400673"], "name"=>"The Trickster", "artist"=>"Radiohead", "key"=>"t2062973", "duration"=>282},
+            {"album"=>"Weird Day", "isrcs"=>["USLZJ1138076"], "name"=>"Weird Day (Guau Remix)", "artist"=>"Destroyers", "key"=>"t9923014", "duration"=>348}
+          ],
+          "lastUpdated"=>1396472068.0, "shortUrl"=>"http://rd.io/x/QFJ7L8bm9A/", "length"=>12, "key"=>"p8763814", "owner"=>"Noah Zoschke", "embedUrl"=>"https://rd.io/e/QFJ7L8bm9A/", "type"=>"p", "icon"=>"http://m.rdio.com/_is/?aid=133019-3,24096-1,138122-0,355264-0,132988-0,171827-5,240001-0,238686-0,203664-0&w=200&h=200"}]}
+      }
+
+      expect(UserPlaylistsWorker).to receive(:perform_async) {}
+
+      expect(SpotifyClient).to receive(:search_by_isrcs).and_return(
+        [
+          {"album"=>{"album_type"=>"album", "available_markets"=>["AD", "AR", "AT", "AU", "BE", "BG", "BO", "BR", "CA", "CH", "CL", "CO", "CR", "CY", "CZ", "DE", "DK", "DO", "EC", "EE", "ES", "FI", "FR", "GB", "GR", "GT", "HK", "HN", "HU", "IE", "IS", "IT", "LT", "LU", "LV", "MC", "MT", "MX", "MY", "NI", "NL", "NO", "NZ", "PA", "PE", "PH", "PL", "PT", "PY", "RO", "SE", "SG", "SI", "SK", "SV", "TR", "TW", "US", "UY"], "external_urls"=>{"spotify"=>"https://open.spotify.com/album/1P1LYaTMV1LnDiHA3LOows"}, "href"=>"https://api.spotify.com/v1/albums/1P1LYaTMV1LnDiHA3LOows", "id"=>"1P1LYaTMV1LnDiHA3LOows", "images"=>[{"height"=>640, "url"=>"https://i.scdn.co/image/33123841106ea5f8af86a343131132bf0b67a0a4", "width"=>640}, {"height"=>300, "url"=>"https://i.scdn.co/image/29c1ef141964af106d8dafa233ede91c1062829c", "width"=>300}, {"height"=>64, "url"=>"https://i.scdn.co/image/a199788667689b041113eabd494a27e3a1d41da3", "width"=>64}], "name"=>"The Bends [Collectors Edition]", "type"=>"album", "uri"=>"spotify:album:1P1LYaTMV1LnDiHA3LOows"}, "artists"=>[{"external_urls"=>{"spotify"=>"https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb"}, "href"=>"https://api.spotify.com/v1/artists/4Z8W4fKeB5YxbusRsdQVPb", "id"=>"4Z8W4fKeB5YxbusRsdQVPb", "name"=>"Radiohead", "type"=>"artist", "uri"=>"spotify:artist:4Z8W4fKeB5YxbusRsdQVPb"}], "available_markets"=>["AD", "AR", "AT", "AU", "BE", "BG", "BO", "BR", "CA", "CH", "CL", "CO", "CR", "CY", "CZ", "DE", "DK", "DO", "EC", "EE", "ES", "FI", "FR", "GB", "GR", "GT", "HK", "HN", "HU", "IE", "IS", "IT", "LT", "LU", "LV", "MC", "MT", "MX", "MY", "NI", "NL", "NO", "NZ", "PA", "PE", "PH", "PL", "PT", "PY", "RO", "SE", "SG", "SI", "SK", "SV", "TR", "TW", "US", "UY"], "disc_number"=>2, "duration_ms"=>282293, "explicit"=>false, "external_ids"=>{"isrc"=>"GBAYE9400673"}, "external_urls"=>{"spotify"=>"https://open.spotify.com/track/5ikIFKeCuGCKX9foh8ToyN"}, "href"=>"https://api.spotify.com/v1/tracks/5ikIFKeCuGCKX9foh8ToyN", "id"=>"5ikIFKeCuGCKX9foh8ToyN", "name"=>"The Trickster", "popularity"=>43, "preview_url"=>"https://p.scdn.co/mp3-preview/0fa361fd804eb372d15e28e60c31e34a1b12035a", "track_number"=>1, "type"=>"track", "uri"=>"spotify:track:5ikIFKeCuGCKX9foh8ToyN"}, 
+          {"album"=>{"album_type"=>"single", "available_markets"=>["AD", "AR", "AT", "AU", "BE", "BG", "BO", "BR", "CA", "CH", "CL", "CO", "CR", "CY", "CZ", "DE", "DK", "DO", "EC", "EE", "ES", "FI", "FR", "GB", "GR", "GT", "HK", "HN", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MC", "MT", "MX", "MY", "NI", "NL", "NO", "NZ", "PA", "PE", "PH", "PL", "PT", "PY", "RO", "SE", "SG", "SI", "SK", "SV", "TR", "TW", "US", "UY"], "external_urls"=>{"spotify"=>"https://open.spotify.com/album/3SROeog5VviGOdcuZDTirh"}, "href"=>"https://api.spotify.com/v1/albums/3SROeog5VviGOdcuZDTirh", "id"=>"3SROeog5VviGOdcuZDTirh", "images"=>[{"height"=>640, "url"=>"https://i.scdn.co/image/125f1a35dd655f09cc7fc0ed47264add8e3b82de", "width"=>640}, {"height"=>300, "url"=>"https://i.scdn.co/image/577f7b1354a547e0eff3e675718d4cae0eb63ce9", "width"=>300}, {"height"=>64, "url"=>"https://i.scdn.co/image/461e6c55cfe3db61bc24b5342e03825dfd959154", "width"=>64}], "name"=>"My Iron Lung", "type"=>"album", "uri"=>"spotify:album:3SROeog5VviGOdcuZDTirh"}, "artists"=>[{"external_urls"=>{"spotify"=>"https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb"}, "href"=>"https://api.spotify.com/v1/artists/4Z8W4fKeB5YxbusRsdQVPb", "id"=>"4Z8W4fKeB5YxbusRsdQVPb", "name"=>"Radiohead", "type"=>"artist", "uri"=>"spotify:artist:4Z8W4fKeB5YxbusRsdQVPb"}], "available_markets"=>["AD", "AR", "AT", "AU", "BE", "BG", "BO", "BR", "CA", "CH", "CL", "CO", "CR", "CY", "CZ", "DE", "DK", "DO", "EC", "EE", "ES", "FI", "FR", "GB", "GR", "GT", "HK", "HN", "HU", "IE", "IS", "IT", "LI", "LT", "LU", "LV", "MC", "MT", "MX", "MY", "NI", "NL", "NO", "NZ", "PA", "PE", "PH", "PL", "PT", "PY", "RO", "SE", "SG", "SI", "SK", "SV", "TR", "TW", "US", "UY"], "disc_number"=>1, "duration_ms"=>280466, "explicit"=>false, "external_ids"=>{"isrc"=>"GBAYE9400673"}, "external_urls"=>{"spotify"=>"https://open.spotify.com/track/2fLiisZYOeVcHa5IGFLyxb"}, "href"=>"https://api.spotify.com/v1/tracks/2fLiisZYOeVcHa5IGFLyxb", "id"=>"2fLiisZYOeVcHa5IGFLyxb", "name"=>"The Trickster", "popularity"=>18, "preview_url"=>"https://p.scdn.co/mp3-preview/987f09fc813857eb3d63862572468a111e833d0a", "track_number"=>2, "type"=>"track", "uri"=>"spotify:track:2fLiisZYOeVcHa5IGFLyxb"}
+        ],
+        []
+      )
+
+      @user = User.find_or_create_by_credentials({ "token" => "oauth_token", "secret" => "oauth_secret" })
+      @user.save_playlists!
+    end
+
+    it "saves Tracks with Spotify metadata" do
+      @user.match_tracks!
+      assert_equal 2, Track.count
+
+      t1 = Track.all[0]
+      t2 = Track.all[1]
+
+      assert_equal "5ikIFKeCuGCKX9foh8ToyN",          t1.spotify_id
+      assert_equal "The Bends [Collectors Edition]",  t1.spotify_album
+
+      assert_equal nil, t2.spotify_id
     end
   end
 end

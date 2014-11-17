@@ -12,6 +12,11 @@ Sequel.migration do
 
       json         :playlists
 
+      text         :spotify_token
+      text         :spotify_refresh_token
+      timestamptz  :spotify_expires_at
+      text         :spotify_id, index: true
+
       integer      :tracks_total
       integer      :tracks_processed
     end

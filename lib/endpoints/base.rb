@@ -16,7 +16,6 @@ module Endpoints
 
     use OmniAuth::Builder do
       provider :rdio, ENV['RDIO_APP_KEY'], ENV['RDIO_APP_SECRET']
-
       # TODO: state and CSRF protection?
       # http://tools.ietf.org/html/rfc6749#section-10.10
       # TODO: show_dialog = true

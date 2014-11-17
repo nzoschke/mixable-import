@@ -31,37 +31,23 @@ class User < Sequel::Model
   end
 
   def match_tracks!
-    playlists.each do |kind, lists|
-      lists.each do |list|
-        list['tracks'].each do |track|
+    playlists_to_a.each do |list|
+      list['tracks'].each do |track|
 
-          unless Track[rdio_key: track['key']]
-            t = Track.new
-            t.rdio_key      = track['key']
-            t.rdio_artist   = track['artist']
-            t.rdio_album    = track['album']
-            t.rdio_name     = track['name']
-            t.rdio_duration = track['duration']
-            t.rdio_isrcs    = track['isrcs'] # TODO: why doesn't Sequel.pg_array work?!
+        unless Track[rdio_key: track['key']]
+          t = Track.new
+          t.rdio_key      = track['key']
+          t.rdio_artist   = track['artist']
+          t.rdio_album    = track['album']
+          t.rdio_name     = track['name']
+          t.rdio_duration = track['duration']
+          t.rdio_isrcs    = track['isrcs'] # TODO: why doesn't Sequel.pg_array work?!
 
-            t.match_spotify!
-          end
-
-          update(tracks_processed: self.tracks_processed + 1)
+          t.match_spotify!
         end
+
+        update(tracks_processed: self.tracks_processed + 1)
       end
     end
-  end
-
-  def playlists_isrcs
-    isrcs = []
-    self.playlists.each do |kind, lists|
-      lists.each do |list|
-        list['tracks'].each do |track|
-          isrcs.push track['isrcs']
-        end
-      end
-    end
-    isrcs.flatten
   end
 end

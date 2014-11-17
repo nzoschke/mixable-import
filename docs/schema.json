@@ -15,8 +15,7 @@
         },
         "id": {
           "description": "unique identifier of playlist",
-          "example": "01234567-89ab-cdef-0123-456789abcdef",
-          "format": "uuid",
+          "example": "p11814546",
           "type": [
             "string"
           ]
@@ -64,6 +63,16 @@
           ],
           "properties": {
             "total": {
+              "type": [
+                "integer"
+              ]
+            },
+            "matched": {
+              "type": [
+                "integer"
+              ]
+            },
+            "processed": {
               "type": [
                 "integer"
               ]

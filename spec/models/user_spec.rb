@@ -52,18 +52,6 @@ describe User do
 
       assert_equal 12, @user.tracks_processed
       assert_equal 12, Track.count
-
-      # TODO: move this array malarkey to track spec and make it work better
-      r = Track.where("rdio_isrcs @> '{USCA20501217}'")
-      assert_equal 1, r.count
-      assert_equal ["USCA20501226", "USCA20501217"], r.first.rdio_isrcs
-
-      r = Track.where("'USCA20501217' = ANY(rdio_isrcs)")
-      assert_equal 1, r.count
-      assert_equal ["USCA20501226", "USCA20501217"], r.first.rdio_isrcs
-
-      ds = Track.db["SELECT *, UNNEST(rdio_isrcs) AS isrc FROM tracks"]
-      assert_equal 15, ds.count
     end
   end
 

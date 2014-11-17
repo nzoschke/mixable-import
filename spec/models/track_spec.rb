@@ -55,5 +55,23 @@ describe Track do
       @user.match_tracks!
       assert_equal 12, Track.count
     end
+
+    it "queries Tracks with Postgres array syntaxes" do
+      expect(SpotifyClient).to receive(:search_by_isrcs).exactly(12).times {
+        []
+      }
+      @user.match_tracks!
+
+      r = Track.where("rdio_isrcs @> '{USCA20501217}'")
+      assert_equal 1, r.count
+      assert_equal ["USCA20501226", "USCA20501217"], r.first.rdio_isrcs
+
+      r = Track.where("'USCA20501217' = ANY(rdio_isrcs)")
+      assert_equal 1, r.count
+      assert_equal ["USCA20501226", "USCA20501217"], r.first.rdio_isrcs
+
+      ds = Track.db["SELECT *, UNNEST(rdio_isrcs) AS isrc FROM tracks"]
+      assert_equal 15, ds.count
+    end
   end
 end

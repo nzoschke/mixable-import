@@ -119,6 +119,34 @@ describe Track do
 
     it "creates a Spotify playlist" do
       @user.match_tracks!
+      @user.spotify_token = ENV['SPOTIFY_USER_TOKEN']
+
+
+      playlists = SpotifyClient.get_playlists(@user)
+      assert_equal(
+        {"href"=>"https://api.spotify.com/v1/users/mixable.net/playlists?offset=0&limit=20", "items"=>[{"collaborative"=>false, "external_urls"=>{"spotify"=>"http://open.spotify.com/user/mixable.net/playlist/3w9FqIAuzAx2TJlFHFjdEv"}, "href"=>"https://api.spotify.com/v1/users/mixable.net/playlists/3w9FqIAuzAx2TJlFHFjdEv", "id"=>"3w9FqIAuzAx2TJlFHFjdEv", "images"=>[], "name"=>"Cool!", "owner"=>{"external_urls"=>{"spotify"=>"http://open.spotify.com/user/mixable.net"}, "href"=>"https://api.spotify.com/v1/users/mixable.net", "id"=>"mixable.net", "type"=>"user", "uri"=>"spotify:user:mixable.net"}, "public"=>false, "tracks"=>{"href"=>"https://api.spotify.com/v1/users/mixable.net/playlists/3w9FqIAuzAx2TJlFHFjdEv/tracks", "total"=>2}, "type"=>"playlist", "uri"=>"spotify:user:mixable.net:playlist:3w9FqIAuzAx2TJlFHFjdEv"}], "limit"=>20, "next"=>nil, "offset"=>0, "previous"=>nil, "total"=>1},
+        playlists
+      )
+
+      playlist = SpotifyClient.create_or_update_playlist(@user, "Cool!",
+        [
+          "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+          "spotify:track:1301WleyT98MSxVHPZCA6M"
+        ]
+      )
+
+      assert_equal "3w9FqIAuzAx2TJlFHFjdEv", playlist["id"]
+      assert_equal 2, playlist["tracks"]["total"]
+
+      e = assert_raises OAuth2::Error do
+        SpotifyClient.create_or_update_playlist(@user, "Cool!",
+          [
+            "spotify:local:Rinocerose:mixable001:Cubicle:193",
+          ]
+        )
+      end
+
+      assert e.message =~ /JSON body contains an invalid track uri: spotify:local/
     end
   end
 end

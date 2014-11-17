@@ -133,6 +133,37 @@ module SpotifyClient
     end.flatten
   end
 
+  def self.get_playlists(user)
+    client = SpotifyClient.authorized_client(user)
+
+    # TODO: save user_id on User record
+    me = client.get("me").parsed
+    user_id = me["uri"].split(":")[-1]
+
+    client.get("users/#{user_id}/playlists").parsed
+  end
+
+  def self.create_or_update_playlist(user, playlist_name, uris)
+    client = SpotifyClient.authorized_client(user)
+
+    me = client.get("me").parsed
+    user_id = me["uri"].split(":")[-1]
+
+    playlists = SpotifyClient.get_playlists(user)
+    playlist = playlists["items"].detect { |p| p["name"] == playlist_name }
+
+    if !playlist
+      playlist = client.post("users/#{user_id}/playlists", body: JSON.dump({
+        name:   playlist_name,
+        public: false
+      })).parsed
+    end
+
+    # Replace all tracks. careful!
+    client.put("users/#{user_id}/playlists/#{playlist['id']}/tracks", body: JSON.dump({ uris: uris })).parsed
+    client.get("users/#{user_id}/playlists/#{playlist['id']}").parsed
+  end
+
   def self.unauthorized_client
     # Unauthorized Spotify client
     # https://developer.spotify.com/web-api/authorization-guide/#client_credentials_flow
@@ -140,6 +171,12 @@ module SpotifyClient
     SpotifyClient.request_client_access_token
     consumer = OAuth2::Client.new(ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'], site: 'https://api.spotify.com/v1')
     client = OAuth2AccessToken.new(consumer, @@client_access_token)
+  end
+
+  def self.authorized_client(user)
+    # Authorized Spotify client
+    consumer = OAuth2::Client.new(ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'], site: 'https://api.spotify.com/v1')
+    client = OAuth2AccessToken.new(consumer, user.spotify_token)
   end
 
   def self.request_client_access_token

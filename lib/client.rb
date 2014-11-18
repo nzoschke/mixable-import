@@ -135,33 +135,25 @@ module SpotifyClient
 
   def self.get_playlists(user)
     client = SpotifyClient.authorized_client(user)
-
-    # TODO: save user_id on User record
-    me = client.get("me").parsed
-    user_id = me["uri"].split(":")[-1]
-
-    client.get("users/#{user_id}/playlists").parsed
+    client.get("users/#{user.spotify_id}/playlists").parsed
   end
 
   def self.create_or_update_playlist(user, playlist_name, uris)
     client = SpotifyClient.authorized_client(user)
 
-    me = client.get("me").parsed
-    user_id = me["uri"].split(":")[-1]
-
     playlists = SpotifyClient.get_playlists(user)
     playlist = playlists["items"].detect { |p| p["name"] == playlist_name }
 
     if !playlist
-      playlist = client.post("users/#{user_id}/playlists", body: JSON.dump({
+      playlist = client.post("users/#{user.spotify_id}/playlists", body: JSON.dump({
         name:   playlist_name,
         public: false
       })).parsed
     end
 
     # Replace all tracks. careful!
-    client.put("users/#{user_id}/playlists/#{playlist['id']}/tracks", body: JSON.dump({ uris: uris })).parsed
-    client.get("users/#{user_id}/playlists/#{playlist['id']}").parsed
+    client.put("users/#{user.spotify_id}/playlists/#{playlist['id']}/tracks", body: JSON.dump({ uris: uris })).parsed
+    client.get("users/#{user.spotify_id}/playlists/#{playlist['id']}").parsed
   end
 
   def self.unauthorized_client

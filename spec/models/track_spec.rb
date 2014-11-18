@@ -106,6 +106,7 @@ describe Track do
       )
 
       @user = User.find_or_create_by_credentials({ "token" => "oauth_token", "secret" => "oauth_secret" })
+
       @user.update_spotify({
         "token"         =>  ENV['SPOTIFY_USER_TOKEN'],
         "refresh_token" =>  ENV['SPOTIFY_USER_REFRESH_TOKEN'],
@@ -131,7 +132,6 @@ describe Track do
     it "creates a Spotify playlist" do
       @user.match_tracks!
       @user.spotify_token = ENV['SPOTIFY_USER_TOKEN']
-
 
       playlists = SpotifyClient.get_playlists(@user)
       assert_equal(

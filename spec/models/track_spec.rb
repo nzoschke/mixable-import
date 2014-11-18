@@ -53,8 +53,13 @@ describe Track do
     end
 
     it "saves Tracks with Rdio metadata" do
-      assert_equal 0, Track.count
+      assert_equal 12, @user.tracks_total
+      assert_equal 0,  @user.tracks_processed
+      assert_equal 0,  Track.count
+
       @user.match_tracks!
+
+      assert_equal 12, @user.tracks_processed
       assert_equal 12, Track.count
     end
 
@@ -101,6 +106,12 @@ describe Track do
       )
 
       @user = User.find_or_create_by_credentials({ "token" => "oauth_token", "secret" => "oauth_secret" })
+      @user.update_spotify({
+        "token"         =>  ENV['SPOTIFY_USER_TOKEN'],
+        "refresh_token" =>  ENV['SPOTIFY_USER_REFRESH_TOKEN'],
+        "expires_at"    =>  1416241913,
+      }, "mixable.net")
+
       @user.save_playlists!
     end
 

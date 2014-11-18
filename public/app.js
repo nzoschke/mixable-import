@@ -20,14 +20,18 @@ streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
         $http.get('playlists').success(function(data) {
           $scope.playlists = data
 
-          var total = 0, processed = 0;
+          $scope.total      = 0
+          $scope.processed  = 0
+          $scope.matched    = 0
+
           angular.forEach($scope.playlists, function(playlist, i) {
-            total     += playlist.tracks.total
-            processed += playlist.tracks.processed
-          })
+            $scope.total     += playlist.tracks.total
+            $scope.processed += playlist.tracks.processed
+            $scope.matched   += playlist.tracks.matched
+        })
 
           // if all tracks are processed, cancel any polling, otherwise start polling
-          if (total == processed)
+          if ($scope.total == $scope.processed)
             cancelPolling()
           else
             startPolling()
@@ -35,8 +39,11 @@ streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
       }).
       error(function(data, status, headers, config) {
         cancelPolling()
-        $scope.session = null
-        $scope.playlists = null
+        $scope.session    = null
+        $scope.playlists  = null
+        $scope.total      = 0
+        $scope.processed  = 0
+        $scope.matched    = 0
       });
   }
 

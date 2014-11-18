@@ -1,19 +1,34 @@
 <!doctype html>
 <html ng-app="streamsApp">
   <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular-resource.min.js"></script>
+
     <script src="app.js"></script>
   </head>
+
   <body>
     <div ng-controller="SessionCtrl">
-      <div ng-if="session == null">
-        <a href="/auth/rdio">OAuth to Rdio</a>
-      </div>
-      <div ng-if="session != null">
-        Hello {{session}}. 
-        <a href="/auth/spotify">OAuth to Spotify</a>
-        <a href="/logout">End or restart session</a>
+      <ol class="breadcrumb" ng-if="session == null">
+        <li class="active"><a href="/auth/rdio">Connect to Rdio</a></li>
+        <li>Connect to Spotify</li>
+      </ol>
+      <ol class="breadcrumb" ng-if="session != null">
+        <li><a href="/logout">Disconnect {{session.url}} from Rdio</a></li>
+        <li class="active"><a href="/auth/spotify">Connect to Spotify</a></li>
+      </ol>
+
+      <div class="progress">
+        <div class="progress-bar progress-bar-success" style="width: {{matched/total*100}}%">
+          <span class="sr-only">{{matched/total*100}}% Matched</span>
+        </div>
+        <div class="progress-bar progress-bar-warning progress-bar-striped" style="width: {{(processed-matched)/total*100}}%">
+          <span class="sr-only">{{(processed-matched)/total*100}}% Missing</span>
+        </div>
       </div>
 
       <table ng-repeat="playlist in playlists" border=1>
@@ -46,9 +61,6 @@
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <div ng-controller="PlaylistsCtrl">
     </div>
   </body>
 </html>

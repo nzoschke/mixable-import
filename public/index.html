@@ -44,9 +44,14 @@
             </h4>
           </div>
           <div id="collapse{{$index}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{$index}}">
-            <div class="panel-body">
-              <pre>{{toPad(playlist)}}</pre>
-            </div>
+            <table class="table table-condensed table-bordered">
+              <tr ng-repeat="track in playlist.tracks.items" ng-class="{ 'warning' : !track.id }">
+                <td>{{$index+1}}.</td>
+                <td class="col-md-4">{{track.name}}</td>
+                <td class="col-md-4">{{track.artists[0].name}}</td>
+                <td class="col-md-4">{{track.album.name}}</td>
+              </tr>
+            </table>
           </div>
         </div>
 

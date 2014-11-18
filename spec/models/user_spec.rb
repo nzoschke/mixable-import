@@ -31,6 +31,8 @@ describe User do
     end
 
     it "saves a JSON snapshot of Rdio playlists" do
+      expect(UserPlaylistsWorker).to receive(:perform_async) {}
+
       @user.save_playlists!
       assert_equal "April Fools!", @user.playlists["owned"][1]["name"]
       assert_equal 85, @user.tracks_total

@@ -1,6 +1,16 @@
 var streamsApp = angular.module('streamsApp', []);
 
 streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
+  $scope.toPad = function(playlist) {
+    s = ""
+    for (var i = 0; i < playlist.tracks.items.length; i++) {
+      var track = playlist.tracks.items[i]
+      s += track.name + " @" + track.artists[0].name + " [" + track.album.name + "]\n"
+      s += "  #" + track.external_ids.isrc + "\n"
+    }
+    return s
+  }
+
   startPolling = function() {
     if (!$scope.promise)
       $scope.promise = $interval(getSessionAndPlaylists, 1500, 100)

@@ -1,6 +1,8 @@
 <!doctype html>
 <html ng-app="streamsApp">
   <head>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
@@ -31,36 +33,24 @@
         </div>
       </div>
 
-      <table ng-repeat="playlist in playlists" border=1>
-        <thead>
-          <tr>
-            <td><input type="checkbox" ng-model="checked"> {{playlist.name}} ({{playlist.tracks.total}} tracks)</td>
-            <td>-></td>
-            <td>
-              {{ (playlist.tracks.items | filter:{id: '!!'}).length }} matched,
-              {{ (playlist.tracks.items | filter:{id: '!'}).length }} unmatched
-            </td>
-          </tr>
-        </thead>
-        <tbody ng-show="checked">
-          <tr>
-            <td>Name</td>
-            <td>Artist</td>
-            <td>Album</td>
-            <td>ISRC</td>
-            <td>Rdio Key</td>
-            <td>Spotify ID</td>
-          </tr>
-          <tr ng-repeat="track in playlist.tracks.items">
-            <td>{{track.name}}</td>
-            <td>{{track.artists[0].name}}</td>
-            <td>{{track.album.name}}</td>
-            <td>{{track.external_ids.isrc}}</td>
-            <td>{{track.external_ids.rdio_key}}</td>
-            <td>{{track.id}}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+        <div ng-repeat="playlist in playlists" class="panel panel-default">
+          <div class="panel-heading" role="tab" id="heading{{$index}}">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{$index}}" aria-expanded="true" aria-controls="collapse{{$index}}">
+                {{playlist.name}} ({{ (playlist.tracks.items | filter:{id: '!'}).length }} unmatched)
+              </a>
+            </h4>
+          </div>
+          <div id="collapse{{$index}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{$index}}">
+            <div class="panel-body">
+              <pre>{{toPad(playlist)}}</pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </body>
 </html>

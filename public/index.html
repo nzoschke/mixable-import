@@ -11,7 +11,9 @@
         <a href="/auth/rdio">OAuth to Rdio</a>
       </div>
       <div ng-if="session != null">
-        Hello {{session}}. <a href="/logout">End or restart session</a>
+        Hello {{session}}. 
+        <a href="/auth/spotify">OAuth to Spotify</a>
+        <a href="/logout">End or restart session</a>
       </div>
 
       <table ng-repeat="playlist in playlists" border=1>

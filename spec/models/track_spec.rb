@@ -53,13 +53,8 @@ describe Track do
     end
 
     it "saves Tracks with Rdio metadata" do
-      assert_equal 12, @user.tracks_total
-      assert_equal 0,  @user.tracks_processed
       assert_equal 0,  Track.count
-
       @user.match_tracks!
-
-      assert_equal 12, @user.tracks_processed
       assert_equal 12, Track.count
     end
 

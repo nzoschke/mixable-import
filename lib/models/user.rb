@@ -25,15 +25,7 @@ class User < Sequel::Model
 
   def save_playlists!
     playlists = RdioClient.get_playlists(self)
-
-    tracks_total = 0
-    playlists.each do |kind, lists|
-      lists.each do |list|
-        tracks_total += list['tracks'].length
-      end
-    end
-
-    update(playlists: Sequel.pg_json(playlists), tracks_total: tracks_total, tracks_processed: 0)
+    update(playlists: Sequel.pg_json(playlists))
 
     # Async call match_tracks!
     UserPlaylistsWorker.perform_async(uuid)
@@ -54,8 +46,6 @@ class User < Sequel::Model
 
           t.match_spotify!
         end
-
-        update(tracks_processed: self.tracks_processed + 1)
       end
     end
   end

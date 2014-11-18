@@ -16,9 +16,6 @@ Sequel.migration do
       text         :spotify_refresh_token
       timestamptz  :spotify_expires_at
       text         :spotify_id, index: true
-
-      integer      :tracks_total
-      integer      :tracks_processed
     end
   end
 end

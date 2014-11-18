@@ -1,40 +1,44 @@
 var streamsApp = angular.module('streamsApp', []);
 
 streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
-  $scope.startPolling = function() {
+  startPolling = function() {
     if (!$scope.promise)
-      $scope.promise = $interval($scope.getSessionAndPlaylists, 1500, 100)
+      $scope.promise = $interval(getSessionAndPlaylists, 1500, 100)
   }
 
-  $scope.cancelPolling = function() {
+  cancelPolling = function() {
     if ($scope.promise)
       $interval.cancel($scope.promise);
   }
 
-  $scope.getSessionAndPlaylists = function() {
+  getSessionAndPlaylists = function() {
     // get a valid session then playlists
     $http.get('session').
       success(function(data) {
         $scope.session = data;
 
         $http.get('playlists').success(function(data) {
-          $scope.playlists = data;
+          $scope.playlists = data
+
+          var total = 0, processed = 0;
+          angular.forEach($scope.playlists, function(playlist, i) {
+            total     += playlist.tracks.total
+            processed += playlist.tracks.processed
+          })
 
           // if all tracks are processed, cancel any polling, otherwise start polling
-          if ($scope.session.tracks_processed == $scope.session.tracks_total)
-            $scope.cancelPolling()
+          if (total == processed)
+            cancelPolling()
           else
-            $scope.startPolling()
+            startPolling()
         });
       }).
       error(function(data, status, headers, config) {
-        if ($scope.promise)
-          $interval.cancel($scope.promise);
-
-        $scope.session = null;
-        $scope.playlists = null;
+        cancelPolling()
+        $scope.session = null
+        $scope.playlists = null
       });
   }
 
-  $scope.getSessionAndPlaylists()
+  getSessionAndPlaylists()
 });

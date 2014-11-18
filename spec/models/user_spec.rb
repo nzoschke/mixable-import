@@ -35,8 +35,6 @@ describe User do
 
       @user.save_playlists!
       assert_equal "April Fools!", @user.playlists["owned"][1]["name"]
-      assert_equal 85, @user.tracks_total
-      assert_equal 0,  @user.tracks_processed
 
       # TODO: How to query into the JSON?!
       # User.db["SELECT * FROM users WHERE 'April Fools!' IN (SELECT value->>'name' FROM json_array_elements(playlists))"].all.inspect

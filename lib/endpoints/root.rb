@@ -18,9 +18,6 @@ module Endpoints
 
         rdio_token:       !!user.token,
         spotify_token:    !!user.spotify_token,
-
-        tracks_total:     user.tracks_total,
-        tracks_processed: user.tracks_processed
       })
     end
 

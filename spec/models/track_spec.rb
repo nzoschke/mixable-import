@@ -46,7 +46,7 @@ describe Track do
       expect(SpotifyClient).to receive(:search_by_isrcs).at_most(12).times { [] }
 
       @user = User.find_or_create_by_rdio_key("s1234")
-      @user.save_playlists!
+      @user.save_rdio_playlists!
     end
 
     it "saves Tracks with Rdio metadata" do
@@ -102,7 +102,7 @@ describe Track do
         spotify_expires_at:     Time.at(1416241913),
       )
 
-      @user.save_playlists!
+      @user.save_rdio_playlists!
     end
 
     it "saves Tracks with Spotify metadata" do

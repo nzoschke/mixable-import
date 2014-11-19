@@ -12,7 +12,7 @@ module Endpoints
         if params["spotify"]
           encode @user.spotify_playlists
         else
-          encode serialize(@user.playlists_to_a, :spotify)
+          encode serialize(@user.rdio_playlists_to_a, :spotify)
         end
       end
 
@@ -21,7 +21,7 @@ module Endpoints
       end
 
       get "/:id" do |id|
-        playlist = @user.playlists_to_a.detect { |p| p["key"] == id } || halt(404)
+        playlist = @user.rdio_playlists_to_a.detect { |p| p["key"] == id } || halt(404)
         playlist.instance_eval { undef :map }
         encode serialize(playlist, :spotify)
       end

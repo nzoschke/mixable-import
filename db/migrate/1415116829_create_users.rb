@@ -10,7 +10,7 @@ Sequel.migration do
       text         :rdio_token
       text         :rdio_secret
 
-      json         :playlists
+      json         :rdio_playlists
 
       text         :spotify_id, index: true
       text         :spotify_username

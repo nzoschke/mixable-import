@@ -5,13 +5,13 @@ class User < Sequel::Model
     User[rdio_key: key] || User.create(rdio_key: key)
   end
 
-  def playlists_to_a
-    playlists["owned"] + playlists["collab"] + playlists["subscribed"] + playlists["favorites"]
+  def rdio_playlists_to_a
+    rdio_playlists["owned"] + rdio_playlists["collab"] + rdio_playlists["subscribed"] + rdio_playlists["favorites"]
   end
 
-  def save_playlists!
+  def save_rdio_playlists!
     playlists = RdioClient.get_playlists(self)
-    update(playlists: Sequel.pg_json(playlists))
+    update(rdio_playlists: Sequel.pg_json(playlists))
 
     # Async call match_tracks!
     UserPlaylistsWorker.perform_async(uuid)
@@ -23,7 +23,7 @@ class User < Sequel::Model
   end
 
   def match_tracks!
-    playlists_to_a.each do |list|
+    rdio_playlists_to_a.each do |list|
       list['tracks'].each do |track|
 
         unless Track[rdio_key: track['key']]

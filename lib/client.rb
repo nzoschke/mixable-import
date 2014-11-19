@@ -168,6 +168,7 @@ module SpotifyClient
 
     # Replace all tracks. careful!
     # TODO: delete created playlist if error?
+    # TODO: 100 tracks at a time
     client.put("users/#{user.spotify_id}/playlists/#{playlist['id']}/tracks", body: JSON.dump({ uris: uris })).parsed
     client.get("users/#{user.spotify_id}/playlists/#{playlist['id']}").parsed
   end

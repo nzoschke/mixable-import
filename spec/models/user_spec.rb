@@ -27,8 +27,8 @@ describe User do
     it "saves a JSON snapshot of Rdio playlists" do
       expect(UserPlaylistsWorker).to receive(:perform_async) {}
 
-      @user.save_playlists!
-      assert_equal "April Fools!", @user.playlists["owned"][1]["name"]
+      @user.save_rdio_playlists!
+      assert_equal "April Fools!", @user.rdio_playlists["owned"][1]["name"]
 
       # TODO: How to query into the JSON?!
       # User.db["SELECT * FROM users WHERE 'April Fools!' IN (SELECT value->>'name' FROM json_array_elements(playlists))"].all.inspect
@@ -38,7 +38,7 @@ describe User do
 
     it "gets playlists" do
       expect(UserPlaylistsWorker).to receive(:perform_async) {}
-      @user.save_playlists!
+      @user.save_rdio_playlists!
     end
   end
 
@@ -95,7 +95,8 @@ describe User do
       Dir["analytics/*.json"].each do |path|
         values = JSON.parse(File.read(path))
         values.reject! { |k,v| ["uuid", "created_at", "updated_at"].include? k }
-        values["playlists"] = Sequel.pg_json(values["playlists"])
+
+        values["rdio_playlists"] = Sequel.pg_json(values.delete "playlists")
 
         values["rdio_key"]      = values.delete "key"
         values["rdio_username"] = values.delete "url"

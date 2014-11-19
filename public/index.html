@@ -44,14 +44,25 @@
         <div ng-repeat="playlist in rdio_playlists" class="panel panel-default">
 
           <div class="panel-heading row" role="tab" id="heading{{$index}}">
-            <h1 class="panel-title col-md-11">
+            <h1 class="panel-title col-md-5">
               <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{$index}}">
                 {{playlist.name}}
               </a>
             </h1>
-            <span class="col-md-1">
+
+            <h1 class="panel-title col-md-5">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{$index}}">
+                {{ spotifyImportName(playlist.name) }}
+              </a>
+            </h1>
+
+            <span class="col-md-2">
               <span ng-class="playlist.tracks.matched == playlist.tracks.total ? 'label-success' : 'label-warning'" class="label">
-                {{ playlist.tracks.matched }} / {{ playlist.tracks.total }}
+                {{ playlist.tracks.matched }} / {{ playlist.tracks.total }} matched
+              </span>
+
+              <span ng-if="conflicts(playlist.name)" class="label label-danger">
+                overwrite
               </span>
             </span>
           </div>

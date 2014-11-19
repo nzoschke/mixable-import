@@ -14,6 +14,22 @@ streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
   $scope.submit = function() {
   }
 
+  $scope.spotifyImportName = function(rp_name) {
+    return "Rdio / " + rp_name
+  }
+
+  $scope.conflicts = function(rp_name) {
+    if (!$scope.spotify_playlists)
+      return false
+
+    for (var i = 0; i < $scope.spotify_playlists.items.length; i++) {
+      var sp = $scope.spotify_playlists.items[i]
+      if (sp.name == $scope.spotifyImportName(rp_name))
+        return true
+    }
+    return false
+  }
+
   startPolling = function() {
     if (!$scope.promise)
       $scope.promise = $interval(getRdioPlaylists, 1500, 100)

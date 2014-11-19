@@ -11,6 +11,9 @@ streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
     return s
   }
 
+  $scope.submit = function() {
+  }
+
   startPolling = function() {
     if (!$scope.promise)
       $scope.promise = $interval(getAuthAndPlaylists, 1500, 100)

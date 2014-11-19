@@ -19,6 +19,8 @@ Sequel.migration do
       timestamptz  :spotify_expires_at
 
       json         :spotify_playlists
+
+      column       :imported_playlists, "text[]"
     end
   end
 end

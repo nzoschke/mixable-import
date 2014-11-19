@@ -61,16 +61,16 @@ describe User do
       @user.save_spotify_playlists!
       playlists = @user.spotify_playlists
 
-      assert_equal 3, playlists["total"]
-      assert_equal 3, playlists["items"].length
+      assert_equal 5, playlists["total"]
+      assert_equal 5, playlists["items"].length
     end
 
     it "gets Spotify playlists with pagination" do
       @user.save_spotify_playlists!(limit: 1)
       playlists = @user.spotify_playlists
 
-      assert_equal 3, playlists["total"]
-      assert_equal 3, playlists["items"].length
+      assert_equal 5, playlists["total"]
+      assert_equal 5, playlists["items"].length
     end
 
     it "creates or updates a Spotify playlist" do
@@ -87,6 +87,25 @@ describe User do
       end
 
       assert e.message =~ /JSON body contains an invalid track uri: spotify:local/
+    end
+  end
+
+  context "Rdio and Spotify" do
+    it "creates no spotify playlists if there are no Rdio playlists" do
+      p = @user.create_spotify_playlists!
+      assert_equal [], p
+      assert_equal [], @user.imported_playlists
+    end
+
+    it "creates spotify playlists from an Rdio playlist and matched tracks" do
+      expect(UserPlaylistsWorker).to receive(:perform_async) {}
+
+      @user.save_rdio_playlists!
+      @user.match_tracks!
+      @user.create_spotify_playlists!
+
+      assert_equal 4, @user.rdio_playlists_to_a.length
+      assert_equal "{77frLcLU1iuw35WYQsjnrn,77Kd4Zyn67lHphdHH4Fr2M,62iGigcJoob411oYWZwKOh,62iGigcJoob411oYWZwKOh}", @user.imported_playlists
     end
   end
 

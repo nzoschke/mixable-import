@@ -47,3 +47,11 @@ class UserPlaylistsWorker
     User[uuid].match_tracks!
   end
 end
+
+class ImportWorker
+  include Sidekiq::Worker
+
+  def perform(uuid)
+    User[uuid].create_spotify_playlists!
+  end
+end

@@ -5,15 +5,6 @@ class User < Sequel::Model
     User[rdio_key: key] || User.create(rdio_key: key)
   end
 
-  def update_spotify(creds, id)
-    update(
-      spotify_token:          creds["token"],
-      spotify_refresh_token:  creds["refresh_token"],
-      spotify_expires_at:     Time.at(creds["expires_at"]),
-      spotify_id:             id
-    )
-  end
-
   def playlists_to_a
     playlists["owned"] + playlists["collab"] + playlists["subscribed"] + playlists["favorites"]
   end

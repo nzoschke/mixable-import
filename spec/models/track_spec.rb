@@ -93,12 +93,13 @@ describe Track do
       )
 
       @user = User.find_or_create_by_rdio_key("s1234")
-
-      @user.update_spotify({
-        "token"         =>  ENV['SPOTIFY_USER_TOKEN'],
-        "refresh_token" =>  ENV['SPOTIFY_USER_REFRESH_TOKEN'],
-        "expires_at"    =>  1416241913,
-      }, "mixable.net")
+      @user.update(
+        spotify_id:             "mixable.net",
+        spotify_username:       "Mixable Dot Net",
+        spotify_token:          ENV['SPOTIFY_USER_TOKEN'],
+        spotify_refresh_token:  ENV['SPOTIFY_USER_REFRESH_TOKEN'],
+        spotify_expires_at:     Time.at(1416241913),
+      )
 
       @user.save_playlists!
     end

@@ -2,31 +2,25 @@ require "spec_helper"
 
 describe User do
   before do
-    @credentials = { "token" => ENV['RDIO_USER_TOKEN'], "secret" => ENV['RDIO_USER_SECRET'] }
-    @user = User.find_or_create_by_credentials @credentials
+    @rdio_key = "s3385"
+    @user     = User.find_or_create_by_rdio_key("s3385")
 
-    @user.update_spotify({
-      "token"         =>  ENV['SPOTIFY_USER_TOKEN'],
-      "refresh_token" =>  ENV['SPOTIFY_USER_REFRESH_TOKEN'],
-      "expires_at"    =>  1416241913,
-    }, "mixable.net")
+    @user.update(
+      rdio_username:          "nzoschke",
+      rdio_token:             ENV["RDIO_USER_TOKEN"],
+      rdio_secret:            ENV["RDIO_USER_SECRET"],
+
+      spotify_id:             "mixable.net",
+      spotify_username:       "Mixable Dot Net",
+      spotify_token:          ENV['SPOTIFY_USER_TOKEN'],
+      spotify_refresh_token:  ENV['SPOTIFY_USER_REFRESH_TOKEN'],
+      spotify_expires_at:     Time.at(1416241913),
+    )
   end
 
   context "Rdio" do
-    it "creates a new user by Rdio OAuth credentials" do
-      @user.delete
-
-      u = User.find_or_create_by_credentials @credentials
-
-      assert u.uuid
-      assert_equal "s3385", u.rdio_key
-      assert_equal "nzoschke", u.rdio_username
-      assert_equal ENV['RDIO_USER_TOKEN'], u.rdio_token
-      assert_equal ENV['RDIO_USER_SECRET'], u.rdio_secret
-    end
-
-    it "finds an existing user by Rdio OAuth credentials" do
-      u2 = User.find_or_create_by_credentials @credentials
+    it "finds an existing user by Rdio key" do
+      u2 = User.find_or_create_by_rdio_key @rdio_key
       assert_equal @user.uuid, u2.uuid
     end
 

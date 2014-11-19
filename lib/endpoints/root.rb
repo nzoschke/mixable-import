@@ -1,48 +1,65 @@
-require "json"
-require_relative "../worker"
-
 module Endpoints
   class Root < Base
     get "/" do
-      redirect '/index.html'
+      redirect "/index.html"
     end
 
-    get "/session" do
-      content_type :json, charset: 'utf-8'
-      halt 401, '{"error": "No OAuth Session"}' unless user_uuid = env['rack.session']['user_uuid']
-      user = User[user_uuid]
+    get "/auth" do
+      # Poor man's Rack::MethodOverride
+      if params["_method"] == "DELETE"
+        env["rack.session"].clear
+        redirect "/"
+      end
 
-      encode({
-        uuid: user.uuid,
-        url:  user.url,
+      content_type :json, charset: "utf-8"
+      halt 401, '{"error": "No OAuth Session"}' unless env["rack.session"]["uuid"]
 
-        rdio_token:       !!user.token,
-        spotify_token:    !!user.spotify_token,
-      })
+      encode(
+        uuid:             env["rack.session"]["uuid"],
+        rdio_username:    env["rack.session"]["rdio_username"],
+        spotify_username: env["rack.session"]["spotify_username"]
+      )
     end
 
     get "/logout" do
-      env['rack.session'].clear
+      env["rack.session"].clear
       redirect "/"
     end
 
     get "/auth/rdio/callback" do
-      user = User.find_or_create_by_credentials(request.env['omniauth.auth']['credentials'].to_h)
+      auth = request.env["omniauth.auth"]
+
+      user = User.find_or_create_by_rdio_key(auth["extra"]["raw_info"]["key"])
+      user.update(
+        rdio_username:  auth["extra"]["raw_info"]["username"],
+        rdio_token:     auth["credentials"]["token"],
+        rdio_secret:    auth["credentials"]["secret"]
+      )
+
       user.save_playlists!
 
-      env['rack.session']['user_uuid'] = user.uuid
+      env["rack.session"].clear
+      env["rack.session"]["uuid"]           = user.uuid
+      env["rack.session"]["rdio_username"]  = user.rdio_username
       redirect "/"
     end
 
     get "/auth/spotify/callback" do
-      halt 401, '{"error": "No OAuth Session"}' unless user_uuid = env['rack.session']['user_uuid']
-      user = User[user_uuid]
+      content_type :json, charset: "utf-8"
+      halt 401, '{"error": "No OAuth Session"}' unless env["rack.session"]["uuid"]
 
-      creds = request.env['omniauth.auth']['credentials'].to_h
-      raw_info = request.env['omniauth.auth']['extra']['raw_info'].to_h
+      auth = request.env["omniauth.auth"]
 
-      user.update_spotify(creds, raw_info["id"])
+      user = User[env["rack.session"]["uuid"]]
+      user.update(
+        spotify_id:             auth["extra"]["raw_info"]["id"],
+        spotify_username:       auth["extra"]["raw_info"]["display_name"],
+        spotify_token:          auth["credentials"]["token"],
+        spotify_refresh_token:  auth["credentials"]["refresh_token"],
+        spotify_expires_at:     Time.at(auth["credentials"]["expires_at"]),
+      )
 
+      env["rack.session"]["spotify_username"] = user.spotify_username
       redirect "/"
     end
   end

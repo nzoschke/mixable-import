@@ -2,8 +2,8 @@ module Endpoints
   class Playlists < Base
     namespace "/playlists" do
       before do
-        halt 401, '{"error": "No OAuth Session"}' unless user_uuid = env['rack.session']['user_uuid']
-        @user = User[user_uuid]
+        halt 401, '{"error": "No OAuth Session"}' unless uuid = env['rack.session']['uuid']
+        @user = User[uuid]
 
         content_type :json, charset: 'utf-8'
       end

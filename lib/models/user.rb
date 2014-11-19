@@ -1,13 +1,8 @@
 class User < Sequel::Model
   plugin :timestamps
 
-  def self.find_or_create_by_credentials(creds)
-    temp_user = User.new(rdio_token: creds['token'], rdio_secret: creds['secret'])
-    r = RdioClient.get_user(temp_user)
-
-    user = User[rdio_key: r['key']] || User.create(rdio_key: r['key'], rdio_username: r['url'].split("/")[-1])
-    user.update(rdio_token: creds['token'], rdio_secret: creds['secret'])
-    user
+  def self.find_or_create_by_rdio_key(key)
+    User[rdio_key: key] || User.create(rdio_key: key)
   end
 
   def update_spotify(creds, id)

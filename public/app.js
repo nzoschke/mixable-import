@@ -13,7 +13,7 @@ streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
 
   startPolling = function() {
     if (!$scope.promise)
-      $scope.promise = $interval(getSessionAndPlaylists, 1500, 100)
+      $scope.promise = $interval(getAuthAndPlaylists, 1500, 100)
   }
 
   cancelPolling = function() {
@@ -21,11 +21,11 @@ streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
       $interval.cancel($scope.promise);
   }
 
-  getSessionAndPlaylists = function() {
-    // get a valid session then playlists
-    $http.get('session').
+  getAuthAndPlaylists = function() {
+    // get a valid auth then playlists
+    $http.get('auth').
       success(function(data) {
-        $scope.session = data;
+        $scope.auth = data;
 
         $http.get('playlists').success(function(data) {
           $scope.playlists = data
@@ -49,7 +49,7 @@ streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
       }).
       error(function(data, status, headers, config) {
         cancelPolling()
-        $scope.session    = null
+        $scope.auth    = null
         $scope.playlists  = null
         $scope.total      = 0
         $scope.processed  = 0
@@ -57,5 +57,5 @@ streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
       });
   }
 
-  getSessionAndPlaylists()
+  getAuthAndPlaylists()
 });

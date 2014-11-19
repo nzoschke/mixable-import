@@ -15,13 +15,20 @@
 
   <body>
     <div ng-controller="SessionCtrl">
-      <ol class="breadcrumb" ng-if="session == null">
+      <ol class="breadcrumb" ng-if="auth.rdio_username == null && auth.spotify_username == null">
         <li class="active"><a href="/auth/rdio">Connect to Rdio</a></li>
         <li>Connect to Spotify</li>
+        <li>Export Rdio -> Spotify</li>
       </ol>
-      <ol class="breadcrumb" ng-if="session != null">
-        <li><a href="/logout">Disconnect {{session.url}} from Rdio</a></li>
+      <ol class="breadcrumb" ng-if="auth.rdio_username != null && auth.spotify_username == null">
+        <li class="active"><a href="/auth?_method=DELETE">Disconnect '{{auth.rdio_username}}' from Rdio</a></li>
         <li class="active"><a href="/auth/spotify">Connect to Spotify</a></li>
+        <li>Export Rdio -> Spotify</li>
+      </ol>
+      <ol class="breadcrumb" ng-if="auth.rdio_username != null && auth.spotify_username != null">
+        <li class="active"><a href="/auth?_method=DELETE">Disconnect '{{auth.rdio_username}}' from Rdio</a></li>
+        <li class="active"><a href="/auth?_method=DELETE">Disconnect '{{auth.spotify_username}}' from Spotify</a></li>
+        <li class="active"><a href="#">Export Rdio -> Spotify</a></li>
       </ol>
 
       <div class="progress">

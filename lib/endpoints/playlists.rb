@@ -9,7 +9,11 @@ module Endpoints
       end
 
       get do
-        encode serialize(@user.playlists_to_a, :spotify)
+        if params["spotify"]
+          encode @user.spotify_playlists
+        else
+          encode serialize(@user.playlists_to_a, :spotify)
+        end
       end
 
       post do

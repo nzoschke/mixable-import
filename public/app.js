@@ -16,49 +16,72 @@ streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
 
   startPolling = function() {
     if (!$scope.promise)
-      $scope.promise = $interval(getRdioAuthAndPlaylists, 1500, 100)
+      $scope.promise = $interval(getRdioPlaylists, 1500, 100)
   }
 
   cancelPolling = function() {
     if ($scope.promise)
-      $interval.cancel($scope.promise);
+      $interval.cancel($scope.promise)
   }
 
-  getRdioAuthAndPlaylists = function() {
-    // get a valid auth then playlists
+  getAuth = function() {
     $http.get('auth').
       success(function(data) {
         $scope.auth = data;
 
-        $http.get('playlists').success(function(data) {
-          $scope.rdio_playlists = data
+        if ($scope.auth.rdio_username)
+          getRdioPlaylists()
 
-          $scope.total      = 0
-          $scope.processed  = 0
-          $scope.matched    = 0
-
-          angular.forEach($scope.rdio_playlists, function(playlist, i) {
-            $scope.total     += playlist.tracks.total
-            $scope.processed += playlist.tracks.processed
-            $scope.matched   += playlist.tracks.matched
-        })
-
-          // if all tracks are processed, cancel any polling, otherwise start polling
-          if ($scope.total == $scope.processed)
-            cancelPolling()
-          else
-            startPolling()
-        });
+        if ($scope.auth.spotify_username)
+          getSpotifyPlaylists()
       }).
       error(function(data, status, headers, config) {
         cancelPolling()
-        $scope.auth             = null
+        $scope.auth                 = null
+        $scope.rdio_playlists       = null
+        $scope.spotify_playlists    = null
+        $scope.total                = 0
+        $scope.processed            = 0
+        $scope.matched              = 0
+      })
+  }
+
+  getRdioPlaylists = function() {
+    $http.get('playlists').
+      success(function(data) {
+        $scope.rdio_playlists = data
+
+        $scope.total      = 0
+        $scope.processed  = 0
+        $scope.matched    = 0
+
+        angular.forEach($scope.rdio_playlists, function(playlist, i) {
+          $scope.total     += playlist.tracks.total
+          $scope.processed += playlist.tracks.processed
+          $scope.matched   += playlist.tracks.matched
+        })
+
+        if ($scope.total == $scope.processed)
+          cancelPolling()
+        else
+          startPolling()
+      }).error(function(data, status, headers, config) {
+        cancelPolling()
         $scope.rdio_playlists   = null
         $scope.total            = 0
         $scope.processed        = 0
         $scope.matched          = 0
-      });
+      })
   }
 
-  getRdioAuthAndPlaylists()
+  getSpotifyPlaylists = function() {
+    $http.get('playlists?spotify=true').
+      success(function(data) {
+        $scope.spotify_playlists = data
+      }).error(function(data, status, headers, config) {
+
+      })
+  }
+
+  getAuth()
 });

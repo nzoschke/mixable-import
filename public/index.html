@@ -40,15 +40,6 @@
         </div>
       </div>
 
-      <div ng-if="spotify_playlists" class="progress">
-        <div class="progress-bar progress-bar-success" style="width: {{matched/total*100}}%">
-          <span class="sr-only">{{matched/total*100}}% Matched</span>
-        </div>
-        <div class="progress-bar progress-bar-warning progress-bar-striped" style="width: {{(processed-matched)/total*100}}%">
-          <span class="sr-only">{{(processed-matched)/total*100}}% Missing</span>
-        </div>
-      </div>
-
       <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
         <div ng-repeat="playlist in rdio_playlists" class="panel panel-default">
 

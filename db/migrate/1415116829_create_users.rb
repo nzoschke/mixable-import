@@ -5,10 +5,10 @@ Sequel.migration do
       timestamptz  :created_at, default: Sequel.function(:now), null: false
       timestamptz  :updated_at
 
-      text         :key, index: true
-      text         :url
-      text         :token
-      text         :secret
+      text         :rdio_key, index: true
+      text         :rdio_username
+      text         :rdio_token
+      text         :rdio_secret
 
       json         :playlists
 

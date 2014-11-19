@@ -19,10 +19,10 @@ describe User do
       u = User.find_or_create_by_credentials @credentials
 
       assert u.uuid
-      assert_equal "s3385", u.key
-      assert_equal "/people/nzoschke/", u.url
-      assert_equal ENV['RDIO_USER_TOKEN'], u.token
-      assert_equal ENV['RDIO_USER_SECRET'], u.secret
+      assert_equal "s3385", u.rdio_key
+      assert_equal "nzoschke", u.rdio_username
+      assert_equal ENV['RDIO_USER_TOKEN'], u.rdio_token
+      assert_equal ENV['RDIO_USER_SECRET'], u.rdio_secret
     end
 
     it "finds an existing user by Rdio OAuth credentials" do
@@ -65,6 +65,12 @@ describe User do
         values = JSON.parse(File.read(path))
         values.reject! { |k,v| ["uuid", "created_at", "updated_at"].include? k }
         values["playlists"] = Sequel.pg_json(values["playlists"])
+
+        values["rdio_key"]      = values.delete "key"
+        values["rdio_username"] = values.delete "url"
+        values["rdio_token"]    = values.delete "token"
+        values["rdio_secret"]   = values.delete "secret"
+
         User.create(values)
       end
     end

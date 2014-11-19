@@ -100,7 +100,7 @@ module RdioClient
   def self.authorized_client(user)
     # Authorized Rdio client
     consumer = OAuth::Consumer.new(ENV['RDIO_APP_KEY'], ENV['RDIO_APP_SECRET'], { site: 'http://api.rdio.com' })
-    OAuthAccessToken.new(consumer, user.token, user.secret)
+    OAuthAccessToken.new(consumer, user.rdio_token, user.rdio_secret)
   end
 end
 

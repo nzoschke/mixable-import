@@ -35,6 +35,11 @@ describe User do
       # Sequel::DatabaseError:
       #   PG::InvalidParameterValue: ERROR:  cannot call json_array_elements on a non-array
     end
+
+    it "gets playlists" do
+      expect(UserPlaylistsWorker).to receive(:perform_async) {}
+      @user.save_playlists!
+    end
   end
 
   context "Spotify" do
@@ -50,6 +55,38 @@ describe User do
       assert @user.spotify_expires_at < Time.now
       SpotifyClient.refresh!(@user)
       assert @user.spotify_expires_at > Time.now
+    end
+
+    it "gets Spotify playlists" do
+      @user.save_spotify_playlists!
+      playlists = @user.spotify_playlists
+
+      assert_equal 3, playlists["total"]
+      assert_equal 3, playlists["items"].length
+    end
+
+    it "gets Spotify playlists with pagination" do
+      @user.save_spotify_playlists!(limit: 1)
+      playlists = @user.spotify_playlists
+
+      assert_equal 3, playlists["total"]
+      assert_equal 3, playlists["items"].length
+    end
+
+    it "creates or updates a Spotify playlist" do
+      p1 = SpotifyClient.create_or_update_playlist(@user, "Rdio / Feist", ["spotify:track:4iV5W9uYEdYUVa79Axb7Rh", "spotify:track:1301WleyT98MSxVHPZCA6M"])
+      assert_equal 2, p1["tracks"]["total"]
+
+      p2 = SpotifyClient.create_or_update_playlist(@user, "Rdio / Feist", ["spotify:track:4iV5W9uYEdYUVa79Axb7Rh", "spotify:track:1301WleyT98MSxVHPZCA6M"])
+      assert_equal p1["id"], p2["id"]
+    end
+
+    it "cannot create a playlist with local tracks" do
+      e = assert_raises OAuth2::Error do
+        SpotifyClient.create_or_update_playlist(@user, "Local?!", ["spotify:local:Rinocerose:mixable001:Cubicle:193"])
+      end
+
+      assert e.message =~ /JSON body contains an invalid track uri: spotify:local/
     end
   end
 

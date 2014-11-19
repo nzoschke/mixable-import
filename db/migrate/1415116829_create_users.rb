@@ -17,6 +17,8 @@ Sequel.migration do
       text         :spotify_token
       text         :spotify_refresh_token
       timestamptz  :spotify_expires_at
+
+      json         :spotify_playlists
     end
   end
 end

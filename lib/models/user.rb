@@ -17,6 +17,11 @@ class User < Sequel::Model
     UserPlaylistsWorker.perform_async(uuid)
   end
 
+  def save_spotify_playlists!(opts={})
+    playlists = SpotifyClient.get_playlists(self, opts)
+    update(spotify_playlists: Sequel.pg_json(playlists))
+  end
+
   def match_tracks!
     playlists_to_a.each do |list|
       list['tracks'].each do |track|

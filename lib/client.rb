@@ -133,9 +133,24 @@ module SpotifyClient
     end.flatten
   end
 
-  def self.get_playlists(user)
+  def self.get_playlists(user, opts={})
+    opts[:offset] = 0
+    opts[:limit]  = opts[:limit] || 50
+
     client = SpotifyClient.authorized_client(user)
-    client.get("users/#{user.spotify_id}/playlists").parsed
+
+    playlists = client.get("users/#{user.spotify_id}/playlists", opts).parsed
+
+    if playlists["next"]
+      while true
+        opts[:offset] += opts[:limit]
+        p = client.get("users/#{user.spotify_id}/playlists", opts).parsed
+        playlists["items"] += p["items"]
+        break unless p["next"]
+      end
+    end
+
+    playlists
   end
 
   def self.create_or_update_playlist(user, playlist_name, uris)
@@ -152,6 +167,7 @@ module SpotifyClient
     end
 
     # Replace all tracks. careful!
+    # TODO: delete created playlist if error?
     client.put("users/#{user.spotify_id}/playlists/#{playlist['id']}/tracks", body: JSON.dump({ uris: uris })).parsed
     client.get("users/#{user.spotify_id}/playlists/#{playlist['id']}").parsed
   end

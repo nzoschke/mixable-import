@@ -59,6 +59,8 @@ module Endpoints
         spotify_expires_at:     Time.at(auth["credentials"]["expires_at"]),
       )
 
+      user.save_spotify_playlists!
+
       env["rack.session"]["spotify_username"] = user.spotify_username
       redirect "/"
     end

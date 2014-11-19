@@ -16,7 +16,7 @@ streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
 
   startPolling = function() {
     if (!$scope.promise)
-      $scope.promise = $interval(getAuthAndPlaylists, 1500, 100)
+      $scope.promise = $interval(getRdioAuthAndPlaylists, 1500, 100)
   }
 
   cancelPolling = function() {
@@ -24,20 +24,20 @@ streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
       $interval.cancel($scope.promise);
   }
 
-  getAuthAndPlaylists = function() {
+  getRdioAuthAndPlaylists = function() {
     // get a valid auth then playlists
     $http.get('auth').
       success(function(data) {
         $scope.auth = data;
 
         $http.get('playlists').success(function(data) {
-          $scope.playlists = data
+          $scope.rdio_playlists = data
 
           $scope.total      = 0
           $scope.processed  = 0
           $scope.matched    = 0
 
-          angular.forEach($scope.playlists, function(playlist, i) {
+          angular.forEach($scope.rdio_playlists, function(playlist, i) {
             $scope.total     += playlist.tracks.total
             $scope.processed += playlist.tracks.processed
             $scope.matched   += playlist.tracks.matched
@@ -52,13 +52,13 @@ streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
       }).
       error(function(data, status, headers, config) {
         cancelPolling()
-        $scope.auth    = null
-        $scope.playlists  = null
-        $scope.total      = 0
-        $scope.processed  = 0
-        $scope.matched    = 0
+        $scope.auth             = null
+        $scope.rdio_playlists   = null
+        $scope.total            = 0
+        $scope.processed        = 0
+        $scope.matched          = 0
       });
   }
 
-  getAuthAndPlaylists()
+  getRdioAuthAndPlaylists()
 });

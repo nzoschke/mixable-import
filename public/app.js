@@ -1,17 +1,117 @@
+
 var streamsApp = angular.module('streamsApp', []);
 
-streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
-  $scope.toPad = function(playlist) {
-    s = ""
-    for (var i = 0; i < playlist.tracks.items.length; i++) {
-      var track = playlist.tracks.items[i]
-      s += track.name + " @" + track.artists[0].name + " [" + track.album.name + "]\n"
-      s += "  #" + track.external_ids.isrc + "\n"
-    }
-    return s
+streamsApp.controller('WorkflowCtrl', function ($scope, $http, $interval) {
+  $scope.nextWorkflow = function() {
+    if (!$scope.rdio_username)
+      return "rdio_username"
+
+    if (!$scope.rdio_playlists)
+      return "rdio_playlists"
+
+    if (!$scope.spotify_username)
+      return "spotify_username"
+
+    if (!$scope.spotify_playlists)
+      return "spotify_playlists"
+
+    if (!$scope.spotify_imports)
+      return "spotify_imports"
+
+    return null
   }
 
-  $scope.submit = function() {
+  resetWorkflow = function() {
+    $scope.rdio_username      = null
+    $scope.rdio_playlists     = null
+    $scope.spotify_username   = null
+    $scope.spotify_imports    = null
+  }
+
+  doWorkflow = function() {
+    getRdioUsername()
+    getRdioPlaylists()
+    getSpotifyUsername()
+    getSpotifyPlaylists()
+    getSpotifyImports()
+  }
+
+  getRdioUsername = function() {
+    if ($scope.nextWorkflow() != "rdio_username")
+      return false
+
+    $http.get('auth').
+      success(function(data) {
+        $scope.rdio_username = data.rdio_username
+        doWorkflow()
+      }).
+      error(function(data, status, headers, config) {
+        resetWorkflow()
+      })
+  }
+
+  getRdioPlaylists = function() {
+    if ($scope.nextWorkflow() != "rdio_playlists")
+      return false
+
+
+    $http.get('playlists').
+      success(function(data) {
+        $scope.rdio_playlists = data
+        $scope.rdio_playlists.tracks_total      = 0
+        $scope.rdio_playlists.tracks_processed  = 0
+        $scope.rdio_playlists.tracks_matched    = 0
+
+        angular.forEach($scope.rdio_playlists, function(playlist, i) {
+          $scope.rdio_playlists.tracks_total     += playlist.tracks.total
+          $scope.rdio_playlists.tracks_processed += playlist.tracks.processed
+          $scope.rdio_playlists.tracks_matched   += playlist.tracks.matched
+        })
+
+        doWorkflow()
+      }).error(function(data, status, headers, config) {
+        resetWorkflow()
+      })
+  }
+
+  getSpotifyUsername = function() {
+    if ($scope.nextWorkflow() != "spotify_username")
+      return false
+
+    $http.get('auth').
+      success(function(data) {
+        $scope.spotify_username = data.spotify_username
+        doWorkflow()
+      }).
+      error(function(data, status, headers, config) {
+        resetWorkflow()
+      })
+  }
+
+  getSpotifyPlaylists = function() {
+    if ($scope.nextWorkflow() != "spotify_playlists")
+      return false
+
+    $http.get('playlists?spotify=true').
+      success(function(data) {
+        $scope.spotify_playlists = data
+        doWorkflow()
+      }).error(function(data, status, headers, config) {
+        resetWorkflow()
+      })
+  }
+
+  getSpotifyImports = function() {
+    if ($scope.nextWorkflow() != "spotify_imports")
+      return false
+
+    $http.get('imports').
+      success(function(data) {
+        $scope.spotify_imports = data
+        doWorkflow()
+      }).error(function(data, status, headers, config) {
+        resetWorkflow()
+      })
   }
 
   $scope.spotifyImportName = function(rp_name) {
@@ -30,74 +130,6 @@ streamsApp.controller('SessionCtrl', function ($scope, $http, $interval) {
     return false
   }
 
-  startPolling = function() {
-    if (!$scope.promise)
-      $scope.promise = $interval(getRdioPlaylists, 1500, 100)
-  }
-
-  cancelPolling = function() {
-    if ($scope.promise)
-      $interval.cancel($scope.promise)
-  }
-
-  getAuth = function() {
-    $http.get('auth').
-      success(function(data) {
-        $scope.auth = data;
-
-        if ($scope.auth.rdio_username)
-          getRdioPlaylists()
-
-        if ($scope.auth.spotify_username)
-          getSpotifyPlaylists()
-      }).
-      error(function(data, status, headers, config) {
-        cancelPolling()
-        $scope.auth                 = null
-        $scope.rdio_playlists       = null
-        $scope.spotify_playlists    = null
-        $scope.total                = 0
-        $scope.processed            = 0
-        $scope.matched              = 0
-      })
-  }
-
-  getRdioPlaylists = function() {
-    $http.get('playlists').
-      success(function(data) {
-        $scope.rdio_playlists = data
-
-        $scope.total      = 0
-        $scope.processed  = 0
-        $scope.matched    = 0
-
-        angular.forEach($scope.rdio_playlists, function(playlist, i) {
-          $scope.total     += playlist.tracks.total
-          $scope.processed += playlist.tracks.processed
-          $scope.matched   += playlist.tracks.matched
-        })
-
-        if ($scope.total == $scope.processed)
-          cancelPolling()
-        else
-          startPolling()
-      }).error(function(data, status, headers, config) {
-        cancelPolling()
-        $scope.rdio_playlists   = null
-        $scope.total            = 0
-        $scope.processed        = 0
-        $scope.matched          = 0
-      })
-  }
-
-  getSpotifyPlaylists = function() {
-    $http.get('playlists?spotify=true').
-      success(function(data) {
-        $scope.spotify_playlists = data
-      }).error(function(data, status, headers, config) {
-
-      })
-  }
-
-  getAuth()
-});
+  resetWorkflow()
+  doWorkflow()
+})

@@ -2,22 +2,15 @@
 var streamsApp = angular.module('streamsApp', []);
 
 streamsApp.controller('WorkflowCtrl', function ($scope, $http, $interval) {
+
+  $scope.flows = ["rdio_username", "rdio_playlists", "spotify_username", "spotify_playlists", "spotify_imports"]
+
   $scope.nextWorkflow = function() {
-    if (!$scope.rdio_username)
-      return "rdio_username"
-
-    if (!$scope.rdio_playlists)
-      return "rdio_playlists"
-
-    if (!$scope.spotify_username)
-      return "spotify_username"
-
-    if (!$scope.spotify_playlists)
-      return "spotify_playlists"
-
-    if (!$scope.spotify_imports)
-      return "spotify_imports"
-
+    for (var i = 0; i < $scope.flows.length; i++) {
+      var flow = $scope.flows[i]
+      if (!$scope[flow])
+        return flow
+    }
     return null
   }
 
@@ -25,6 +18,7 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $interval) {
     $scope.rdio_username      = null
     $scope.rdio_playlists     = null
     $scope.spotify_username   = null
+    $scope.spotify_playlists  = null
     $scope.spotify_imports    = null
   }
 
@@ -42,6 +36,9 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $interval) {
 
     $http.get('auth').
       success(function(data) {
+        if (!data.rdio_username)
+          return
+
         $scope.rdio_username = data.rdio_username
         doWorkflow()
       }).
@@ -54,10 +51,9 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $interval) {
     if ($scope.nextWorkflow() != "rdio_playlists")
       return false
 
-
     $http.get('playlists').
       success(function(data) {
-        $scope.rdio_playlists = data
+        $scope.rdio_playlists                   = data
         $scope.rdio_playlists.tracks_total      = 0
         $scope.rdio_playlists.tracks_processed  = 0
         $scope.rdio_playlists.tracks_matched    = 0
@@ -80,6 +76,9 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $interval) {
 
     $http.get('auth').
       success(function(data) {
+        if (!data.spotify_username)
+          return
+
         $scope.spotify_username = data.spotify_username
         doWorkflow()
       }).

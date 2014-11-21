@@ -93,8 +93,8 @@ describe User do
   context "Rdio and Spotify" do
     it "creates no spotify playlists if there are no Rdio playlists" do
       p = @user.create_spotify_playlists!
-      assert_equal [], p
-      assert_equal [], @user.imported_playlists
+      assert_equal({:total=>0, :added=>0, :processed=>0, :items=>[]}, p)
+      assert_equal({:total=>0, :added=>0, :processed=>0, :items=>[]}, @user.spotify_imports)
     end
 
     it "creates spotify playlists from an Rdio playlist and matched tracks" do
@@ -105,7 +105,10 @@ describe User do
       @user.create_spotify_playlists!
 
       assert_equal 4, @user.rdio_playlists_to_a.length
-      assert_equal "{77frLcLU1iuw35WYQsjnrn,77Kd4Zyn67lHphdHH4Fr2M,62iGigcJoob411oYWZwKOh,62iGigcJoob411oYWZwKOh}", @user.imported_playlists
+      assert_equal(
+        {:total=>4, :added=>4, :processed=>4, :items=>["77frLcLU1iuw35WYQsjnrn", "77Kd4Zyn67lHphdHH4Fr2M", "62iGigcJoob411oYWZwKOh", "62iGigcJoob411oYWZwKOh"]},
+        @user.spotify_imports
+      )
     end
   end
 

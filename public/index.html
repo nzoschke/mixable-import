@@ -25,10 +25,10 @@
         <li class="active"><a href="/auth/spotify">Connect to Spotify</a></li>
         <li>Export Rdio -> Spotify</li>
       </ol>
-      <ol class="breadcrumb" ng-if="nextWorkflow() == 'playlists'">
+      <ol class="breadcrumb" ng-if="nextWorkflow() == 'spotify_imports'">
         <li><a href="/auth?_method=DELETE">Disconnect '{{rdio_username}}' from Rdio</a></li>
         <li><a href="/auth?_method=DELETE">Disconnect '{{spotify_username}}' from Spotify</a></li>
-        <li class="active"><a ng-click="export()" ng-href="#export">Export Rdio -> Spotify</a></li>
+        <li class="active"><a ng-click="import()" ng-href="#import">Import Rdio -> Spotify</a></li>
       </ol>
       <ol class="breadcrumb" ng-if="nextWorkflow() == null">
         <li><a href="/auth?_method=DELETE">Disconnect '{{rdio_username}}' from Rdio</a></li>

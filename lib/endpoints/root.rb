@@ -36,7 +36,7 @@ module Endpoints
         rdio_secret:    auth["credentials"]["secret"]
       )
 
-      user.save_playlists!
+      user.save_rdio_playlists!
 
       env["rack.session"].clear
       env["rack.session"]["uuid"]           = user.uuid
@@ -57,6 +57,7 @@ module Endpoints
         spotify_token:          auth["credentials"]["token"],
         spotify_refresh_token:  auth["credentials"]["refresh_token"],
         spotify_expires_at:     Time.at(auth["credentials"]["expires_at"]),
+        spotify_imports:        nil
       )
 
       user.save_spotify_playlists!

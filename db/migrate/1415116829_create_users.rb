@@ -20,7 +20,7 @@ Sequel.migration do
 
       json         :spotify_playlists
 
-      column       :imported_playlists, "text[]"
+      json         :spotify_imports
     end
   end
 end

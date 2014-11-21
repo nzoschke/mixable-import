@@ -12,6 +12,13 @@ class User < Sequel::Model
     rdio_playlists["owned"] + rdio_playlists["collab"] + rdio_playlists["subscribed"] + rdio_playlists["favorites"]
   end
 
+  def spotify_import_in_progress?
+    # TODO: expire lock
+    i = self.spotify_imports
+    return false unless i && i[:total]
+    i[:processed] < i[:total]
+  end
+
   def save_rdio_playlists!
     playlists = RdioClient.get_playlists(self)
     update(rdio_playlists: Sequel.pg_json(playlists))
@@ -27,8 +34,14 @@ class User < Sequel::Model
 
   def create_spotify_playlists!
     # assumes all Rdio playlists should be imported and all tracks been matched
-    playlist_ids  = []
-    update(imported_playlists: playlist_ids)
+    imports = {
+      total:      rdio_playlists_to_a.count,
+      added:      0,
+      processed:  0,
+      items:      []
+    }
+
+    update(spotify_imports: Sequel.pg_json(imports))
 
     rdio_playlists_to_a.each do |playlist|
       name          = "Rdio / #{playlist['name']}"
@@ -42,12 +55,17 @@ class User < Sequel::Model
 
       p = SpotifyClient.create_or_update_playlist(self, name, track_uris)
 
-      # TODO: postgres style update aa set b = array_append(b, 5) where a = 1;
-      playlist_ids << p["id"]
-      update(imported_playlists: "{#{playlist_ids.join(',')}}")
+      # TODO: failures and duplicates?
+      imports[:added]     += 1
+      imports[:processed] += 1
+      imports[:items]     << p["id"]
+
+      # FIXME: why doesn't update work?!
+      self.spotify_imports = Sequel.pg_json(imports)
+      self.save
     end
 
-    imported_playlists
+    imports
   end
 
   def match_tracks!

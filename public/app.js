@@ -100,12 +100,24 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $interval) {
       })
   }
 
+  $scope.import = function() {
+    $http.post('imports').
+      success(function(data) {
+        doWorkflow()
+      }).error(function(data, status, headers, config) {
+        resetWorkflow()
+      })
+  }
+
   getSpotifyImports = function() {
     if ($scope.nextWorkflow() != "spotify_imports")
       return false
 
     $http.get('imports').
       success(function(data) {
+        if (!data)
+          return
+
         $scope.spotify_imports = data
         doWorkflow()
       }).error(function(data, status, headers, config) {

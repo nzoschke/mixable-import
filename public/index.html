@@ -18,27 +18,27 @@
       <ol class="breadcrumb" ng-if="nextWorkflow() == 'rdio_username'">
         <li class="active"><a href="/auth/rdio">Connect to Rdio</a></li>
         <li>Connect to Spotify</li>
-        <li>Export Rdio -> Spotify</li>
+        <li>Import Rdio -> Spotify</li>
       </ol>
       <ol class="breadcrumb" ng-if="nextWorkflow() == 'rdio_tracks_processed'">
         <li class="active"><a href="/auth?_method=DELETE">Disconnect '{{rdio_username}}' from Rdio</a></li>
         <li>Connect to Spotify</li>
-        <li>Export Rdio -> Spotify</li>
+        <li>Import Rdio -> Spotify</li>
       </ol>
       <ol class="breadcrumb" ng-if="nextWorkflow() == 'spotify_username'">
         <li><a href="/auth?_method=DELETE">Disconnect '{{rdio_username}}' from Rdio</a></li>
         <li class="active"><a href="/auth/spotify">Connect to Spotify</a></li>
-        <li>Export Rdio -> Spotify</li>
+        <li>Import Rdio -> Spotify</li>
       </ol>
       <ol class="breadcrumb" ng-if="nextWorkflow() == 'spotify_imports'">
         <li><a href="/auth?_method=DELETE">Disconnect '{{rdio_username}}' from Rdio</a></li>
         <li><a href="/auth?_method=DELETE">Disconnect '{{spotify_username}}' from Spotify</a></li>
         <li class="active"><a ng-click="import()" ng-href="#import">Import Rdio -> Spotify</a></li>
       </ol>
-      <ol class="breadcrumb" ng-if="nextWorkflow() == null">
+      <ol class="breadcrumb" ng-if="nextWorkflow() == 'spotify_imports_processed' || nextWorkflow() == null">
         <li><a href="/auth?_method=DELETE">Disconnect '{{rdio_username}}' from Rdio</a></li>
         <li><a href="/auth?_method=DELETE">Disconnect '{{spotify_username}}' from Spotify</a></li>
-        <li>Export Rdio -> Spotify</li>
+        <li>Import Rdio -> Spotify</li>
         <li class="active"><a href="https://play.spotify.com/" target="_blank">Play!</a></li>
       </ol>
 

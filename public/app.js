@@ -5,7 +5,7 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
 
   $scope.flows = [
     "rdio_username", "rdio_playlists", "rdio_tracks_processed",
-    "spotify_username", "spotify_playlists", "spotify_imports"
+    "spotify_username", "spotify_playlists", "spotify_imports", "spotify_imports_processed"
   ]
 
   $scope.nextWorkflow = function() {
@@ -18,12 +18,13 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
   }
 
   resetWorkflow = function() {
-    $scope.rdio_username          = null
-    $scope.rdio_playlists         = null
-    $scope.rdio_tracks_processed  = null
-    $scope.spotify_username       = null
-    $scope.spotify_playlists      = null
-    $scope.spotify_imports        = null
+    $scope.rdio_username              = null
+    $scope.rdio_playlists             = null
+    $scope.rdio_tracks_processed      = null
+    $scope.spotify_username           = null
+    $scope.spotify_playlists          = null
+    $scope.spotify_imports            = null
+    $scope.spotify_imports_processed  = null
   }
 
   doWorkflow = function() {
@@ -33,6 +34,7 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
     getSpotifyUsername()
     getSpotifyPlaylists()
     getSpotifyImports()
+    getSpotifyImportsProcessed()
   }
 
   getRdioUsername = function() {
@@ -149,6 +151,27 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
 
         $scope.spotify_imports = data
         doWorkflow()
+      }).error(function(data, status, headers, config) {
+        resetWorkflow()
+      })
+  }
+
+  getSpotifyImportsProcessed = function() {
+    if ($scope.nextWorkflow() != "spotify_imports_processed")
+      return false
+
+    $http.get('imports').
+      success(function(data) {
+        if (!data)
+          return
+        $scope.spotify_imports = data
+
+        if ($scope.spotify_imports.total == $scope.spotify_imports.processed) {
+          $scope.spotify_imports_processed = true
+          doWorkflow()
+        }
+        else
+          $timeout(doWorkflow, 1500)
       }).error(function(data, status, headers, config) {
         resetWorkflow()
       })

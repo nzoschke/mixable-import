@@ -20,6 +20,11 @@
         <li>Connect to Spotify</li>
         <li>Export Rdio -> Spotify</li>
       </ol>
+      <ol class="breadcrumb" ng-if="nextWorkflow() == 'rdio_tracks_processed'">
+        <li class="active"><a href="/auth?_method=DELETE">Disconnect '{{rdio_username}}' from Rdio</a></li>
+        <li>Connect to Spotify</li>
+        <li>Export Rdio -> Spotify</li>
+      </ol>
       <ol class="breadcrumb" ng-if="nextWorkflow() == 'spotify_username'">
         <li><a href="/auth?_method=DELETE">Disconnect '{{rdio_username}}' from Rdio</a></li>
         <li class="active"><a href="/auth/spotify">Connect to Spotify</a></li>
@@ -38,9 +43,9 @@
       </ol>
 
       <div ng-if="rdio_playlists" class="progress">
-        <div class="progress-bar progress-bar-success" style="width: {{rdio_playlists.tracks_matched/rdio_playlists.tracks_total*100}}%">
+        <div class="progress-bar progress-bar-success" style="width: {{rdio_tracks.matched/rdio_tracks.total*100}}%">
         </div>
-        <div class="progress-bar progress-bar-warning" style="width: {{(rdio_playlists.tracks_processed-rdio_playlists.tracks_matched)/rdio_playlists.tracks_total*100}}%">
+        <div class="progress-bar progress-bar-warning" style="width: {{(rdio_tracks.processed-rdio_tracks.matched)/rdio_tracks.total*100}}%">
         </div>
       </div>
 

@@ -1,9 +1,12 @@
 
 var streamsApp = angular.module('streamsApp', []);
 
-streamsApp.controller('WorkflowCtrl', function ($scope, $http, $interval) {
+streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
 
-  $scope.flows = ["rdio_username", "rdio_playlists", "spotify_username", "spotify_playlists", "spotify_imports"]
+  $scope.flows = [
+    "rdio_username", "rdio_playlists", "rdio_tracks_processed",
+    "spotify_username", "spotify_playlists", "spotify_imports"
+  ]
 
   $scope.nextWorkflow = function() {
     for (var i = 0; i < $scope.flows.length; i++) {
@@ -15,16 +18,18 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $interval) {
   }
 
   resetWorkflow = function() {
-    $scope.rdio_username      = null
-    $scope.rdio_playlists     = null
-    $scope.spotify_username   = null
-    $scope.spotify_playlists  = null
-    $scope.spotify_imports    = null
+    $scope.rdio_username          = null
+    $scope.rdio_playlists         = null
+    $scope.rdio_tracks_processed  = null
+    $scope.spotify_username       = null
+    $scope.spotify_playlists      = null
+    $scope.spotify_imports        = null
   }
 
   doWorkflow = function() {
     getRdioUsername()
     getRdioPlaylists()
+    getRdioTracksProcessed()
     getSpotifyUsername()
     getSpotifyPlaylists()
     getSpotifyImports()
@@ -53,18 +58,42 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $interval) {
 
     $http.get('playlists').
       success(function(data) {
-        $scope.rdio_playlists                   = data
-        $scope.rdio_playlists.tracks_total      = 0
-        $scope.rdio_playlists.tracks_processed  = 0
-        $scope.rdio_playlists.tracks_matched    = 0
+        $scope.rdio_playlists = data
+        $scope.rdio_tracks    = { total: 0, processed: 0, matched: 0}
 
         angular.forEach($scope.rdio_playlists, function(playlist, i) {
-          $scope.rdio_playlists.tracks_total     += playlist.tracks.total
-          $scope.rdio_playlists.tracks_processed += playlist.tracks.processed
-          $scope.rdio_playlists.tracks_matched   += playlist.tracks.matched
+          $scope.rdio_tracks.total     += playlist.tracks.total
+          $scope.rdio_tracks.processed += playlist.tracks.processed
+          $scope.rdio_tracks.matched   += playlist.tracks.matched
         })
 
         doWorkflow()
+      }).error(function(data, status, headers, config) {
+        resetWorkflow()
+      })
+  }
+
+  getRdioTracksProcessed = function() {
+    if ($scope.nextWorkflow() != "rdio_tracks_processed")
+      return false
+
+    $http.get('playlists').
+      success(function(data) {
+        $scope.rdio_playlists = data
+        $scope.rdio_tracks    = { total: 0, processed: 0, matched: 0}
+
+        angular.forEach($scope.rdio_playlists, function(playlist, i) {
+          $scope.rdio_tracks.total     += playlist.tracks.total
+          $scope.rdio_tracks.processed += playlist.tracks.processed
+          $scope.rdio_tracks.matched   += playlist.tracks.matched
+        })
+
+        if ($scope.rdio_tracks.total == $scope.rdio_tracks.processed) {
+          $scope.rdio_tracks_processed = true
+          doWorkflow()
+        }
+        else
+          $timeout(doWorkflow, 1500)
       }).error(function(data, status, headers, config) {
         resetWorkflow()
       })

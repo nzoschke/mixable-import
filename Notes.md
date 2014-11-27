@@ -48,6 +48,9 @@ Schema
   not clear how to modify the yaml
   not clear to regenerate json
 
+Serializer
+  working with non-models, i'm passing a single hash in, and the detecting of map doesn't work to serialize a single object
+
 Heroku
   $ bundle exec rake db:setup
   rake aborted!
@@ -55,38 +58,7 @@ Heroku
     Is the server running locally and accepting
     connections on Unix domain socket "/var/run/postgresql/.s.PGSQL.5432"?
 
---
-
-GET /auth/rdio
-GET /auth/rdio/callback
-
-PUT /exports
-  matching
-  done
-  error
-
-PUT /imports
-  appending
-  done
-  error
-
-(Rdio) User
-  username
-  has_many :playlists
-
-Playlist
-  has_many :tracks
-
-Track
-  name
-  artist
-  album
-  isrc
-  rdio_key
-  spotify_id
-
-April Fools - 12 Tracks
-  100% match. Details...
-
-April Fools - 12 Tracks
-  98% match. Details...
+  $ heroku pg:psql
+  => CREATE EXTENSION "uuid-ossp";
+  $ heroku run rake db:migrate
+Generate scaffold -- does .eq instead of assert

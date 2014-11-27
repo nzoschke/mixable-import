@@ -22,25 +22,25 @@ definitions:
     type:
     - string
   name:
-    description: The name for the playlist. This name does not need to be unique; a user may have several playlists with the same name.
+    description: name of playlist (no unique constraint)
     example: 'Dinner with Friends'
     format: string
     type:
     - string
   description:
-    description: A description for the playlist.
+    description: description of playlist
     example: 'Having friends over for dinner? Here´s the perfect playlist.'
     format: string
     type:
     - string
   type:
-    description: The type of the object -- 'playlist'
+    description: type of the object -- 'playlist'
     example: 'playlist'
     format: string
     type:
     - string
   tracks:
-    description: Info about the collection of tracks.
+    description: information about collection of playlist tracks
     example: '{ "total": 30, "items": [ { "track": { "album": { "id": $id, "type": "album", "name": "Pablo Honey" }, "artists": [ { "id": $id, "type": "artist", "name": "Radiohead" } ], "name": "Creep" } }, ...] }'
     type:
     - object
@@ -57,41 +57,24 @@ definitions:
       items:
         type:
         - array
-description: FIXME
-links:
-- description: Create a new playlist.
-  href: "/playlists"
-  method: POST
-  rel: create
-  schema:
-    properties: {}
+  error:
+    description: error message of call
+    example: 'Forbidden'
+    format: string
     type:
-    - object
-  title: Create
-- description: Delete an existing playlist.
-  href: "/playlists/{(%2Fschemata%2Fplaylist%23%2Fdefinitions%2Fidentity)}"
-  method: DELETE
-  rel: destroy
-  title: Delete
+    - string
+description: Playlist for any provider (e.g. Rdio) in Spotify format
+links:
 - description: Info for existing playlist.
-  href: "/playlists/{(%2Fschemata%2Fplaylist%23%2Fdefinitions%2Fidentity)}"
+  href: "/playlists/rdio/{(%2Fschemata%2Fplaylist%23%2Fdefinitions%2Fidentity)}"
   method: GET
   rel: self
   title: Info
 - description: List existing playlists.
-  href: "/playlists"
+  href: "/playlists/rdio"
   method: GET
   rel: instances
   title: List
-- description: Update an existing playlist.
-  href: "/playlists/{(%2Fschemata%2Fplaylist%23%2Fdefinitions%2Fidentity)}"
-  method: PATCH
-  rel: update
-  schema:
-    properties: {}
-    type:
-    - object
-  title: Update
 properties:
   created_at:
     "$ref": "/schemata/playlist#/definitions/created_at"

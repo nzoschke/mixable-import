@@ -21,11 +21,6 @@ module Endpoints
       )
     end
 
-    get "/logout" do
-      env["rack.session"].clear
-      redirect "/"
-    end
-
     get "/auth/rdio/callback" do
       auth = request.env["omniauth.auth"]
 

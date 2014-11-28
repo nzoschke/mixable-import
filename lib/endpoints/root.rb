@@ -23,9 +23,14 @@ module Endpoints
 
     get "/auth/rdio/callback" do
       auth = request.env["omniauth.auth"]
+      key  = auth["extra"]["raw_info"]["key"]
 
-      user = User.find_or_create_by_rdio_key(auth["extra"]["raw_info"]["key"])
+      user   = User[env["rack.session"]["uuid"]]
+      user ||= User[rdio_key: key]
+      user ||= User.create(rdio_key: key)
+
       user.update(
+        rdio_key:       key,
         rdio_username:  auth["extra"]["raw_info"]["username"],
         rdio_token:     auth["credentials"]["token"],
         rdio_secret:    auth["credentials"]["secret"]
@@ -33,21 +38,22 @@ module Endpoints
 
       user.save_rdio_playlists!
 
-      env["rack.session"].clear
       env["rack.session"]["uuid"]           = user.uuid
       env["rack.session"]["rdio_username"]  = user.rdio_username
+
       redirect "/#rdio"
     end
 
     get "/auth/spotify/callback" do
-      content_type :json, charset: "utf-8"
-      halt 401, '{"error": "No OAuth Session"}' unless env["rack.session"]["uuid"]
-
       auth = request.env["omniauth.auth"]
+      id   = auth["extra"]["raw_info"]["id"]
 
-      user = User[env["rack.session"]["uuid"]]
+      user   = User[env["rack.session"]["uuid"]]
+      user ||= User[spotify_id: id]
+      user ||= User.create(spotify_id: id)
+
       user.update(
-        spotify_id:             auth["extra"]["raw_info"]["id"],
+        spotify_id:             id,
         spotify_username:       auth["extra"]["raw_info"]["display_name"],
         spotify_token:          auth["credentials"]["token"],
         spotify_refresh_token:  auth["credentials"]["refresh_token"],
@@ -57,7 +63,9 @@ module Endpoints
 
       user.save_spotify_playlists!
 
+      env["rack.session"]["uuid"]             = user.uuid
       env["rack.session"]["spotify_username"] = user.spotify_username
+
       redirect "/#spotify"
     end
   end

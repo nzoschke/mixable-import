@@ -5,7 +5,8 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
 
   $scope.flows = [
     "rdio_username", "rdio_playlists", "rdio_tracks_processed",
-    "spotify_username", "spotify_playlists", "spotify_imports", "spotify_imports_processed"
+    "spotify_username", "spotify_playlists", "spotify_tracks_processed",
+    "spotify_imports", "spotify_imports_processed"
   ]
 
   $scope.nextWorkflow = function() {
@@ -23,6 +24,7 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
     $scope.rdio_tracks_processed      = null
     $scope.spotify_username           = null
     $scope.spotify_playlists          = null
+    $scope.spotify_tracks_processed   = null
     $scope.spotify_imports            = null
     $scope.spotify_imports_processed  = null
   }
@@ -33,6 +35,7 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
     getRdioTracksProcessed()
     getSpotifyUsername()
     getSpotifyPlaylists()
+    getSpotifyTracksProcessed()
     getSpotifyImports()
     getSpotifyImportsProcessed()
   }
@@ -126,6 +129,32 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
       success(function(data) {
         $scope.spotify_playlists = data
         doWorkflow()
+      }).error(function(data, status, headers, config) {
+        resetWorkflow()
+      })
+  }
+
+  getSpotifyTracksProcessed = function() {
+    if ($scope.nextWorkflow() != "spotify_tracks_processed")
+      return false
+
+    $http.get("playlists/spotify").
+      success(function(data) {
+        $scope.spotify_playlists = data
+        $scope.spotify_tracks    = { total: 0, processed: 0, matched: 0}
+
+        angular.forEach($scope.spotify_playlists, function(playlist, i) {
+          $scope.spotify_tracks.total     += playlist.tracks.total
+          $scope.spotify_tracks.processed += playlist.tracks.processed
+          $scope.spotify_tracks.matched   += playlist.tracks.matched
+        })
+
+        if ($scope.spotify_tracks.total == $scope.spotify_tracks.processed) {
+          $scope.spotify_tracks_processed = true
+          doWorkflow()
+        }
+        else
+          $timeout(doWorkflow, 1500)
       }).error(function(data, status, headers, config) {
         resetWorkflow()
       })

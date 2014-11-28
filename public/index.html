@@ -87,6 +87,10 @@
           </div>
 
           <div ng-if="spotify_playlists" id="spotify_accordion" class="panel-group" role="tablist">
+            <div class="progress">
+              <div class="progress-bar progress-bar-success" style="width: {{spotify_tracks.processed/spotify_tracks.total*100}}%"></div>
+            </div>
+
             <div ng-repeat="playlist in spotify_playlists" class="panel panel-default">
               <div id="spotify_heading{{$index}}" class="panel-heading" role="tab">
                 <a data-toggle="collapse" data-parent="#spotify_accordion" href="#spotify_collapse{{$index}}">

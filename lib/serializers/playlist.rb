@@ -1,5 +1,7 @@
 class Serializers::Playlist < Serializers::Base
   structure(:default) do |sp|
+    items = sp["tracks"]["items"] || []
+
     {
       created_at:   Time.now.try(:iso8601),
       updated_at:   Time.now.try(:iso8601),
@@ -11,9 +13,9 @@ class Serializers::Playlist < Serializers::Base
 
       tracks: {
         total:      sp["tracks"]["total"],
-        matched:    0,
-        processed:  0,
-        items:      []
+        matched:    items.length,
+        processed:  items.length,
+        items:      items
       }
     }
   end

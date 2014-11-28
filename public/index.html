@@ -65,11 +65,11 @@
 
               <div id="rdio_collapse{{$index}}" class="panel-collapse collapse table-responsive" role="tabpanel">
                 <table class="table">
-                  <tr ng-repeat="track in playlist.tracks.items" ng-class="{ 'warning' : !track.id }">
+                  <tr ng-repeat="item in playlist.tracks.items" ng-class="{ 'warning' : !track.id }">
                     <td>{{$index+1}}.</td>
-                    <td>{{track.name}}</td>
-                    <td>{{track.artists[0].name}}</td>
-                    <td>{{track.album.name}}</td>
+                    <td>{{item.track.name}}</td>
+                    <td>{{item.track.artists[0].name}}</td>
+                    <td>{{item.track.album.name}}</td>
                   </tr>
                 </table>
               </div>

@@ -27,12 +27,14 @@ class Serializers::Playlist < Serializers::Base
 
     items = rp["tracks"].map do |rt|
       {
-        id:           key_map[rt["key"]],
-        name:         rt["name"],
-        duration_ms:  rt["duration"] * 1000,
-        album:        { type: "album", name: rt["album"] },
-        artists:      [{ type: "artist", name: rt["artist"] }],
-        external_ids: { isrc: rt["isrcs"][0], rdio_key: rt["key"] }
+        track: {
+          id:           key_map[rt["key"]],
+          name:         rt["name"],
+          duration_ms:  rt["duration"] * 1000,
+          album:        { type: "album", name: rt["album"] },
+          artists:      [{ type: "artist", name: rt["artist"] }],
+          external_ids: { isrc: rt["isrcs"][0], rdio_key: rt["key"] }
+        }
       }
     end
 

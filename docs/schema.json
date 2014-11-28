@@ -96,15 +96,29 @@
       "description": "Playlist for any provider (e.g. Rdio) in Spotify format",
       "links": [
         {
-          "description": "Info for existing playlist.",
+          "description": "Info for cached Rdio playlist.",
           "href": "/playlists/rdio/{(%23%2Fdefinitions%2Fplaylist%2Fdefinitions%2Fidentity)}",
           "method": "GET",
           "rel": "self",
           "title": "Info"
         },
         {
-          "description": "List existing playlists.",
+          "description": "List cached Rdio playlists.",
           "href": "/playlists/rdio",
+          "method": "GET",
+          "rel": "instances",
+          "title": "List"
+        },
+        {
+          "description": "Info for cached Spotify playlist.",
+          "href": "/playlists/spotify/{(%23%2Fdefinitions%2Fplaylist%2Fdefinitions%2Fidentity)}",
+          "method": "GET",
+          "rel": "self",
+          "title": "Info"
+        },
+        {
+          "description": "List cached Spotify playlists.",
+          "href": "/playlists/spotify",
           "method": "GET",
           "rel": "instances",
           "title": "List"

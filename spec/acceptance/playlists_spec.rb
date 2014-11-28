@@ -73,4 +73,69 @@ describe Endpoints::Playlists do
       end
     end
   end
+
+  context "Spotify" do
+    before do
+      # Create User with example response from https://developer.spotify.com/web-api/get-list-users-playlists/
+      @user = User.create(spotify_playlists: Sequel.pg_json(
+        {"href"=>"https://api.spotify.com/v1/users/wizzler/playlists", "items"=>[{"collaborative"=>false, "external_urls"=>{"spotify"=>"http://open.spotify.com/user/wizzler/playlists/53Y8wT46QIMz5H4WQ8O22c"}, "href"=>"https://api.spotify.com/v1/users/wizzler/playlists/53Y8wT46QIMz5H4WQ8O22c", "id"=>"53Y8wT46QIMz5H4WQ8O22c", "images"=>[], "name"=>"Wizzlers Big Playlist", "owner"=>{"external_urls"=>{"spotify"=>"http://open.spotify.com/user/wizzler"}, "href"=>"https://api.spotify.com/v1/users/wizzler", "id"=>"wizzler", "type"=>"user", "uri"=>"spotify:user:wizzler"}, "public"=>true, "tracks"=>{"href"=>"https://api.spotify.com/v1/users/wizzler/playlists/53Y8wT46QIMz5H4WQ8O22c/tracks", "total"=>30}, "type"=>"playlist", "uri"=>"spotify:user:wizzler:playlist:53Y8wT46QIMz5H4WQ8O22c"}, {"collaborative"=>false, "external_urls"=>{"spotify"=>"http://open.spotify.com/user/wizzlersmate/playlists/1AVZz0mBuGbCEoNRQdYQju"}, "href"=>"https://api.spotify.com/v1/users/wizzlersmate/playlists/1AVZz0mBuGbCEoNRQdYQju", "id"=>"1AVZz0mBuGbCEoNRQdYQju", "images"=>[], "name"=>"Another Playlist", "owner"=>{"external_urls"=>{"spotify"=>"http://open.spotify.com/user/wizzlersmate"}, "href"=>"https://api.spotify.com/v1/users/wizzlersmate", "id"=>"wizzlersmate", "type"=>"user", "uri"=>"spotify:user:wizzlersmate"}, "public"=>true, "tracks"=>{"href"=>"https://api.spotify.com/v1/users/wizzlersmate/playlists/1AVZz0mBuGbCEoNRQdYQju/tracks", "total"=>58}, "type"=>"playlist", "uri"=>"spotify:user:wizzlersmate:playlist:1AVZz0mBuGbCEoNRQdYQju"}], "limit"=>2, "next"=>nil, "offset"=>0, "previous"=>nil, "total"=>2}
+      ))
+      @env = { "rack.session" => { "uuid" => @user.uuid } }
+    end
+
+    describe 'GET /playlists' do
+      it 'returns correct status code and conforms to schema' do
+        get '/playlists/spotify', {}, @env
+        assert_equal 200, last_response.status
+        assert_schema_conform
+      end
+    end
+
+    describe 'POST /playlists' do
+      it 'returns correct status code and conforms to schema' do
+        header "Content-Type", "application/json"
+        post '/playlists/spotify', MultiJson.encode({}), @env
+
+        # TODO: How to define explcitly disabled endpoints in schema?
+        assert_equal 403, last_response.status
+        e = assert_raises Committee::InvalidResponse do
+          assert_schema_conform
+        end
+        assert e.message =~ /undefined in schema/
+      end
+    end
+
+    describe 'GET /playlists/:id' do
+      it 'returns correct status code and conforms to schema' do
+        get "/playlists/spotify/53Y8wT46QIMz5H4WQ8O22c", {}, @env
+        assert_equal 200, last_response.status
+        assert_schema_conform
+      end
+    end
+
+    describe 'PATCH /playlists/:id' do
+      it 'returns correct status code and conforms to schema' do
+        header "Content-Type", "application/json"
+        patch "/playlists/rdio/53Y8wT46QIMz5H4WQ8O22c", MultiJson.encode({}), @env
+
+        assert_equal 403, last_response.status
+        e = assert_raises Committee::InvalidResponse do
+          assert_schema_conform
+        end
+        assert e.message =~ /undefined in schema/
+      end
+    end
+
+    describe 'DELETE /playlists/:id' do
+      it 'returns correct status code and conforms to schema' do
+        delete "/playlists/rdio/53Y8wT46QIMz5H4WQ8O22c", {}, @env
+
+        assert_equal 403, last_response.status
+        e = assert_raises Committee::InvalidResponse do
+          assert_schema_conform
+        end
+        assert e.message =~ /undefined in schema/
+      end
+    end
+  end
 end

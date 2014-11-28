@@ -8,22 +8,28 @@ module Endpoints
         content_type :json, charset: "utf-8"
       end
 
-      get "/:provider" do |provider|
-        if params["spotify"]
-          encode @user.spotify_playlists
-        else
-          encode serialize(@user.rdio_playlists_to_a, :spotify)
-        end
+      get "/rdio" do
+        encode serialize(@user.rdio_playlists_to_a, :rdio)
+      end
+
+      get "/rdio/:id" do |id|
+        playlist = @user.rdio_playlists_to_a.detect { |p| p["key"] == id } || halt(404)
+        playlist.instance_eval { undef :map }
+        encode serialize(playlist, :rdio)
+      end
+
+      get "/spotify" do
+        encode serialize(@user.spotify_playlists["items"])
+      end
+
+      get "/spotify/:id" do |id|
+        playlist = @user.spotify_playlists["items"].detect { |p| p["id"] == id } || halt(404)
+        playlist.instance_eval { undef :map }
+        encode serialize(playlist)
       end
 
       post "/:provider" do |provider|
         halt 403, '{"error": "Forbidden"}'
-      end
-
-      get "/:provider/:id" do |provider, id|
-        playlist = @user.rdio_playlists_to_a.detect { |p| p["key"] == id } || halt(404)
-        playlist.instance_eval { undef :map }
-        encode serialize(playlist, :spotify)
       end
 
       patch "/:provider/:id" do |provider, id|

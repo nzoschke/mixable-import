@@ -58,7 +58,7 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
     if ($scope.nextWorkflow() != "rdio_playlists")
       return false
 
-    $http.get('playlists').
+    $http.get("playlists/rdio").
       success(function(data) {
         $scope.rdio_playlists = data
         $scope.rdio_tracks    = { total: 0, processed: 0, matched: 0}
@@ -79,7 +79,7 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
     if ($scope.nextWorkflow() != "rdio_tracks_processed")
       return false
 
-    $http.get('playlists').
+    $http.get("playlists/rdio").
       success(function(data) {
         $scope.rdio_playlists = data
         $scope.rdio_tracks    = { total: 0, processed: 0, matched: 0}
@@ -122,7 +122,7 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
     if ($scope.nextWorkflow() != "spotify_playlists")
       return false
 
-    $http.get('playlists?spotify=true').
+    $http.get("playlists/spotify").
       success(function(data) {
         $scope.spotify_playlists = data
         doWorkflow()

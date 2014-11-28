@@ -41,15 +41,15 @@
       <!-- Tab panes -->
       <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="rdio">
-          <div ng-if="!rdio_playlists">
+          <div ng-if="!rdio_username">
             <div class="jumbotron">
               <h1>Connect Mixable to Rdio</h1>
-              <h3>Mixable will get all your playlists and match all your tracks to Spotify.</h3>
-              <p><a class="btn btn-primary btn-lg" href="/auth/rdio" role="button">Connect</a></p>
+              <h3>Mixable will get all your Rdio playlists and match all your tracks to Spotify.</h3>
+              <p><a class="btn btn-primary btn-lg" href="/auth/rdio" role="button">Connect to Rdio</a></p>
             </div>
           </div>
 
-          <div ng-if="rdio_playlists" id="rdio_accordion" class="panel-group" role="tablist">
+          <div ng-if="rdio_username && rdio_playlists" id="rdio_accordion" class="panel-group" role="tablist">
             <div class="progress">
               <div class="progress-bar progress-bar-success" style="width: {{rdio_tracks.matched/rdio_tracks.total*100}}%"></div>
               <div class="progress-bar progress-bar-warning" style="width: {{(rdio_tracks.processed-rdio_tracks.matched)/rdio_tracks.total*100}}%"></div>
@@ -78,15 +78,15 @@
         </div>
 
         <div role="tabpanel" class="tab-pane" id="spotify">
-          <div ng-if="!spotify_playlists">
+          <div ng-if="!spotify_username">
             <div class="jumbotron">
               <h1>Connect Mixable to Spotify</h1>
-              <h3>Mixable will get all your playlists in case it needs to update or overwrite some.</h3>
-              <p><a class="btn btn-primary btn-lg" href="/auth/spotify" role="button">Connect</a></p>
+              <h3>Mixable will get all your Spotify playlists in case it needs to update or overwrite some.</h3>
+              <p><a class="btn btn-primary btn-lg" href="/auth/spotify" role="button">Connect to Spotify</a></p>
             </div>
           </div>
 
-          <div ng-if="spotify_playlists" id="spotify_accordion" class="panel-group" role="tablist">
+          <div ng-if="spotify_username && spotify_playlists" id="spotify_accordion" class="panel-group" role="tablist">
             <div class="progress">
               <div class="progress-bar progress-bar-success" style="width: {{spotify_tracks.processed/spotify_tracks.total*100}}%"></div>
             </div>
@@ -114,10 +114,23 @@
         </div>
 
         <div role="tabpanel" class="tab-pane" id="import">
-          <div class="jumbotron">
+          <div ng-if="!imports" class="jumbotron">
             <h1>Import Playlists</h1>
             <h3>Mixable will create or overwrite a Spotify playlist for every Rdio playlist.</h3>
-            <p><a class="btn btn-primary btn-lg" href="/auth/rdio" role="button">Import</a></p>
+            <p ng-if="!rdio_username"><a class="btn btn-primary btn-lg" href="/auth/rdio" role="button">Connect to Rdio</a></p>
+            <p ng-if="!spotify_username"><a class="btn btn-primary btn-lg" href="/auth/spotify" role="button">Connect to Spotify</a></p>
+            <p ng-if="!rdio_username || !spotify_username"><a class="btn btn-primary btn-lg disabled" href="/auth/rdio" role="button">Import Playlists</a></p>
+            <p ng-if="rdio_username && spotify_username"><a class="btn btn-primary btn-lg" href="/auth/rdio" role="button">Import Playlists</a></p>
+          </div>
+
+          <div ng-if="imports">
+            <div class="progress">
+              <div class="progress-bar progress-bar-success" style="width: {{imports.processed/imports.total*100}}%"></div>
+            </div>
+
+            <div ng-repeat="item in import.items" class="panel panel-default">
+              <div class="panel-heading" role="tab">{{ item }}</div>
+            </div>
           </div>
         </div>
 
@@ -125,93 +138,8 @@
           <div class="jumbotron">
             <h1>Disconnect</h1>
             <h3>Mixable will forget your Rdio and Spotify sessions.</h3>
-            <p><a class="btn btn-primary btn-lg" href="/auth?_method=DELETE" role="button">Disconnect</a></p>
+            <p><a class="btn btn-primary btn-lg" href="/auth?_method=DELETE" role="button">Disconnect from Rdio and Spotify</a></p>
           </div>
-        </div>
-      </div>
-
-    </div>
-
-    <div ng-controller="WorkflowCtrlOld">
-      <ol class="breadcrumb" ng-if="nextWorkflow() == 'rdio_username'">
-        <li class="active"><a href="/auth/rdio">Connect to Rdio</a></li>
-        <li>Connect to Spotify</li>
-        <li>Import Rdio -> Spotify</li>
-      </ol>
-      <ol class="breadcrumb" ng-if="nextWorkflow() == 'rdio_tracks_processed'">
-        <li class="active"><a href="/auth?_method=DELETE">Disconnect '{{rdio_username}}' from Rdio</a></li>
-        <li>Connect to Spotify</li>
-        <li>Import Rdio -> Spotify</li>
-      </ol>
-      <ol class="breadcrumb" ng-if="nextWorkflow() == 'spotify_username'">
-        <li><a href="/auth?_method=DELETE">Disconnect '{{rdio_username}}' from Rdio</a></li>
-        <li class="active"><a href="/auth/spotify">Connect to Spotify</a></li>
-        <li>Import Rdio -> Spotify</li>
-      </ol>
-      <ol class="breadcrumb" ng-if="nextWorkflow() == 'spotify_imports'">
-        <li><a href="/auth?_method=DELETE">Disconnect '{{rdio_username}}' from Rdio</a></li>
-        <li><a href="/auth?_method=DELETE">Disconnect '{{spotify_username}}' from Spotify</a></li>
-        <li class="active"><a ng-click="import()" ng-href="#import">Import Rdio -> Spotify</a></li>
-      </ol>
-      <ol class="breadcrumb" ng-if="nextWorkflow() == 'spotify_imports_processed' || nextWorkflow() == null">
-        <li><a href="/auth?_method=DELETE">Disconnect '{{rdio_username}}' from Rdio</a></li>
-        <li><a href="/auth?_method=DELETE">Disconnect '{{spotify_username}}' from Spotify</a></li>
-        <li>Import Rdio -> Spotify</li>
-        <li class="active"><a href="https://play.spotify.com/" target="_blank">Play!</a></li>
-      </ol>
-
-      <div ng-if="rdio_playlists" class="progress">
-        <div class="progress-bar progress-bar-success" style="width: {{rdio_tracks.matched/rdio_tracks.total*100}}%">
-        </div>
-        <div class="progress-bar progress-bar-warning" style="width: {{(rdio_tracks.processed-rdio_tracks.matched)/rdio_tracks.total*100}}%">
-        </div>
-      </div>
-
-      <div ng-if="spotify_imports" class="progress">
-        <div class="progress-bar progress-bar-success" style="width: {{spotify_imports.added/spotify_imports.total*100}}%">
-        </div>
-        <div class="progress-bar progress-bar-warning" style="width: {{(spotify_imports.processed-spotify_imports.added)/spotify_imports.total*100}}%">
-        </div>
-      </div>
-
-      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-        <div ng-repeat="playlist in rdio_playlists" class="panel panel-default">
-
-          <div class="panel-heading row" role="tab" id="heading{{$index}}">
-            <h1 class="panel-title col-md-5">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{$index}}">
-                {{playlist.name}}
-              </a>
-            </h1>
-
-            <h1 class="panel-title col-md-5">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{$index}}">
-                {{ spotifyImportName(playlist.name) }}
-              </a>
-            </h1>
-
-            <span class="col-md-2">
-              <span ng-class="playlist.tracks.matched == playlist.tracks.total ? 'label-success' : 'label-warning'" class="label">
-                {{ playlist.tracks.matched }} / {{ playlist.tracks.total }} matched
-              </span>
-
-              <span ng-if="conflicts(playlist.name)" class="label label-danger">
-                overwrite
-              </span>
-            </span>
-          </div>
-
-          <div id="collapse{{$index}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{$index}}">
-            <table class="table table-condensed table-bordered">
-              <tr ng-repeat="track in playlist.tracks.items" ng-class="{ 'warning' : !track.id }">
-                <td>{{$index+1}}.</td>
-                <td class="col-md-4">{{track.name}}</td>
-                <td class="col-md-4">{{track.artists[0].name}}</td>
-                <td class="col-md-4">{{track.album.name}}</td>
-              </tr>
-            </table>
-          </div>
-
         </div>
       </div>
 

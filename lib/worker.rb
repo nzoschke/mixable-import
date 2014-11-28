@@ -40,7 +40,7 @@ module Sidekiq::Middleware::Server
 end
 
 
-class UserPlaylistsWorker
+class RdioPlaylistsWorker
   include Sidekiq::Worker
 
   def perform(uuid)

@@ -25,7 +25,7 @@ describe User do
     end
 
     it "saves a JSON snapshot of Rdio playlists" do
-      expect(UserPlaylistsWorker).to receive(:perform_async) {}
+      expect(RdioPlaylistsWorker).to receive(:perform_async) {}
 
       @user.save_rdio_playlists!
       assert_equal "April Fools!", @user.rdio_playlists["owned"][1]["name"]
@@ -37,7 +37,7 @@ describe User do
     end
 
     it "gets playlists" do
-      expect(UserPlaylistsWorker).to receive(:perform_async) {}
+      expect(RdioPlaylistsWorker).to receive(:perform_async) {}
       @user.save_rdio_playlists!
     end
   end
@@ -113,7 +113,7 @@ describe User do
     end
 
     it "creates spotify playlists from an Rdio playlist and matched tracks" do
-      expect(UserPlaylistsWorker).to receive(:perform_async) {}
+      expect(RdioPlaylistsWorker).to receive(:perform_async) {}
 
       @user.save_rdio_playlists!
       @user.match_tracks!

@@ -22,9 +22,7 @@ class User < Sequel::Model
   def save_rdio_playlists!
     playlists = RdioClient.get_playlists(self)
     update(rdio_playlists: Sequel.pg_json(playlists))
-
-    # Async call match_tracks!
-    UserPlaylistsWorker.perform_async(uuid)
+    RdioPlaylistsWorker.perform_async(uuid) # Async call match_tracks!
   end
 
   def save_spotify_playlists!(opts={})

@@ -1,7 +1,7 @@
 module Endpoints
   class Root < Base
     get "/" do
-      redirect "/index.html"
+      send_file File.expand_path("index.html", settings.public_folder)
     end
 
     get "/auth" do
@@ -36,7 +36,7 @@ module Endpoints
       env["rack.session"].clear
       env["rack.session"]["uuid"]           = user.uuid
       env["rack.session"]["rdio_username"]  = user.rdio_username
-      redirect "/"
+      redirect "/#rdio"
     end
 
     get "/auth/spotify/callback" do
@@ -58,7 +58,7 @@ module Endpoints
       user.save_spotify_playlists!
 
       env["rack.session"]["spotify_username"] = user.spotify_username
-      redirect "/"
+      redirect "/#spotify"
     end
   end
 end

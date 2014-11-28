@@ -120,7 +120,7 @@
             <p ng-if="!rdio_username"><a class="btn btn-primary btn-lg" href="/auth/rdio" role="button">Connect to Rdio</a></p>
             <p ng-if="!spotify_username"><a class="btn btn-primary btn-lg" href="/auth/spotify" role="button">Connect to Spotify</a></p>
             <p ng-if="!rdio_username || !spotify_username"><a class="btn btn-primary btn-lg disabled" href="/auth/rdio" role="button">Import Playlists</a></p>
-            <p ng-if="rdio_username && spotify_username"><a class="btn btn-primary btn-lg" href="/auth/rdio" role="button">Import Playlists</a></p>
+            <p ng-if="rdio_username && spotify_username"><a ng-click="postImports()" ng-href="#import" class="btn btn-primary btn-lg" role="button">Import Playlists</a></p>
           </div>
 
           <div ng-if="imports">
@@ -128,7 +128,7 @@
               <div class="progress-bar progress-bar-success" style="width: {{imports.processed/imports.total*100}}%"></div>
             </div>
 
-            <div ng-repeat="item in import.items" class="panel panel-default">
+            <div ng-repeat="item in imports.items track by $index" class="panel panel-default">
               <div class="panel-heading" role="tab">{{ item }}</div>
             </div>
           </div>

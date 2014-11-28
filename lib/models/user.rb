@@ -30,6 +30,19 @@ class User < Sequel::Model
   def save_spotify_playlists!(opts={})
     playlists = SpotifyClient.get_playlists(self, opts)
     update(spotify_playlists: Sequel.pg_json(playlists))
+    SpotifyPlaylistsWorker.perform_async(uuid) # async call get_spotify_playlist_tracks!
+  end
+
+  def save_spotify_playlist_tracks!(opts={})
+    playlists = spotify_playlists
+
+    playlists["items"].each_with_index do |playlist, i|
+      tracks = SpotifyClient.get_playlist_tracks(self, playlist["id"], opts)
+      playlists["items"][i]["tracks"] = tracks
+
+      self.spotify_playlists = Sequel.pg_json(playlists)
+      self.save
+    end
   end
 
   def create_spotify_playlists!

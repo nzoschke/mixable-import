@@ -153,6 +153,27 @@ module SpotifyClient
     playlists
   end
 
+  def self.get_playlist_tracks(user, playlist_id, opts={})
+    # TODO: better fields for efficiency
+    opts[:offset] = 0
+    opts[:limit]  = opts[:limit] || 100
+
+    client = SpotifyClient.authorized_client(user)
+
+    tracks = client.get("users/#{user.spotify_id}/playlists/#{playlist_id}/tracks", opts).parsed
+
+    if tracks["next"]
+      while true
+        opts[:offset] += opts[:limit]
+        p = client.get("users/#{user.spotify_id}/playlists/#{playlist_id}/tracks", opts).parsed
+        tracks["items"] += p["items"]
+        break unless p["next"]
+      end
+    end
+
+    tracks
+  end
+
   def self.create_or_update_playlist(user, playlist_name, uris)
     client = SpotifyClient.authorized_client(user)
 

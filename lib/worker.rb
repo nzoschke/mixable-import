@@ -48,6 +48,14 @@ class UserPlaylistsWorker
   end
 end
 
+class SpotifyPlaylistsWorker
+  include Sidekiq::Worker
+
+  def perform(uuid)
+    User[uuid].save_spotify_playlist_tracks!
+  end
+end
+
 class ImportWorker
   include Sidekiq::Worker
 

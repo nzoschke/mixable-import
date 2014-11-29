@@ -55,7 +55,7 @@
               <div class="progress-bar progress-bar-warning" style="width: {{(rdio_tracks.processed-rdio_tracks.matched)/rdio_tracks.total*100}}%"></div>
             </div>
 
-            <div ng-repeat="playlist in rdio_playlists" class="panel panel-default">
+            <div ng-repeat="playlist in rdio_playlists | orderBy:'name'" class="panel panel-default">
               <div id="rdio_heading{{$index}}" class="panel-heading" role="tab">
                 <a data-toggle="collapse" data-parent="#rdio_accordion" href="#rdio_collapse{{$index}}">
                   {{ playlist.name }}
@@ -65,7 +65,7 @@
 
               <div id="rdio_collapse{{$index}}" class="panel-collapse collapse table-responsive" role="tabpanel">
                 <table class="table">
-                  <tr ng-repeat="item in playlist.tracks.items" ng-class="{ 'warning' : !track.id }">
+                  <tr ng-repeat="item in playlist.tracks.items" ng-class="{ 'warning' : !item.track.id }">
                     <td>{{$index+1}}.</td>
                     <td>{{item.track.name}}</td>
                     <td>{{item.track.artists[0].name}}</td>
@@ -91,7 +91,7 @@
               <div class="progress-bar progress-bar-success" style="width: {{spotify_tracks.processed/spotify_tracks.total*100}}%"></div>
             </div>
 
-            <div ng-repeat="playlist in spotify_playlists" class="panel panel-default">
+            <div ng-repeat="playlist in spotify_playlists | filter:'Rdio /' | orderBy:'name'" class="panel panel-default">
               <div id="spotify_heading{{$index}}" class="panel-heading" role="tab">
                 <a data-toggle="collapse" data-parent="#spotify_accordion" href="#spotify_collapse{{$index}}">
                   {{ playlist.name }}
@@ -101,7 +101,7 @@
 
               <div id="spotify_collapse{{$index}}" class="panel-collapse collapse table-responsive" role="tabpanel">
                 <table class="table">
-                  <tr ng-repeat="item in playlist.tracks.items" ng-class="{ 'warning' : !track.id }">
+                  <tr ng-repeat="item in playlist.tracks.items" ng-class="{ 'warning' : !item.track.id }">
                     <td>{{$index+1}}.</td>
                     <td>{{item.track.name}}</td>
                     <td>{{item.track.artists[0].name}}</td>

@@ -121,6 +121,9 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
       })
   }
 
+  $scope.conflicts = function(list) {
+  }
+
   $scope.spotifyImportName = function(rp_name) {
     return "Rdio / " + rp_name
   }

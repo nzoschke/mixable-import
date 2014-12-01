@@ -38,7 +38,7 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $timeout
       })
   }
 
-  getRdioPlaylists = function() {
+  getRdioPlaylists = function(cb) {
     if (!$scope.rdio_username)
       return
 
@@ -56,6 +56,7 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $timeout
         if ($scope.rdio_tracks.total == $scope.rdio_tracks.processed) {
           if ($scope.rdio_timeout)
             $timeout.cancel($scope.rdio_timeout)
+        cb()
         }
         else
           $scope.rdio_timeout = $timeout(getRdioPlaylists, 1500)
@@ -72,9 +73,35 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $timeout
       success(function(data) {
         $scope.spotify_playlists = data
 
-        $scope.r_spotify_playlists = $filter("filter")($scope.spotify_playlists, "Rdio")
-        $scope.s_spotify_playlists = $filter("filter")($scope.spotify_playlists, "!Rdio")
+        $scope.import_spotify_playlists = []
+        $scope.rdio_spotify_playlists   = []
+        $scope.other_spotify_playlists  = []
 
+        // Put Rdio playlists into new Spotify collection
+        import_playlist_names = []
+        for (var i = 0; i < $scope.rdio_playlists.length; i++) {
+          var p = $scope.rdio_playlists[i]
+          p.name = "Rdio / " + p.name
+          import_playlist_names.push(p.name)
+          $scope.import_spotify_playlists.push(p)
+        }
+
+        // Filter existing Spotify playlists into Spotify collections
+        for (var i = 0; i < $scope.spotify_playlists.length; i++) {
+          var p = $scope.spotify_playlists[i]
+
+          m = import_playlist_names.indexOf(p.name)
+          if (m >= 0) {
+            console.log(m)
+            $scope.import_spotify_playlists[m].overwrite = true
+            continue
+          }
+
+          if (p.name.indexOf("Rdio ") == 0)
+            $scope.rdio_spotify_playlists.push(p)
+          else
+            $scope.other_spotify_playlists.push(p)
+        }
       }).error(function(data, status, headers, config) {
         resetWorkflow()
       })
@@ -111,30 +138,12 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $timeout
       })
   }
 
-  $scope.conflicts = function(list) {
-  }
-
-  $scope.spotifyImportName = function(rp_name) {
-    return "Rdio / " + rp_name
-  }
-
-  $scope.conflicts = function(rp_name) {
-    if (!$scope.spotify_playlists)
-      return false
-
-    for (var i = 0; i < $scope.spotify_playlists.items.length; i++) {
-      var sp = $scope.spotify_playlists.items[i]
-      if (sp.name == $scope.spotifyImportName(rp_name))
-        return true
-    }
-    return false
-  }
-
   resetWorkflow()
   getUsernames(function() {
-    getRdioPlaylists()
-    getSpotifyPlaylists()
-    getImports()
+    getRdioPlaylists(function() {
+      getSpotifyPlaylists()
+      getImports()      
+    })
   })
 })
 

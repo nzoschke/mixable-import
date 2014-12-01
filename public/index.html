@@ -91,16 +91,27 @@
               <div class="progress-bar progress-bar-success" style="width: {{spotify_playlists.length/spotify_playlists.length*100}}%"></div>
             </div>
 
-            <div class="panel panel-default panel-info">
+            <div class="panel panel-primary">
               <div id="r_spotify_heading" class="panel-heading" role="tab">
-                <a data-toggle="collapse" data-parent="#spotify_accordion" href="#spotify_collapse0">
-                  Rdio Playlists
-                </a>
-                <span class="badge">{{ r_spotify_playlists.length }}</span>
+                <h3 class="panel-title">
+                  <a data-toggle="collapse" data-parent="#spotify_accordion" href="#spotify_collapse0">
+                    Rdio Playlists
+                  </a>
+                  <span class="badge">{{ import_spotify_playlists.length + rdio_spotify_playlists.length }}</span>
+                </h3>
               </div>
 
               <div id="spotify_collapse0" class="panel-collapse collapse in" role="tabpanel">
-                <div ng-repeat="playlist in r_spotify_playlists | orderBy:'name'" class="panel panel-default">
+                <div ng-repeat="playlist in import_spotify_playlists | orderBy:'name'" ng-class="playlist.overwrite ? 'panel-warning' : 'panel-info'" class="panel">
+                  <div id="r_spotify_heading{{$index}}" class="panel-heading" role="tab">
+                    {{ playlist.name }}
+                    <span class="badge">{{ playlist.tracks.total }}</span>
+                    <span ng-if="!playlist.overwrite" class="label label-info">New</span>
+                    <span ng-if="playlist.overwrite" class="label label-warning">Overwrite</span>
+                  </div>
+                </div>
+
+                <div ng-repeat="playlist in rdio_spotify_playlists | orderBy:'name'" class="panel panel-default">
                   <div id="r_spotify_heading{{$index}}" class="panel-heading" role="tab">
                     {{ playlist.name }}
                     <span class="badge">{{ playlist.tracks.total }}</span>
@@ -109,16 +120,18 @@
               </div>
             </div>
 
-            <div class="panel panel-default panel-success">
+            <div class="panel panel-primary">
               <div id="r_spotify_heading" class="panel-heading" role="tab">
-                <a data-toggle="collapse" data-parent="#spotify_accordion" href="#spotify_collapse1">
-                  Other Playlists
-                </a>
-                <span class="badge">{{ s_spotify_playlists.length }}</span>
+                <h3 class="panel-title">
+                  <a data-toggle="collapse" data-parent="#spotify_accordion" href="#spotify_collapse1">
+                    Other Playlists
+                  </a>
+                  <span class="badge">{{ other_spotify_playlists.length }}</span>
+                </h3>
               </div>
 
               <div id="spotify_collapse1" class="panel-collapse collapse" role="tabpanel">
-                <div ng-repeat="playlist in s_spotify_playlists | orderBy:'name'" class="panel panel-default">
+                <div ng-repeat="playlist in other_spotify_playlists | orderBy:'name'" class="panel panel-default">
                   <div id="s_spotify_heading{{$index}}" class="panel-heading" role="tab">
                     {{ playlist.name }}
                     <span class="badge">{{ playlist.tracks.total }}</span>

@@ -1,7 +1,7 @@
 
 var streamsApp = angular.module('streamsApp', []);
 
-streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
+streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $timeout) {
   resetWorkflow = function() {
     if ($scope.rdio_timeout)
       $timeout.cancel($scope.rdio_timeout)
@@ -71,20 +71,10 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $http, $timeout) {
     $http.get("playlists/spotify").
       success(function(data) {
         $scope.spotify_playlists = data
-        $scope.spotify_tracks    = { total: 0, processed: 0, matched: 0}
 
-        angular.forEach($scope.spotify_playlists, function(playlist, i) {
-          $scope.spotify_tracks.total     += playlist.tracks.total
-          $scope.spotify_tracks.processed += playlist.tracks.processed
-          $scope.spotify_tracks.matched   += playlist.tracks.matched
-        })
+        $scope.r_spotify_playlists = $filter("filter")($scope.spotify_playlists, "Rdio")
+        $scope.s_spotify_playlists = $filter("filter")($scope.spotify_playlists, "!Rdio")
 
-        if ($scope.spotify_tracks.total == $scope.spotify_tracks.processed) {
-          if ($scope.spotify_timeout)
-            $timeout.cancel($scope.spotify_timeout)
-        }
-        else
-          $scope.spotify_timeout = $timeout(getSpotifyPlaylists, 1500)
       }).error(function(data, status, headers, config) {
         resetWorkflow()
       })
@@ -158,5 +148,6 @@ $(function () {
   // Change hash for page-reload
   $('.nav-tabs a').on('shown.bs.tab', function (e) {
     window.location.hash = e.target.hash
+    window.scrollTo(0, 0)
   })
 })

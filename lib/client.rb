@@ -133,18 +133,18 @@ module SpotifyClient
     end.flatten
   end
 
-  def self.get_playlists(user, opts={})
-    opts[:offset] = 0
-    opts[:limit]  = opts[:limit] || 50
+  def self.get_playlists(user, params={})
+    params[:offset] = 0
+    params[:limit]  = params[:limit] || 50
 
     client = SpotifyClient.authorized_client(user)
 
-    playlists = client.get("users/#{user.spotify_id}/playlists", opts).parsed
+    playlists = client.get("users/#{user.spotify_id}/playlists", params: params).parsed
 
     if playlists["next"]
       while true
-        opts[:offset] += opts[:limit]
-        p = client.get("users/#{user.spotify_id}/playlists", opts).parsed
+        params[:offset] += params[:limit]
+        p = client.get("users/#{user.spotify_id}/playlists", params: params).parsed
         playlists["items"] += p["items"]
         break unless p["next"]
       end
@@ -153,19 +153,19 @@ module SpotifyClient
     playlists
   end
 
-  def self.get_playlist_tracks(user, playlist_id, opts={})
+  def self.get_playlist_tracks(user, playlist_id, params={})
     # TODO: better fields for efficiency
-    opts[:offset] = 0
-    opts[:limit]  = opts[:limit] || 100
+    params[:offset] = 0
+    params[:limit]  = params[:limit] || 100
 
     client = SpotifyClient.authorized_client(user)
 
-    tracks = client.get("users/#{user.spotify_id}/playlists/#{playlist_id}/tracks", opts).parsed
+    tracks = client.get("users/#{user.spotify_id}/playlists/#{playlist_id}/tracks", params: params).parsed
 
     if tracks["next"]
       while true
-        opts[:offset] += opts[:limit]
-        p = client.get("users/#{user.spotify_id}/playlists/#{playlist_id}/tracks", opts).parsed
+        params[:offset] += params[:limit]
+        p = client.get("users/#{user.spotify_id}/playlists/#{playlist_id}/tracks", params: params).parsed
         tracks["items"] += p["items"]
         break unless p["next"]
       end

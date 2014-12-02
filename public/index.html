@@ -41,7 +41,7 @@
       <!-- Tab panes -->
       <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="rdio">
-          <div ng-if="!rdio_username">
+          <div ng-if="!auth.rdio_username">
             <div class="jumbotron">
               <h1>Connect Mixable to Rdio</h1>
               <h3>Mixable will get all your Rdio playlists and match all your tracks to Spotify.</h3>
@@ -49,7 +49,7 @@
             </div>
           </div>
 
-          <div ng-if="rdio_username && rdio_playlists" id="rdio_accordion" class="panel-group" role="tablist">
+          <div ng-if="rdio_playlists" id="rdio_accordion" class="panel-group" role="tablist">
             <div class="progress">
               <div class="progress-bar progress-bar-success" style="width: {{rdio_tracks.matched/rdio_tracks.total*100}}%"></div>
               <div class="progress-bar progress-bar-warning" style="width: {{(rdio_tracks.processed-rdio_tracks.matched)/rdio_tracks.total*100}}%"></div>
@@ -78,7 +78,7 @@
         </div>
 
         <div role="tabpanel" class="tab-pane" id="spotify">
-          <div ng-if="!spotify_username">
+          <div ng-if="!auth.spotify_username">
             <div class="jumbotron">
               <h1>Connect Mixable to Spotify</h1>
               <h3>Mixable will get all your Spotify playlists in case it needs to update or overwrite some.</h3>
@@ -97,12 +97,18 @@
                   <a data-toggle="collapse" data-parent="#spotify_accordion" href="#spotify_collapse0">
                     Rdio Playlists
                   </a>
-                  <span class="badge">{{ import_spotify_playlists.length + rdio_spotify_playlists.length }}</span>
+                  <span class="badge">{{ import_playlists.length + rdio_spotify_playlists.length }}</span>
                 </h3>
               </div>
 
               <div id="spotify_collapse0" class="panel-collapse collapse in" role="tabpanel">
-                <div ng-repeat="playlist in import_spotify_playlists | orderBy:'name'" ng-class="playlist.overwrite ? 'panel-warning' : 'panel-info'" class="panel">
+                <div ng-if="!import_playlists" class="panel">
+                  <div class="panel-heading" role="tab">
+                    Connect to Rdio for Import Playlists!
+                  </div>
+                </div>
+
+                <div ng-repeat="playlist in import_playlists | orderBy:'name'" ng-class="playlist.overwrite ? 'panel-warning' : 'panel-info'" class="panel">
                   <div id="r_spotify_heading{{$index}}" class="panel-heading" role="tab">
                     {{ playlist.name }}
                     <span class="badge">{{ playlist.tracks.total }}</span>
@@ -147,10 +153,10 @@
           <div ng-if="!imports" class="jumbotron">
             <h1>Import Playlists</h1>
             <h3>Mixable will create or overwrite a Spotify playlist for every Rdio playlist.</h3>
-            <p ng-if="!rdio_username"><a class="btn btn-primary btn-lg" href="/auth/rdio" role="button">Connect to Rdio</a></p>
-            <p ng-if="!spotify_username"><a class="btn btn-primary btn-lg" href="/auth/spotify" role="button">Connect to Spotify</a></p>
-            <p ng-if="!rdio_username || !spotify_username"><a class="btn btn-primary btn-lg disabled" href="/auth/rdio" role="button">Import Playlists</a></p>
-            <p ng-if="rdio_username && spotify_username"><a ng-click="postImports()" ng-href="#import" class="btn btn-primary btn-lg" role="button">Import Playlists</a></p>
+            <p ng-if="!auth.rdio_username"><a class="btn btn-primary btn-lg" href="/auth/rdio" role="button">Connect to Rdio</a></p>
+            <p ng-if="!auth.spotify_username"><a class="btn btn-primary btn-lg" href="/auth/spotify" role="button">Connect to Spotify</a></p>
+            <p ng-if="!auth.rdio_username || !auth.spotify_username"><a class="btn btn-primary btn-lg disabled" href="/auth/rdio" role="button">Import Playlists</a></p>
+            <p ng-if="auth.rdio_username && auth.spotify_username"><a ng-click="postImports()" ng-href="#import" class="btn btn-primary btn-lg" role="button">Import Playlists</a></p>
           </div>
 
           <div ng-if="imports">

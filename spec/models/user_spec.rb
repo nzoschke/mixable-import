@@ -58,7 +58,7 @@ describe User do
     end
 
     it "gets Spotify playlists" do
-      expect(SpotifyPlaylistsWorker).to receive(:perform_async) {}
+      # expect(SpotifyPlaylistsWorker).to receive(:perform_async) {}
 
       @user.save_spotify_playlists!
       playlists = @user.spotify_playlists
@@ -68,8 +68,6 @@ describe User do
     end
 
     it "gets Spotify playlists with pagination" do
-      expect(SpotifyPlaylistsWorker).to receive(:perform_async) {}
-
       @user.save_spotify_playlists!(limit: 1)
       playlists = @user.spotify_playlists
 
@@ -78,8 +76,6 @@ describe User do
     end
 
     it "gets Spotify playlists and tracks with pagination" do
-      expect(SpotifyPlaylistsWorker).to receive(:perform_async) {}
-
       @user.save_spotify_playlists!(limit: 1)
       @user.save_spotify_playlist_tracks!(limit: 1)
 

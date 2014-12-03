@@ -56,7 +56,7 @@ class SpotifyPlaylistsWorker
   end
 end
 
-class ImportWorker
+class SpotifyImportWorker
   include Sidekiq::Worker
 
   def perform(uuid)

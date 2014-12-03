@@ -12,9 +12,13 @@ module Endpoints
       end
 
       post do
-        halt 403, '{"error": "Import in progress"}' if @user.spotify_import_in_progress?
+        begin
+          @user.start_spotify_import!
+        rescue ImportError => e
+          halt 403, "{\"error\": \"#{e.message}\"}"
+        end
 
-        ImportWorker.perform_async(@user.uuid)
+        SpotifyImportWorker.perform_async(@user.uuid)
 
         status 201
         encode(@user.spotify_imports)

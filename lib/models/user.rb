@@ -12,11 +12,40 @@ class User < Sequel::Model
     rdio_playlists["owned"] + rdio_playlists["collab"] + rdio_playlists["subscribed"] + rdio_playlists["favorites"]
   end
 
-  def spotify_import_in_progress?
-    # TODO: expire lock
-    i = self.spotify_imports
-    return false unless i && i[:total]
-    i[:processed] < i[:total]
+  def start_spotify_import!(opts={})
+    created_at = opts[:created_at] || Time.now
+    updated_at = opts[:updated_at] || Time.now
+    expires_in = opts[:expires_in] || 120
+
+    # Verify that track matching is not in progress
+    playlists = Serializers::Playlist.new(:rdio).serialize(rdio_playlists_to_a)
+
+    total     = 0
+    processed = 0
+
+    playlists.each do |playlist|
+      total     += playlist[:tracks][:total]
+      processed += playlist[:tracks][:processed]
+    end
+
+    if processed < total
+      raise ImportError.new("Track matching in progress")
+    end
+
+    if spotify_imports
+      raise ImportError.new("Import in progress") unless spotify_imports[:created_at] < created_at - expires_in
+    end
+
+    update(spotify_imports: Sequel.pg_json({
+      created_at: created_at,
+      updated_at: updated_at,
+      total:      rdio_playlists_to_a.count,
+      added:      0,
+      processed:  0,
+      items:      []
+    }))
+
+    spotify_imports
   end
 
   def save_rdio_playlists!
@@ -44,15 +73,7 @@ class User < Sequel::Model
   end
 
   def create_spotify_playlists!
-    # assumes all Rdio playlists should be imported and all tracks been matched
-    imports = {
-      total:      rdio_playlists_to_a.count,
-      added:      0,
-      processed:  0,
-      items:      []
-    }
-
-    update(spotify_imports: Sequel.pg_json(imports))
+    imports = spotify_imports
 
     rdio_playlists_to_a.each do |playlist|
       name          = "Rdio / #{playlist['name']}"
@@ -72,8 +93,8 @@ class User < Sequel::Model
       imports[:items]     << p["id"]
 
       # FIXME: why doesn't update work?!
-      self.spotify_imports = Sequel.pg_json(imports)
-      self.save
+      spotify_imports = Sequel.pg_json(imports)
+      save
     end
 
     imports
@@ -98,3 +119,5 @@ class User < Sequel::Model
     end
   end
 end
+
+class ImportError < Exception ; end

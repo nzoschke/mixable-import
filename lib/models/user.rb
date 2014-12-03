@@ -33,20 +33,21 @@ class User < Sequel::Model
       raise ImportError.new("Track matching in progress")
     end
 
-    if spotify_imports
-      raise ImportError.new("Import in progress") unless spotify_imports[:created_at] < created_at - expires_in
+    if i = imports.last
+      raise ImportError.new("Import in progress") unless i[:created_at] < created_at - expires_in
     end
 
-    update(spotify_imports: Sequel.pg_json({
+    Import.create(
+      user:       self,
       created_at: created_at,
       updated_at: updated_at,
-      total:      rdio_playlists_to_a.count,
-      added:      0,
-      processed:  0,
-      items:      []
-    }))
-
-    spotify_imports
+      spotify_playlists: Sequel.pg_json({
+        total:      rdio_playlists_to_a.count,
+        added:      0,
+        processed:  0,
+        items:      []
+      })
+    )
   end
 
   def save_rdio_playlists!

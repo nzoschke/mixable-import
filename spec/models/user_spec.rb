@@ -103,10 +103,10 @@ describe User do
 
   context "Rdio and Spotify" do
     it "creates no spotify playlists if there are no Rdio playlists" do
-      @user.start_spotify_import!(created_at: Time.at(0), updated_at: Time.at(0))
-      p = @user.create_spotify_playlists!
-      assert_equal({ :created_at=>Time.at(0), :updated_at=>Time.at(0), :total=>0, :added=>0, :processed=>0, :items=>[] }, p)
-      assert_equal({ :created_at=>Time.at(0), :updated_at=>Time.at(0), :total=>0, :added=>0, :processed=>0, :items=>[] }, @user.spotify_imports)
+      i = Import.start_spotify! @user
+      i.work_spotify!
+
+      assert_equal({"total"=>0, "added"=>0, "processed"=>0, "items"=>[]}, i.spotify_playlists)
     end
 
     it "creates spotify playlists from an Rdio playlist and matched tracks" do
@@ -114,13 +114,14 @@ describe User do
 
       @user.save_rdio_playlists!
       @user.match_tracks!
-      @user.start_spotify_import!(created_at: Time.at(0), updated_at: Time.at(0))
-      @user.create_spotify_playlists!
+
+      i = Import.start_spotify! @user
+      i.work_spotify!
 
       assert_equal 4, @user.rdio_playlists_to_a.length
       assert_equal(
-        { :created_at=>Time.at(0), :updated_at=>Time.at(0), :total=>4, :added=>4, :processed=>4, :items=>["0OdRtoI4Sk4Ts1sALNuiWN", "4BHE88Vl90BnQK17nG2qv4", "5nkYmgsA1XkOHnlw1vEiNs", "5nkYmgsA1XkOHnlw1vEiNs"] },
-        @user.spotify_imports
+        {"total"=>4, "added"=>4, "processed"=>4, "items"=>["0OdRtoI4Sk4Ts1sALNuiWN", "4BHE88Vl90BnQK17nG2qv4", "5nkYmgsA1XkOHnlw1vEiNs", "5nkYmgsA1XkOHnlw1vEiNs"]},
+        @user.imports.last.spotify_playlists
       )
     end
   end

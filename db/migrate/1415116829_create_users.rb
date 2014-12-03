@@ -19,8 +19,6 @@ Sequel.migration do
       timestamptz  :spotify_expires_at
 
       json         :spotify_playlists
-
-      json         :spotify_imports
     end
   end
 end

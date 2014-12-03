@@ -16,35 +16,35 @@ describe Import do
     @track.delete
 
     e = assert_raises ImportError do
-      @user.start_spotify_import!
+      Import.start_spotify!(@user)
     end
 
     assert_equal "Track matching in progress", e.message
   end
 
   it "doesn't start if another import is in progress" do
-    @user.start_spotify_import!
+    Import.start_spotify!(@user)
 
     e = assert_raises ImportError do
-      @user.start_spotify_import!
+      Import.start_spotify!(@user)
     end
 
     assert_equal "Import in progress", e.message
   end
 
   it "does start if another import has expired" do
-    @user.start_spotify_import!(created_at: Time.now - 120)
+    Import.start_spotify!(@user, created_at: Time.now - 120)
 
     e = assert_raises ImportError do
-      @user.start_spotify_import!(created_at: Time.now - 10)
+      Import.start_spotify!(@user, created_at: Time.now - 10)
     end
     assert_equal "Import in progress", e.message
 
-    @user.start_spotify_import!(created_at: Time.now)
+    Import.start_spotify!(@user, created_at: Time.now)
   end
 
   it "tracks progress by playlist name and count and track count" do
-    i = @user.start_spotify_import!
+    i = Import.start_spotify!(@user)
 
     assert i[:created_at]
     assert i[:updated_at]

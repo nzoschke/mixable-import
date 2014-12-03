@@ -13,59 +13,54 @@ describe Endpoints::Imports do
   end
 
   before do
-    @user = User.create(rdio_playlists: Sequel.pg_json({
-      "collab"      => [],
-      "subscribed"  => [],
-      "favorites"   => [],
-      "owned"       => [{ "name"=>"April Fools!", "tracks"=>[ {"album"=>"The Bends (Collector's Edition)", "isrcs"=>["GBAYE9400673"], "name"=>"The Trickster", "artist"=>"Radiohead", "key"=>"t2062973", "duration"=>282}, ], "length"=>1, "key"=>"p8763814" }]
-    }))
+    @user   = User.create
+    @import = Import.create(user: @user)
+    # @import.user = @user
 
-    @track = Track.create(rdio_key: "t2062973")
-
-    @env = { "rack.session" => { "uuid" => @user.uuid } }
+    # temporarily touch #updated_at until we can fix prmd
+    @import.updated_at
+    @import.save
   end
 
   describe 'GET /imports' do
     it 'returns correct status code and conforms to schema' do
-      get '/imports', {}, @env
+      get '/imports'
       assert_equal 200, last_response.status
-      #assert_schema_conform
+      assert_schema_conform
     end
   end
 
   describe 'POST /imports' do
     it 'returns correct status code and conforms to schema' do
-      expect(SpotifyImportWorker).to receive(:perform_async) {}
-
       header "Content-Type", "application/json"
-      post '/imports', MultiJson.encode({}), @env
+      post '/imports', MultiJson.encode({ user_uuid: @user.uuid, updated_at: Time.now })
       assert_equal 201, last_response.status
-      #assert_schema_conform
+      assert_schema_conform
     end
   end
 
   describe 'GET /imports/:id' do
     it 'returns correct status code and conforms to schema' do
-      get "/imports/123", {}, @env
-      assert_equal 403, last_response.status
-      #assert_schema_conform
+      get "/imports/#{@import.uuid}"
+      assert_equal 200, last_response.status
+      assert_schema_conform
     end
   end
 
   describe 'PATCH /imports/:id' do
     it 'returns correct status code and conforms to schema' do
       header "Content-Type", "application/json"
-      patch '/imports/123', MultiJson.encode({}), @env
-      assert_equal 403, last_response.status
-      #assert_schema_conform
+      patch "/imports/#{@import.uuid}", MultiJson.encode({})
+      assert_equal 200, last_response.status
+      assert_schema_conform
     end
   end
 
   describe 'DELETE /imports/:id' do
     it 'returns correct status code and conforms to schema' do
-      delete '/imports/123', {}, @env
-      assert_equal 403, last_response.status
-      #assert_schema_conform
+      delete "/imports/#{@import.uuid}"
+      assert_equal 200, last_response.status
+      assert_schema_conform
     end
   end
 end

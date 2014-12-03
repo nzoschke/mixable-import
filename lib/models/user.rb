@@ -1,5 +1,6 @@
 class User < Sequel::Model
   plugin :timestamps
+  one_to_many :imports, key: :user_uuid
 
   def self.find_or_create_by_rdio_key(key)
     User[rdio_key: key] || User.create(rdio_key: key)

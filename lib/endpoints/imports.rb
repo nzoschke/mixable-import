@@ -2,38 +2,43 @@ module Endpoints
   class Imports < Base
     namespace "/imports" do
       before do
-        halt 401, '{"error": "No OAuth Session"}' unless @user = User[env['rack.session']['uuid']]
-
         content_type :json, charset: 'utf-8'
       end
 
       get do
-        encode(@user.spotify_imports)
+        encode serialize(Import.all)
       end
 
       post do
-        begin
-          @user.start_spotify_import!
-        rescue ImportError => e
-          halt 403, "{\"error\": \"#{e.message}\"}"
-        end
-
-        SpotifyImportWorker.perform_async(@user.uuid)
-
+        # warning: not safe
+        import = Import.new(body_params)
+        import.save
         status 201
-        encode(@user.spotify_imports)
+        encode serialize(import)
       end
 
-      get "/:id" do
-        halt 403, '{"error": "Forbidden"}'
+      get "/:id" do |id|
+        import = Import.first(uuid: id) || halt(404)
+        encode serialize(import)
       end
 
       patch "/:id" do |id|
-        halt 403, '{"error": "Forbidden"}'
+        import = Import.first(uuid: id) || halt(404)
+        # warning: not safe
+        #import.update(body_params)
+        encode serialize(import)
       end
 
       delete "/:id" do |id|
-        halt 403, '{"error": "Forbidden"}'
+        import = Import.first(uuid: id) || halt(404)
+        import.destroy
+        encode serialize(import)
+      end
+
+      private
+
+      def serialize(data, structure = :default)
+        Serializers::Import.new(structure).serialize(data)
       end
     end
   end

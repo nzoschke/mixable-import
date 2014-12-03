@@ -2,14 +2,17 @@ module Endpoints
   class Imports < Base
     namespace "/imports" do
       before do
-        content_type :json, charset: 'utf-8'
+        halt 401, '{"error": "No session"}' unless uuid = env["rack.session"]["uuid"]
+        @user = User[uuid]
+
+        content_type :json, charset: "utf-8"
       end
 
-      get do
+      get "/spotify" do
         encode serialize(Import.all)
       end
 
-      post do
+      post "/spotify" do
         # warning: not safe
         import = Import.new(body_params)
         import.save
@@ -17,19 +20,19 @@ module Endpoints
         encode serialize(import)
       end
 
-      get "/:id" do |id|
+      get "/spotify/:id" do |id|
         import = Import.first(uuid: id) || halt(404)
         encode serialize(import)
       end
 
-      patch "/:id" do |id|
+      patch "/spotify/:id" do |id|
         import = Import.first(uuid: id) || halt(404)
         # warning: not safe
         #import.update(body_params)
         encode serialize(import)
       end
 
-      delete "/:id" do |id|
+      delete "/spotify/:id" do |id|
         import = Import.first(uuid: id) || halt(404)
         import.destroy
         encode serialize(import)

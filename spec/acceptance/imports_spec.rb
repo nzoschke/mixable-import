@@ -15,52 +15,55 @@ describe Endpoints::Imports do
   before do
     @user   = User.create
     @import = Import.create(user: @user)
-    # @import.user = @user
 
-    # temporarily touch #updated_at until we can fix prmd
     @import.updated_at
     @import.save
+
+    @env = { "rack.session" => { "uuid" => @user.uuid } }
   end
 
-  describe 'GET /imports' do
-    it 'returns correct status code and conforms to schema' do
-      get '/imports'
-      assert_equal 200, last_response.status
-      assert_schema_conform
+  context "Spotify" do
+
+    describe 'GET /imports' do
+      it 'returns correct status code and conforms to schema' do
+        get '/imports/spotify', {}, @env
+        assert_equal 200, last_response.status
+        assert_schema_conform
+      end
     end
-  end
 
-  describe 'POST /imports' do
-    it 'returns correct status code and conforms to schema' do
-      header "Content-Type", "application/json"
-      post '/imports', MultiJson.encode({ user_uuid: @user.uuid, updated_at: Time.now })
-      assert_equal 201, last_response.status
-      assert_schema_conform
+    describe 'POST /imports' do
+      it 'returns correct status code and conforms to schema' do
+        header "Content-Type", "application/json"
+        post '/imports/spotify', MultiJson.encode({ user_uuid: @user.uuid, updated_at: Time.now }), @env
+        assert_equal 201, last_response.status
+        assert_schema_conform
+      end
     end
-  end
 
-  describe 'GET /imports/:id' do
-    it 'returns correct status code and conforms to schema' do
-      get "/imports/#{@import.uuid}"
-      assert_equal 200, last_response.status
-      assert_schema_conform
+    describe 'GET /imports/:id' do
+      it 'returns correct status code and conforms to schema' do
+        get "/imports/spotify/#{@import.uuid}", {}, @env
+        assert_equal 200, last_response.status
+        assert_schema_conform
+      end
     end
-  end
 
-  describe 'PATCH /imports/:id' do
-    it 'returns correct status code and conforms to schema' do
-      header "Content-Type", "application/json"
-      patch "/imports/#{@import.uuid}", MultiJson.encode({})
-      assert_equal 200, last_response.status
-      assert_schema_conform
+    describe 'PATCH /imports/:id' do
+      it 'returns correct status code and conforms to schema' do
+        header "Content-Type", "application/json"
+        patch "/imports/spotify/#{@import.uuid}", MultiJson.encode({}), @env
+        assert_equal 200, last_response.status
+        assert_schema_conform
+      end
     end
-  end
 
-  describe 'DELETE /imports/:id' do
-    it 'returns correct status code and conforms to schema' do
-      delete "/imports/#{@import.uuid}"
-      assert_equal 200, last_response.status
-      assert_schema_conform
+    describe 'DELETE /imports/:id' do
+      it 'returns correct status code and conforms to schema' do
+        delete "/imports/spotify/#{@import.uuid}", {}, @env
+        assert_equal 200, last_response.status
+        assert_schema_conform
+      end
     end
   end
 end

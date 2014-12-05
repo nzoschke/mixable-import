@@ -2,6 +2,16 @@ class Import < Sequel::Model
   plugin :timestamps
   many_to_one :user, key: :user_uuid
 
+  def before_create
+    self.spotify_playlists ||= Sequel.pg_json({
+      total:      user.rdio_playlists_to_a.count,
+      added:      0,
+      processed:  0,
+      items:      []
+    })
+    super
+  end
+
   def self.start_spotify!(user, opts={})
     created_at = opts[:created_at] || Time.now
     updated_at = opts[:updated_at] || Time.now
@@ -23,19 +33,16 @@ class Import < Sequel::Model
     end
 
     if i = user.imports.last
-      raise ImportError.new("Import in progress") unless i[:created_at] < created_at - expires_in
+      p = i[:spotify_playlists]
+      if p["processed"] < p["total"] && i[:created_at]
+        raise ImportError.new("Import in progress") unless i[:created_at] < created_at - expires_in
+      end
     end
 
     self.create(
       user:       user,
       created_at: created_at,
       updated_at: updated_at,
-      spotify_playlists: Sequel.pg_json({
-        total:      user.rdio_playlists_to_a.count,
-        added:      0,
-        processed:  0,
-        items:      []
-      })
     )
   end
 

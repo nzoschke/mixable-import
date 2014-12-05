@@ -19,7 +19,11 @@ module Endpoints
       end
 
       get "/spotify" do
-        encode serialize(@user.spotify_playlists["items"])
+        if !@user.spotify_playlists
+          encode serialize([])
+        else
+          encode serialize(@user.spotify_playlists["items"])
+        end
       end
 
       get "/spotify/:id" do |id|

@@ -70,15 +70,18 @@ module Endpoints
     end
 
     get "/reset" do
-      u = User[rdio_username: "nzoschke"]
-      u.rdio_playlists_to_a.each do |list|
-        list['tracks'].each do |track|
-          t = Track[rdio_key: track['key']]
-          t.delete if t
+      if u = User[rdio_username: "nzoschke"]
+        u.rdio_playlists_to_a.each do |list|
+          list['tracks'].each do |track|
+            if t = Track[rdio_key: track['key']]
+              t.delete
+            end
+          end
         end
-      end
 
-      u.delete
+        u.delete
+
+      end
 
       env["rack.session"].clear
       redirect "/"

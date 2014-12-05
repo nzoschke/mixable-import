@@ -34,6 +34,8 @@ describe Endpoints::Imports do
 
     describe 'POST /imports' do
       it 'returns correct status code and conforms to schema' do
+        expect(SpotifyImportWorker).to receive(:perform_async) {}
+
         header "Content-Type", "application/json"
         post '/imports/spotify', MultiJson.encode({ user_uuid: @user.uuid, updated_at: Time.now }), @env
         assert_equal 201, last_response.status
@@ -53,16 +55,24 @@ describe Endpoints::Imports do
       it 'returns correct status code and conforms to schema' do
         header "Content-Type", "application/json"
         patch "/imports/spotify/#{@import.uuid}", MultiJson.encode({}), @env
-        assert_equal 200, last_response.status
-        assert_schema_conform
+
+        assert_equal 403, last_response.status
+        e = assert_raises Committee::InvalidResponse do
+          assert_schema_conform
+        end
+        assert e.message =~ /Extra keys in response: error/
       end
     end
 
     describe 'DELETE /imports/:id' do
       it 'returns correct status code and conforms to schema' do
         delete "/imports/spotify/#{@import.uuid}", {}, @env
-        assert_equal 200, last_response.status
-        assert_schema_conform
+
+        assert_equal 403, last_response.status
+        e = assert_raises Committee::InvalidResponse do
+          assert_schema_conform
+        end
+        assert e.message =~ /Extra keys in response: error/
       end
     end
   end

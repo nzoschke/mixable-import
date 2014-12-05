@@ -15,9 +15,14 @@ module Endpoints
       end
 
       post "/spotify" do
-        # warning: not safe
-        import = Import.new(body_params)
-        import.save
+        begin
+          import = Import.start_spotify! @user
+        rescue ImportError => e
+          halt 403, "{\"error\": \"#{e.message}\"}"
+        end
+
+        SpotifyImportWorker.perform_async(import.uuid)
+
         status 201
         encode serialize(import)
       end
@@ -27,17 +32,12 @@ module Endpoints
         encode serialize(import)
       end
 
-      patch "/spotify/:id" do |id|
-        import = Import.first(uuid: id) || halt(404)
-        # warning: not safe
-        #import.update(body_params)
-        encode serialize(import)
+      patch "/:provider/:id" do |provider, id|
+        halt 403, '{"error": "Forbidden"}'
       end
 
-      delete "/spotify/:id" do |id|
-        import = Import.first(uuid: id) || halt(404)
-        import.destroy
-        encode serialize(import)
+      delete "/:provider/:id" do |provider, id|
+        halt 403, '{"error": "Forbidden"}'
       end
 
       private

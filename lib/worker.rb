@@ -60,6 +60,6 @@ class SpotifyImportWorker
   include Sidekiq::Worker
 
   def perform(uuid)
-    User[uuid].imports.last.work_spotify!
+    Import[uuid].work_spotify!
   end
 end

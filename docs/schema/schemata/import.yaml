@@ -88,6 +88,8 @@ properties:
     "$ref": "/schemata/import#/definitions/id"
   updated_at:
     "$ref": "/schemata/import#/definitions/updated_at"
+  playlists:
+    "$ref": "/schemata/import#/definitions/playlists"
 type:
 - object
 id: schemata/import

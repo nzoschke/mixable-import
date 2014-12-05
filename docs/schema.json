@@ -131,6 +131,9 @@
         },
         "updated_at": {
           "$ref": "#/definitions/import/definitions/updated_at"
+        },
+        "playlists": {
+          "$ref": "#/definitions/import/definitions/playlists"
         }
       },
       "type": [

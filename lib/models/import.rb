@@ -64,7 +64,7 @@ class Import < Sequel::Model
       # TODO: failures and duplicates?
       playlists["added"]     += 1
       playlists["processed"] += 1
-      playlists["items"]     << p["id"]
+      playlists["items"]     << { id: p["id"], name: p["name"], tracks: { total: track_uris.length } }
 
       # FIXME: why doesn't update work?!
       spotify_playlists = Sequel.pg_json(playlists)

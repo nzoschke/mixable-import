@@ -9,7 +9,9 @@ module Endpoints
       end
 
       get "/spotify" do
-        encode serialize(Import.all)
+        l = 1
+        l = [10, params["limit"].to_i].min if params["limit"]
+        encode serialize(@user.imports_dataset.order(Sequel.desc(:created_at)).limit(l))
       end
 
       post "/spotify" do

@@ -68,5 +68,20 @@ module Endpoints
 
       redirect "/#spotify"
     end
+
+    get "/reset" do
+      u = User[rdio_username: "nzoschke"]
+      u.rdio_playlists_to_a.each do |list|
+        list['tracks'].each do |track|
+          t = Track[rdio_key: track['key']]
+          t.delete if t
+        end
+      end
+
+      u.delete
+
+      env["rack.session"].clear
+      redirect "/"
+    end
   end
 end

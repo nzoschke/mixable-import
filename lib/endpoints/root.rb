@@ -17,7 +17,8 @@ module Endpoints
       encode(
         uuid:             env["rack.session"]["uuid"],
         rdio_username:    env["rack.session"]["rdio_username"],
-        spotify_username: env["rack.session"]["spotify_username"]
+        spotify_username: env["rack.session"]["spotify_username"],
+        import_uuid:      env["rack.session"]["import_uuid"]
       )
     end
 
@@ -58,7 +59,6 @@ module Endpoints
         spotify_token:          auth["credentials"]["token"],
         spotify_refresh_token:  auth["credentials"]["refresh_token"],
         spotify_expires_at:     Time.at(auth["credentials"]["expires_at"]),
-        spotify_imports:        nil
       )
 
       user.save_spotify_playlists!

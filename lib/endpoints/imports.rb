@@ -17,6 +17,7 @@ module Endpoints
       post "/spotify" do
         begin
           import = Import.start_spotify! @user
+          env["rack.session"]["import_uuid"] = import.uuid
         rescue ImportError => e
           halt 403, "{\"error\": \"#{e.message}\"}"
         end

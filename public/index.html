@@ -61,6 +61,7 @@
                   {{ playlist.name }}
                 </a>
                 <span class="badge">{{ playlist.tracks.total }}</span>
+                <span ng-if="playlist.tracks.matched != playlist.tracks.total" class="badge">{{ playlist.tracks.matched }}</span>
               </div>
 
               <div id="rdio_collapse{{$index}}" class="panel-collapse collapse table-responsive" role="tabpanel">
@@ -87,10 +88,6 @@
           </div>
 
           <div ng-if="spotify_playlists" id="spotify_accordion" class="panel-group" role="tablist">
-            <div class="progress">
-              <div class="progress-bar progress-bar-success" style="width: {{spotify_playlists.length/spotify_playlists.length*100}}%"></div>
-            </div>
-
             <div class="panel panel-primary">
               <div id="r_spotify_heading" class="panel-heading" role="tab">
                 <h3 class="panel-title">
@@ -111,7 +108,7 @@
                 <div ng-repeat="playlist in import_playlists | orderBy:'name'" ng-class="playlist.overwrite ? 'panel-warning' : 'panel-info'" class="panel">
                   <div id="r_spotify_heading{{$index}}" class="panel-heading" role="tab">
                     {{ playlist.name }}
-                    <span class="badge">{{ playlist.tracks.total }}</span>
+                    <span class="badge">{{ playlist.tracks.matched }}</span>
                     <span ng-if="!playlist.overwrite" class="label label-info">New</span>
                     <span ng-if="playlist.overwrite" class="label label-warning">Overwrite</span>
                   </div>
@@ -150,7 +147,7 @@
         </div>
 
         <div role="tabpanel" class="tab-pane" id="import">
-          <div ng-if="!imports" class="jumbotron">
+          <div ng-if="!auth.import_uuid" class="jumbotron">
             <h1>Import Playlists</h1>
             <h3>Mixable will create or overwrite a Spotify playlist for every Rdio playlist.</h3>
             <p ng-if="!auth.rdio_username"><a class="btn btn-primary btn-lg" href="/auth/rdio" role="button">Connect to Rdio</a></p>
@@ -159,14 +156,19 @@
             <p ng-if="auth.rdio_username && auth.spotify_username"><a ng-click="postImports()" ng-href="#import" class="btn btn-primary btn-lg" role="button">Import Playlists</a></p>
           </div>
 
-          <div ng-if="imports">
+
+          <div ng-if="import" class="panel-group" role="tablist">
             <div class="progress">
-              <div class="progress-bar progress-bar-success" style="width: {{imports.processed/imports.total*100}}%"></div>
+              <div class="progress-bar progress-bar-success" style="width: {{import.playlists.processed/import.playlists.total*100}}%"></div>
             </div>
 
-            <div ng-repeat="item in imports.items track by $index" class="panel panel-default">
-              <div class="panel-heading" role="tab">{{ item }}</div>
+            <div ng-repeat="playlist in import.playlists.items | orderBy:'name'" class="panel panel-default">
+              <div id="import_heading{{$index}}" class="panel-heading" role="tab">
+                {{ playlist.name }}
+                <span class="badge">{{ playlist.tracks.total }}</span>
+              </div>
             </div>
+
           </div>
         </div>
 

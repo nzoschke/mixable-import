@@ -3,15 +3,13 @@ var streamsApp = angular.module('streamsApp', []);
 
 streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $q, $timeout) {
   $scope.postImports = function() {
-    $http.post("imports").
-      success(function(data) {
-        getImports()
-      }).error(function(data, status, headers, config) {
-        resetWorkflow()
-      })
+    $http.post("imports/spotify")
+      .then(getAuthPlaylists)
   }
 
   getRdioTrackProgress = function(rdio_playlists) {
+    console.log("GET Rdio PROGRESS", rdio_playlists)
+
     var deferred = $q.defer()
     var rdio_tracks = { total: 0, processed: 0, matched: 0 }
 
@@ -39,6 +37,31 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $q, $tim
     return deferred.promise
   }
 
+  getImportProgress = function(imports) {
+    console.log("GET IMPORT PROGRESS", imports)
+    var deferred = $q.defer()
+
+    if (imports) {
+      var i = imports[0]
+      $scope.import = i
+
+      if (i.playlists.processed == i.playlists.total)
+        deferred.resolve(i)
+      else {
+        deferred.notify(i)
+
+        $timeout(function() {
+          $http.get("imports/spotify").success(function(data, status, headers, config) {
+            getImportProgress(data).then(deferred.resolve, deferred.reject, deferred.notify)
+          })
+        }, 1500)
+      }
+    }
+    else deferred.resolve()
+
+    return deferred.promise
+  }
+
   _setPlaylists = function(results) {
     // Puts data in scope for view:
     // Raw API data:        rdio_playlists, spotify_playlist, imports
@@ -54,7 +77,7 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $q, $tim
     if ($scope.auth.spotify_username)
       $scope.spotify_playlists = results[1].data
 
-    if ($scope.auth.rdio_username && $scope.auth.spotify_username)
+    if ($scope.auth.import_uuid)
       $scope.imports = results[2].data
 
     // Spotify import conflict display data
@@ -83,7 +106,9 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $q, $tim
     }
 
     // Poll Rdio track matching and Import playlist creation before resolving promise
-    getRdioTrackProgress($scope.rdio_playlists).then(deferred.resolve)
+    getRdioTrackProgress($scope.rdio_playlists)
+      .then(function() { getImportProgress($scope.imports) })
+      .then(deferred.resolve)
 
     return deferred.promise
   }
@@ -99,7 +124,7 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $q, $tim
       $q.all([
         $http.get("playlists/rdio"),
         $http.get("playlists/spotify"),
-        $http.get("imports")
+        $http.get("imports/spotify")
       ]).then(_setPlaylists)
     }, _reject)
   }

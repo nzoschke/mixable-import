@@ -19,6 +19,9 @@
         height: 10px;
         margin-bottom: 0;
       }
+      .badge {
+        float: right;
+      }
     </style>
   </head>
 
@@ -57,27 +60,71 @@
               <div class="progress-bar progress-bar-warning" style="width: {{(rdio_tracks.processed-rdio_tracks.matched)/rdio_tracks.total*100}}%"></div>
             </div>
 
-            <div ng-repeat="playlist in rdio_playlists | orderBy:'name'" class="panel panel-default">
-              <div id="rdio_heading{{$index}}" class="panel-heading" role="tab">
-                <a data-toggle="collapse" data-parent="#rdio_accordion" href="#rdio_collapse{{$index}}">
-                  {{ playlist.name }}
-                </a>
-                <span class="badge">{{ playlist.tracks.total }}</span>
-                <span ng-if="playlist.tracks.matched != playlist.tracks.total" class="badge">{{ playlist.tracks.matched }}</span>
+            <div class="panel panel-primary">
+              <div id="rdio_owned" class="panel-heading" role="tab">
+                <h3 class="panel-title">
+                  <a data-toggle="collapse" data-parent="#rdio_accordion" href="#rdio_owned_playlists">
+                    Owned
+                  </a>
+                  <span class="badge">{{ rdio_playlists.length }}</span>
+                </h3>
               </div>
 
-              <div id="rdio_collapse{{$index}}" class="panel-collapse collapse table-responsive" role="tabpanel">
-                <table class="table">
-                  <tr ng-repeat="item in playlist.tracks.items" ng-class="{ 'warning' : !item.track.id }">
-                    <td>{{$index+1}}.</td>
-                    <td>{{item.track.name}}</td>
-                    <td>{{item.track.artists[0].name}}</td>
-                    <td>{{item.track.album.name}}</td>
-                  </tr>
-                </table>
+              <div id="rdio_owned_playlists" class="panel-collapse collapse in" role="tabpanel">
+                <div ng-repeat="playlist in rdio_playlists | orderBy:'name'" ng-class="playlist.synced ? 'panel-info' : 'panel-warning'" class="panel">
+                  <div id="rdio_owned_playlist{{$index}}" class="panel-heading" role="tab">
+                    <span ng-if="!playlist.synced" class="label label-warning">Δ</span>
+                    <a data-toggle="collapse" data-parent="#rdio_owned_playlists" href="#rdio_owned_tracks{{$index}}">
+                      {{ playlist.name }}
+                    </a>
+                    <span class="badge">{{ playlist.tracks.total }}</span>
+                  </div>
+                  <div id="rdio_owned_tracks{{$index}}" class="panel-collapse collapse table-responsive" role="tabpanel">
+                    <table class="table">
+                      <tr ng-repeat="item in playlist.tracks.items" ng-class="{ 'warning' : !item.track.id }">
+                        <td>{{$index+1}}.</td>
+                        <td>{{item.track.name}}</td>
+                        <td>{{item.track.artists[0].name}}</td>
+                        <td>{{item.track.album.name}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div id="rdio_other" class="panel-heading" role="tab">
+                <h3 class="panel-title">
+                  <a data-toggle="collapse" data-parent="#rdio_accordion" href="#rdio_other_playlists">
+                    Other
+                  </a>
+                  <span class="badge">{{ rdio_playlists.length }}</span>
+                </h3>
+              </div>
+
+              <div id="rdio_other_playlists" class="panel-collapse collapse" role="tabpanel">
+                <div ng-repeat="playlist in rdio_playlists | orderBy:'name'" ng-class="playlist.synced ? 'panel-info' : 'panel-warning'" class="panel">
+                  <div id="rdio_other_playlist{{$index}}" class="panel-heading" role="tab">
+                    <span ng-if="!playlist.synced" class="label label-warning">Δ</span>
+                    <a data-toggle="collapse" data-parent="#rdio_other_playlists" href="#rdio_other_tracks{{$index}}">
+                      {{ playlist.name }}
+                    </a>
+                    <span class="badge">{{ playlist.tracks.total }}</span>
+                  </div>
+                  <div id="rdio_other_tracks{{$index}}" class="panel-collapse collapse table-responsive" role="tabpanel">
+                    <table class="table">
+                      <tr ng-repeat="item in playlist.tracks.items" ng-class="{ 'warning' : !item.track.id }">
+                        <td>{{$index+1}}.</td>
+                        <td>{{item.track.name}}</td>
+                        <td>{{item.track.artists[0].name}}</td>
+                        <td>{{item.track.album.name}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+
         </div>
 
         <div role="tabpanel" class="tab-pane" id="spotify">

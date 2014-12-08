@@ -28,7 +28,7 @@ describe User do
       expect(RdioPlaylistsWorker).to receive(:perform_async) {}
 
       @user.save_rdio_playlists!
-      assert_equal "April Fools!", @user.rdio_playlists["owned"][1]["name"]
+      assert_equal "Bugged Tracks?", @user.rdio_playlists["owned"][0]["name"]
 
       # TODO: How to query into the JSON?!
       # User.db["SELECT * FROM users WHERE 'April Fools!' IN (SELECT value->>'name' FROM json_array_elements(playlists))"].all.inspect
@@ -63,23 +63,23 @@ describe User do
       @user.save_spotify_playlists!
       playlists = @user.spotify_playlists
 
-      assert_equal 7, playlists["total"]
-      assert_equal 7, playlists["items"].length
+      assert_equal 8, playlists["total"]
+      assert_equal 8, playlists["items"].length
     end
 
     it "gets Spotify playlists with pagination" do
       @user.save_spotify_playlists!(limit: 1)
       playlists = @user.spotify_playlists
 
-      assert_equal 7, playlists["total"]
-      assert_equal 7, playlists["items"].length
+      assert_equal 8, playlists["total"]
+      assert_equal 8, playlists["items"].length
     end
 
     it "gets Spotify playlists and tracks with pagination" do
       @user.save_spotify_playlists!(limit: 1)
       @user.save_spotify_playlist_tracks!(limit: 1)
 
-      playlist = @user.spotify_playlists["items"][0]
+      playlist = @user.spotify_playlists["items"][1]
       assert_equal 12, playlist["tracks"]["total"]
       assert_equal 12, playlist["tracks"]["items"].length
     end
@@ -125,10 +125,10 @@ describe User do
           "added"     => 4,
           "processed" => 4,
           "items"     => [
+            { :id => "75H3RlPLiL4or11N7oeJNJ", :name => "Rdio / Bugged Tracks?", :tracks => { :total => 1 } },
             { :id => "0OdRtoI4Sk4Ts1sALNuiWN", :name => "Rdio / Feist", :tracks => { :total => 13 } },
             { :id => "4BHE88Vl90BnQK17nG2qv4", :name => "Rdio / April Fools!", :tracks => { :total => 11 } },
             { :id => "5nkYmgsA1XkOHnlw1vEiNs", :name => "Rdio / Pitchfork Top 100 Tracks of 2013", :tracks => { :total => 30 } },
-            { :id => "5nkYmgsA1XkOHnlw1vEiNs", :name => "Rdio / Pitchfork Top 100 Tracks of 2013", :tracks => { :total => 30 } }
           ]
         },
         @user.imports.last.spotify_playlists

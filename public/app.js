@@ -4,6 +4,10 @@ var streamsApp = angular.module('streamsApp', []);
 streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $q, $timeout) {
   $scope.postImports = function() {
     console.log("postImports")
+    angular.forEach($filter("filter")($scope.spotify_playlists, "Rdio / "), function(p, i) {
+      p.state = "pending"
+    })
+
     $http.post("imports/spotify")
       .then(getAuthPlaylists)
   }
@@ -56,17 +60,28 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $q, $tim
       var sps = $filter("filter")($scope.spotify_playlists, "Rdio / " + p.name)
       if (sps.length == 0) {
         p.state = "create"
+        if ($scope.auth.import_uuid)
+          p.state = "pending"
+
         cp = JSON.parse(JSON.stringify(p))
-        cp.name = "Rdio /" + p.name
+        cp.name = "Rdio / " + p.name
+        cp.tracks.total = 0
         $scope.spotify_playlists.push(cp)
+
       }
       else {
         var sp = sps[0]
-        p.state = p.tracks.matched == sp.tracks.total ? "synced" : "update"
+        p.state = p.tracks.matched == sp.tracks.total ? "skip" : "update"
+        if ($scope.auth.import_uuid)
+          p.state = "pending"
+
         sp.state = p.state
         sp.tracks.matched = p.tracks.total
       }
+
     })
+
+    $scope.spotify_rdio_playlists = $filter("filter")($scope.spotify_playlists, "Rdio / ")
 
     if ($scope.spotify_imports.length > 0) {
       if (!$scope.auth.import_uuid)
@@ -81,9 +96,9 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $q, $tim
 
         angular.forEach($filter("filter")($scope.spotify_playlists, p.name), function(sp, i) {
           sp.state = "done"
+          sp.tracks.total = p.tracks.total
         })
       })
-
 
       if ($scope.synced_playlists.processed >= $scope.synced_playlists.total)
         deferred.resolve()

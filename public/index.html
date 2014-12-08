@@ -40,9 +40,6 @@
           <a href="#spotify" aria-controls="spotify" role="tab" data-toggle="tab">Spotify</a>
         </li>
         <li role="presentation">
-          <a href="#import" aria-controls="import" role="tab" data-toggle="tab">Import</a>
-        </li>
-        <li role="presentation">
           <a href="#disconnect" aria-controls="disconnect" role="tab" data-toggle="tab">Disconnect</a>
         </li>
       </ul>
@@ -140,7 +137,8 @@
 
           <div ng-if="auth.spotify_username" id="spotify_accordion" class="panel-group" role="tablist">
             <div class="progress">
-              <div class="progress-bar progress-bar-success" style="width: {{synced_playlists.processed/synced_playlists.total*100}}%"></div>
+              <div ng-if="auth.import_uuid" class="progress-bar progress-bar-success" style="width: {{synced_playlists.processed/synced_playlists.total*100}}%"></div>
+              <div ng-if="!auth.import_uuid" class="progress-bar progress-bar-success" style="width: 100%"></div>
             </div>
 
             <div class="panel panel-primary">
@@ -149,13 +147,13 @@
                   <a data-toggle="collapse" data-parent="#spotify_accordion" href="#spotify_synced_playlists">
                     Sync
                   </a>
-                  <button ng-click="postImports()" type="button" class="btn btn-default btn-xs">Start!</button>
-                  <span class="badge">{{ spotify_synced_playlists.length }}</span>
+                  <button ng-if="!auth.import_uuid" ng-click="postImports()" type="button" class="btn btn-default btn-xs">Start!</button>
+                  <span class="badge">{{ rdio_playlists.length }}</span>
                 </h3>
               </div>
 
               <div id="spotify_synced_playlists" class="panel-collapse collapse in" role="tabpanel">
-                <div ng-repeat="playlist in spotify_playlists | filter:'Rdio /' | orderBy:'name'" class="panel">
+                <div ng-repeat="playlist in spotify_playlists | filter:'Rdio / ' | orderBy:'name'" class="panel">
                   <div id="spotify_synced_playlists{{$index}}" class="panel-heading" role="tab">
                     <span ng-class="playlist.class" class="label label-default">{{ playlist.state }}</span>
                     <a data-toggle="collapse" data-parent="#spotify_synced_playlists" href="#spotify_synced_tracks{{$index}}">
@@ -194,32 +192,6 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div role="tabpanel" class="tab-pane" id="import">
-          <div ng-if="!auth.import_uuid" class="jumbotron">
-            <h1>Import Playlists</h1>
-            <h3>Mixable will create or overwrite a Spotify playlist for every Rdio playlist.</h3>
-            <p ng-if="!auth.rdio_username"><a class="btn btn-primary btn-lg" href="/auth/rdio" role="button">Connect to Rdio</a></p>
-            <p ng-if="!auth.spotify_username"><a class="btn btn-primary btn-lg" href="/auth/spotify" role="button">Connect to Spotify</a></p>
-            <p ng-if="!auth.rdio_username || !auth.spotify_username"><a class="btn btn-primary btn-lg disabled" href="/auth/rdio" role="button">Import Playlists</a></p>
-            <p ng-if="auth.rdio_username && auth.spotify_username"><a ng-click="postImports()" ng-href="#import" class="btn btn-primary btn-lg" role="button">Import Playlists</a></p>
-          </div>
-
-
-          <div ng-if="import" class="panel-group" role="tablist">
-            <div class="progress">
-              <div class="progress-bar progress-bar-success" style="width: {{import.playlists.processed/import.playlists.total*100}}%"></div>
-            </div>
-
-            <div ng-repeat="playlist in import.playlists.items | orderBy:'name'" class="panel panel-default">
-              <div id="import_heading{{$index}}" class="panel-heading" role="tab">
-                {{ playlist.name }}
-                <span class="badge">{{ playlist.tracks.total }}</span>
-              </div>
-            </div>
-
           </div>
         </div>
 

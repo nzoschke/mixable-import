@@ -83,6 +83,8 @@ module Endpoints
 
       end
 
+      # TODO: delete a spotify playlist, and a couple tracks for demo sync purposes
+
       env["rack.session"].clear
       redirect "/"
     end

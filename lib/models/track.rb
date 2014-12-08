@@ -50,7 +50,7 @@ class Track < Sequel::Model
     end
 
     update(
-      rdio_isrcs:           "{#{rdio_isrcs.join(',')}}",
+      rdio_isrcs:           "{#{rdio_isrcs.compact.join(',')}}",
       spotify_id:           spotify_id,
       spotify_name:         match[:name],
       spotify_album:        match[:album],

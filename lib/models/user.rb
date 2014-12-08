@@ -10,7 +10,7 @@ class User < Sequel::Model
     return [] if !rdio_playlists
 
     # TODO: duplicate playlist in different buckets?
-    rdio_playlists["owned"] + rdio_playlists["collab"] + rdio_playlists["subscribed"] + rdio_playlists["favorites"]
+    (rdio_playlists["owned"] + rdio_playlists["collab"] + rdio_playlists["subscribed"] + rdio_playlists["favorites"]).uniq
   end
 
   def save_rdio_playlists!

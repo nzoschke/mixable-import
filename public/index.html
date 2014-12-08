@@ -58,7 +58,7 @@
             </div>
           </div>
 
-          <div ng-if="rdio_playlists" id="rdio_accordion" class="panel-group" role="tablist">
+          <div ng-if="auth.rdio_username" id="rdio_accordion" class="panel-group" role="tablist">
             <div class="progress">
               <div class="progress-bar progress-bar-success" style="width: {{rdio_tracks.matched/rdio_tracks.total*100}}%"></div>
               <div class="progress-bar progress-bar-warning" style="width: {{(rdio_tracks.processed-rdio_tracks.matched)/rdio_tracks.total*100}}%"></div>
@@ -75,13 +75,13 @@
               </div>
 
               <div id="rdio_owned_playlists" class="panel-collapse collapse in" role="tabpanel">
-                <div ng-repeat="playlist in rdio_playlists | orderBy:'name'" ng-class="playlist.synced ? 'panel-info' : 'panel-warning'" class="panel">
+                <div ng-repeat="playlist in rdio_playlists | orderBy:'name'" class="panel">
                   <div id="rdio_owned_playlist{{$index}}" class="panel-heading" role="tab">
-                    <span ng-if="!playlist.synced" class="label label-warning">Δ</span>
+                    <span ng-class="playlist.class" class="label label-default">{{ playlist.state }}</span>
                     <a data-toggle="collapse" data-parent="#rdio_owned_playlists" href="#rdio_owned_tracks{{$index}}">
                       {{ playlist.name }}
                     </a>
-                    <span class="badge">{{ playlist.tracks.total }}</span>
+                    <span ng-class="{ 'alert-warning' : playlist.tracks.total != playlist.tracks.matched }" class="badge">{{ playlist.tracks.total }}</span>
                   </div>
                   <div id="rdio_owned_tracks{{$index}}" class="panel-collapse collapse table-responsive" role="tabpanel">
                     <table class="table">
@@ -99,16 +99,15 @@
               <div id="rdio_other" class="panel-heading" role="tab">
                 <h3 class="panel-title">
                   <a data-toggle="collapse" data-parent="#rdio_accordion" href="#rdio_other_playlists">
-                    Other
+                    All
                   </a>
                   <span class="badge">{{ rdio_playlists.length }}</span>
                 </h3>
               </div>
 
               <div id="rdio_other_playlists" class="panel-collapse collapse" role="tabpanel">
-                <div ng-repeat="playlist in rdio_playlists | orderBy:'name'" ng-class="playlist.synced ? 'panel-info' : 'panel-warning'" class="panel">
+                <div ng-repeat="playlist in rdio_playlists | orderBy:'name'" class="panel">
                   <div id="rdio_other_playlist{{$index}}" class="panel-heading" role="tab">
-                    <span ng-if="!playlist.synced" class="label label-warning">Δ</span>
                     <a data-toggle="collapse" data-parent="#rdio_other_playlists" href="#rdio_other_tracks{{$index}}">
                       {{ playlist.name }}
                     </a>
@@ -139,9 +138,9 @@
             </div>
           </div>
 
-          <div ng-if="spotify_playlists" id="spotify_accordion" class="panel-group" role="tablist">
+          <div ng-if="auth.spotify_username" id="spotify_accordion" class="panel-group" role="tablist">
             <div class="progress">
-              <div class="progress-bar progress-bar-success" style="width: {{spotify_playlists.total/spotify_playlists.total*100}}%"></div>
+              <div class="progress-bar progress-bar-success" style="width: {{synced_playlists.processed/synced_playlists.total*100}}%"></div>
             </div>
 
             <div class="panel panel-primary">
@@ -150,19 +149,19 @@
                   <a data-toggle="collapse" data-parent="#spotify_accordion" href="#spotify_synced_playlists">
                     Sync
                   </a>
-                  <button type="button" class="btn btn-default btn-xs">Start!</button>
-                  <span class="badge">{{ import_playlists.length }}</span>
+                  <button ng-click="postImports()" type="button" class="btn btn-default btn-xs">Start!</button>
+                  <span class="badge">{{ spotify_synced_playlists.length }}</span>
                 </h3>
               </div>
 
               <div id="spotify_synced_playlists" class="panel-collapse collapse in" role="tabpanel">
-                <div ng-repeat="playlist in import_playlists | orderBy:'name'" ng-class="playlist.synced ? 'panel-info' : 'panel-warning'" class="panel">
+                <div ng-repeat="playlist in spotify_playlists | filter:'Rdio /' | orderBy:'name'" class="panel">
                   <div id="spotify_synced_playlists{{$index}}" class="panel-heading" role="tab">
-                    <span ng-if="!playlist.synced" class="label label-warning">Δ</span>
+                    <span ng-class="playlist.class" class="label label-default">{{ playlist.state }}</span>
                     <a data-toggle="collapse" data-parent="#spotify_synced_playlists" href="#spotify_synced_tracks{{$index}}">
                       {{ playlist.name }}
                     </a>
-                    <span class="badge">{{ playlist.tracks.total }}</span>
+                    <span ng-class="{ 'alert-warning' : playlist.tracks.total != playlist.tracks.matched }" class="badge">{{ playlist.tracks.total }}</span>
                   </div>
                   <div id="spotify_synced_tracks{{$index}}" class="panel-collapse collapse table-responsive" role="tabpanel">
                     <table class="table">
@@ -179,16 +178,16 @@
 
               <div id="spotify_other" class="panel-heading" role="tab">
                 <h3 class="panel-title">
-                  <a data-toggle="collapse" data-parent="#spotify_accordion" href="#spotify_other_playlists">
-                    Other
+                  <a data-toggle="collapse" data-parent="#spotify_accordion" href="#spotify_playlists">
+                    All
                   </a>
-                  <span class="badge">{{ other_spotify_playlists.length }}</span>
+                  <span class="badge">{{ spotify_playlists.length }}</span>
                 </h3>
               </div>
 
-              <div id="spotify_other_playlists" class="panel-collapse collapse" role="tabpanel">
-                <div ng-repeat="playlist in other_spotify_playlists | orderBy:'name'" class="panel panel-info">
-                  <div id="spotify_other_playlist{{$index}}" class="panel-heading" role="tab">
+              <div id="spotify_playlists" class="panel-collapse collapse" role="tabpanel">
+                <div ng-repeat="playlist in spotify_playlists | orderBy:'name'" class="panel">
+                  <div id="spotify_playlist{{$index}}" class="panel-heading" role="tab">
                     {{ playlist.name }}
                     <span class="badge">{{ playlist.tracks.total }}</span>
                   </div>

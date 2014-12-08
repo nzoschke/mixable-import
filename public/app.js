@@ -3,23 +3,21 @@ var streamsApp = angular.module('streamsApp', []);
 
 streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $q, $timeout) {
   $scope.postImports = function() {
+    console.log("postImports")
     $http.post("imports/spotify")
       .then(getAuthPlaylists)
   }
 
-  getRdioTrackProgress = function(rdio_playlists) {
-    console.log("GET Rdio PROGRESS", rdio_playlists)
-
+  getRdioProgress = function() {
     var deferred = $q.defer()
     var rdio_tracks = { total: 0, processed: 0, matched: 0 }
 
-    angular.forEach(rdio_playlists, function(playlist, i) {
+    angular.forEach($scope.rdio_playlists, function(playlist, i) {
       rdio_tracks.total     += playlist.tracks.total
       rdio_tracks.processed += playlist.tracks.processed
       rdio_tracks.matched   += playlist.tracks.matched
     })
 
-    // TODO: Move $scope.rdio_tracks update to setPlaylists .then()
     $scope.rdio_tracks = rdio_tracks
 
     if (rdio_tracks.total == rdio_tracks.processed) {
@@ -29,7 +27,8 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $q, $tim
 
       $timeout(function() {
         $http.get("playlists/rdio").success(function(data, status, headers, config) {
-          getRdioTrackProgress(data).then(deferred.resolve, deferred.reject, deferred.notify)
+          $scope.rdio_playlists = data
+          getRdioProgress().then(deferred.resolve, deferred.reject, deferred.notify)
         })
       }, 1500)
     }
@@ -37,22 +36,64 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $q, $tim
     return deferred.promise
   }
 
-  getImportProgress = function(imports) {
-    console.log("GET IMPORT PROGRESS", imports)
+  getSyncedProgress = function() {
     var deferred = $q.defer()
+    console.log("getSyncedProgress")
 
-    if (imports) {
-      var i = imports[0]
-      $scope.import = i
+    // Determine sync state: unknown, update, create, synced
 
-      if (i.playlists.processed == i.playlists.total)
-        deferred.resolve(i)
+    angular.forEach($scope.spotify_playlists, function(p, i) {
+      p.state = "unknown"
+    })
+
+    angular.forEach($scope.rdio_playlists, function(p, i) {
+      p.state = "unknown"
+
+      // only update playlists state if a valid spotify session
+      if (!$scope.auth.spotify_username)
+        return
+
+      var sps = $filter("filter")($scope.spotify_playlists, "Rdio / " + p.name)
+      if (sps.length == 0) {
+        p.state = "create"
+        cp = JSON.parse(JSON.stringify(p))
+        cp.name = "Rdio /" + p.name
+        $scope.spotify_playlists.push(cp)
+      }
       else {
-        deferred.notify(i)
+        var sp = sps[0]
+        p.state = p.tracks.matched == sp.tracks.total ? "synced" : "update"
+        sp.state = p.state
+        sp.tracks.matched = p.tracks.total
+      }
+    })
+
+    if ($scope.spotify_imports.length > 0) {
+      if (!$scope.auth.import_uuid)
+        return
+
+      $scope.synced_playlists = $scope.spotify_imports[0].playlists
+
+      angular.forEach($scope.synced_playlists.items, function(p, i) {
+        angular.forEach($filter("filter")($scope.rdio_playlists, p.name.replace("Rdio / ", "")), function(rp, i) {
+          rp.state = "done"
+        })
+
+        angular.forEach($filter("filter")($scope.spotify_playlists, p.name), function(sp, i) {
+          sp.state = "done"
+        })
+      })
+
+
+      if ($scope.synced_playlists.processed >= $scope.synced_playlists.total)
+        deferred.resolve()
+      else {
+        deferred.notify()
 
         $timeout(function() {
           $http.get("imports/spotify").success(function(data, status, headers, config) {
-            getImportProgress(data).then(deferred.resolve, deferred.reject, deferred.notify)
+            $scope.spotify_imports = data
+            getSyncedProgress(data).then(deferred.resolve, deferred.reject, deferred.notify)
           })
         }, 1500)
       }
@@ -62,58 +103,22 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $q, $tim
     return deferred.promise
   }
 
-  _setPlaylists = function(results) {
-    // Puts data in scope for view:
-    // Raw API data:        rdio_playlists, spotify_playlist, imports
-    // Polling results:     rdio_tracks
-    // Import display data: rdio_spotify_playlists, import_playlists, other_spotify_playlists
-
-    console.log("setPlaylists", results)
+  setPlaylists = function(results) {
     var deferred = $q.defer()
 
-    if ($scope.auth.rdio_username)
-      $scope.rdio_playlists = results[0].data
-
-    if ($scope.auth.spotify_username)
-      $scope.spotify_playlists = results[1].data
-
-    if ($scope.auth.import_uuid)
-      $scope.imports = results[2].data
-
-    // Spotify import conflict display data
-    if ($scope.spotify_playlists) {
-      $scope.rdio_spotify_playlists   = $filter("filter")($scope.spotify_playlists, "Rdio ")
-      $scope.other_spotify_playlists  = $filter("filter")($scope.spotify_playlists, "!Rdio ")
-
-      if ($scope.rdio_playlists) {
-        $scope.import_playlists = $scope.rdio_playlists
-        $scope.import_playlist_names = $scope.import_playlists.map(function(p) {
-          p.name = "Rdio / " + p.name
-          return p.name
-        })
-
-        for (var i = $scope.spotify_playlists.length - 1; i >= 0; i--) {
-          var p = $scope.spotify_playlists[i]
-
-          // remove playlist object from spotify_playlists if name matches
-          m = $scope.import_playlist_names.indexOf(p.name)
-          if (m >= 0) {
-            $scope.spotify_playlists.splice(i, 1)[0]
-            $scope.import_playlists[m].overwrite = true
-          }
-        }
-      }
-    }
+    $scope.rdio_playlists     = results[0].data
+    $scope.spotify_playlists  = results[1].data
+    $scope.spotify_imports    = results[2].data
 
     // Poll Rdio track matching and Import playlist creation before resolving promise
-    getRdioTrackProgress($scope.rdio_playlists)
-      .then(function() { getImportProgress($scope.imports) })
+    getRdioProgress()
+      .then(getSyncedProgress)
       .then(deferred.resolve)
 
     return deferred.promise
   }
 
-  _reject = function(result) {
+  reject = function(result) {
     console.log("REJECT", result)
   }
 
@@ -125,8 +130,8 @@ streamsApp.controller('WorkflowCtrl', function ($scope, $filter, $http, $q, $tim
         $http.get("playlists/rdio"),
         $http.get("playlists/spotify"),
         $http.get("imports/spotify")
-      ]).then(_setPlaylists)
-    }, _reject)
+      ]).then(setPlaylists)
+    }, reject)
   }
 
   getAuthPlaylists()

@@ -4,11 +4,24 @@ Rdio
 
 Frontend
   Awesome phone demo
-    Better workflow UI
-    Better mobile UI
-    Private hooks to reset stuff
-    Easy Rdio / Spotify passwords
-      Always show spotify dialog
+    Import progress on Spotify tab
+
+    RDIO COLLECTION
+    SPOTIFY TRACKS for "Rdio /" Playlists
+
+    Async Rdio / Spotify playlist fetching?
+
+    Rdio / Spotify tab switch awesomeness
+      update
+      create
+      synced
+
+      perfect
+      missing
+
+    Try to append data on polling instead of re-draw...
+
+    --
 
     Nav Tabs
       http://getbootstrap.com/components/#nav-tabs
@@ -24,40 +37,78 @@ Frontend
       http://getbootstrap.com/css/#tables-responsive
       http://getbootstrap.com/javascript/#collapse
 
-    ________
-    | Rdio |  Spotify   Import  Disconnect
-    ==================--------------------
-    | Collection                    (100)|
-    --------------------------------------
-    | Feist                          (14)|
-    |....................................|
-    | Feist | So Sorry      | The Reminde|
-    | Feist | I Feel It All | The Reminde|
+    rdio_playlist
+      synced
+        exists and track count matches
+      update
+        exists and track count doesnt match
+      create
+        doesn't exist
 
-    Try to append data on polling instead of re-draw...
+      fully matched
+      missing tracks
+
+    ________
+    | Rdio |  Spotify   About
+    ==================--------------------
+    | Owned                           (3)|
+    --------------------------------------
+    | Δ Radiohead                    (11)|
+    --------------------------------------
+    | Δ Pitchfork                   (100)|
+    --------------------------------------
+    | = Mixable                      (14)|
+    |....................................|
+    | 1. Shaky Dog       ⨯ Ghostface Kill|
+    | 2. Gone Daddy Gone ⨯ Gnarls Barkely|
+    | 3. Take Time       ⨯ The Books     |
+
+
+            ___________
+      Rdio  | Spotify | About
+    ==================--------------------
+    | Sync                            (2)|
+    --------------------------------------
+    | ⇒ Radiohead                    (10)|
+    --------------------------------------
+    | + Pitchfork                   (100)|
+    --------------------------------------
+    | = Mixable                      (14)|
+    --------------------------------------
+    | Other                          (11)|
+    --------------------------------------
+
 
 
 API schema
-  GET /rdio/auth
-  PUT /rdio/auth/callback
-  GET /spotify/auth
-  PUT /spotify/auth/callback
+  /auth/:provider
+  /auth/:provider/callback
 
-  GET /rdio/playlists
-  GET /spotify/playlists
+    GET /auth/rdio
+    GET /auth/rdio/callback
+    GET /auth/spotify
+    GET /auth/spotify/callback
 
-  PUT /spotify/import
-  GET /spotify/import
+    DELETE /auth
+      GET /auth?_method=DELETE
 
-  vs
+  /playlists/:provider
 
-  GET /playlists/rdio
-  GET /playlists/spotify
-  GET /imports/spotify
-  PUT /imports/spotify
+    GET /playlists/rdio
+    GET /playlists/spotify
 
-  Acceptance tests
+  /imports/:provider
+    PUT /imports/spotify
+    GET /imports/spotify
 
+    TODO: Better response schema
+    TODO: Lock around PUT when track matching or another import is in progress.
+
+
+  TODO
+    pliny-generate endpoint auth
+    User.find_or_create_by_rdio_auth / User.find_or_create_by_spotify_auth
+    Acceptance tests
 
   Marketing Pages
     Pro Features - Workflows for Music Professionals!

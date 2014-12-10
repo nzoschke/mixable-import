@@ -4,6 +4,23 @@ module Endpoints
       send_file File.expand_path("index.html", settings.public_folder)
     end
 
+    def check(&proc)
+      return !!(yield proc) rescue :error
+    end
+
+    get "/health" do
+      # TODO: Parallelize w/ simple_pmap?
+      t = Track.new(rdio_key: "t2714517", spotify_id: "4nzyOwogJuWn1s6QuGFZ6w")
+      r = {
+        postgres: check { Sequel::DATABASES[0][:schema_migrations].count },
+        redis:    check { Sidekiq.redis { |r| r.keys } },
+        rdio:     check { RdioClient.get_track(t) },
+        spotify:  check { SpotifyClient.get_track(t) },
+      }
+      status 500 if r.values.include? :error
+      encode r
+    end
+
     get "/auth" do
       # Poor man's Rack::MethodOverride
       if params["_method"] == "DELETE"

@@ -9,11 +9,11 @@ describe Endpoints::Playlists do
 
     get "/playlists/rdio", {}, @env
     assert_equal 200,   last_response.status
-    assert_equal "[]",  last_response.body
+    assert_equal "[]",  last_response.body.strip
 
     get "/playlists/spotify", {}, @env
     assert_equal 200,   last_response.status
-    assert_equal "[]",  last_response.body
+    assert_equal "[]",  last_response.body.strip
   end
 
   describe "Rdio" do

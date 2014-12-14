@@ -1,0 +1,18 @@
+machine:
+  services:
+    - docker
+
+dependencies:
+  override:
+    - sudo curl -L https://github.com/docker/fig/releases/download/1.0.1/fig-`uname -s`-`uname -m` > /usr/local/bin/fig
+    - sudo chmod +x /usr/local/bin/fig
+    - fig build
+
+database:
+  override:
+    - /bin/true
+
+test:
+  override:
+    - fig run test
+

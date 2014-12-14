@@ -1,0 +1,51 @@
+postgres:
+  image: postgres:latest
+  ports:
+    - "5432"
+redis:
+  image: redis:latest
+  ports:
+    - "6379"
+web:
+  build: .
+  command: bundle exec puma --config config/puma.rb config.ru
+  volumes:
+    - .:/myapp
+  ports:
+    - "5000:5000"
+  links:
+    - postgres
+    - redis
+  environment:
+    - DATABASE_URL=postgres://postgres@postgres/mixable-development
+    - RACK_ENV=development
+    - TZ=UTC
+    - RAISE_ERRORS=true
+    - FORCE_SSL=false
+test:
+  build: .
+  command: bundle exec rake db:setup spec
+  volumes:
+    - .:/myapp
+  ports:
+    - "5000:5000"
+  links:
+    - postgres
+    - redis
+  environment:
+    - DATABASE_URL=postgres://postgres@postgres/mixable-test
+    - RACK_ENV=test
+    - TZ=UTC
+    - RAISE_ERRORS=true
+    - FORCE_SSL=false
+    - TIMEOUT=false
+    - PRETTY_JSON=true
+    - SECURE_KEY=2fi9ugflsiscwcdv3g2aq2v2c2nwam2elripnkjbn1s6n5m6c4,6c7r6pz375bhltbvt57slj5waqj3fw1t7hc0u8bqwda0sqdth5
+    - RDIO_APP_KEY
+    - RDIO_APP_SECRET
+    - SPOTIFY_CLIENT_ID
+    - SPOTIFY_CLIENT_SECRET
+    - RDIO_USER_TOKEN
+    - RDIO_USER_SECRET
+    - SPOTIFY_USER_TOKEN
+    - SPOTIFY_USER_REFRESH_TOKEN

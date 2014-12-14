@@ -1,4 +1,23 @@
-# TODO
+# Mixable Sync
+
+## Quick Start
+
+Install [Boot2Docker](https://github.com/boot2docker/osx-installer/releases)
+and [fig](http://www.fig.sh/install.html).
+
+Copy .env.sample to .env. Add Mixable Rdio and Spotify application keys. Add
+integration test Rdio and Spotify user OAuth keys.
+
+Run specs in a fig environment:
+
+```sh
+$ boot2docker up
+$ $(boot2docker shellinit)
+$ dotenv fig run test
+```
+
+## TODO
+
 Rdio
   Collection
 

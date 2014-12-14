@@ -55,24 +55,16 @@ describe Endpoints::Imports do
       it 'returns correct status code and conforms to schema' do
         header "Content-Type", "application/json"
         patch "/imports/spotify/#{@import.uuid}", MultiJson.encode({}), @env
-
         assert_equal 403, last_response.status
-        e = assert_raises Committee::InvalidResponse do
-          assert_schema_conform
-        end
-        assert e.message =~ /Extra keys in response: error/
+        assert_schema_conform
       end
     end
 
     describe 'DELETE /imports/:id' do
       it 'returns correct status code and conforms to schema' do
         delete "/imports/spotify/#{@import.uuid}", {}, @env
-
         assert_equal 403, last_response.status
-        e = assert_raises Committee::InvalidResponse do
-          assert_schema_conform
-        end
-        assert e.message =~ /Extra keys in response: error/
+        assert_schema_conform
       end
     end
   end

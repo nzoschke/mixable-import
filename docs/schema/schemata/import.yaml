@@ -43,7 +43,6 @@ definitions:
   error:
     description: error message of call
     example: 'Forbidden'
-    format: string
     type:
     - string
 description: FIXME

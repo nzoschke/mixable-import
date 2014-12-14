@@ -64,7 +64,6 @@
         "error": {
           "description": "error message of call",
           "example": "Forbidden",
-          "format": "string",
           "type": [
             "string"
           ]
@@ -173,7 +172,6 @@
         "name": {
           "description": "name of playlist (no unique constraint)",
           "example": "Dinner with Friends",
-          "format": "string",
           "type": [
             "string"
           ]
@@ -181,7 +179,6 @@
         "description": {
           "description": "description of playlist",
           "example": "Having friends over for dinner? Here´s the perfect playlist.",
-          "format": "string",
           "type": [
             "string"
           ]
@@ -189,7 +186,6 @@
         "type": {
           "description": "type of the object -- 'playlist'",
           "example": "playlist",
-          "format": "string",
           "type": [
             "string"
           ]
@@ -226,7 +222,6 @@
         "error": {
           "description": "error message of call",
           "example": "Forbidden",
-          "format": "string",
           "type": [
             "string"
           ]

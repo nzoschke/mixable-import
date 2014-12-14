@@ -36,6 +36,7 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end
 
+  config.expect_with :minitest
   config.run_all_when_everything_filtered = true
   config.filter_run :focus
 
@@ -44,8 +45,6 @@ RSpec.configure do |config|
   # the seed, which is printed after each run.
   #     --seed 1234
   config.order = 'random'
-
-  config.expect_with :minitest
 
   # the rack app to be tested with rack-test:
   def app

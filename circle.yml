@@ -3,16 +3,10 @@ machine:
     - docker
 
 dependencies:
-  cache_directories:
-    - "~/docker"
-
   override:
     - sudo curl -L https://github.com/docker/fig/releases/download/1.0.1/fig-`uname -s`-`uname -m` -o /usr/local/bin/fig
     - sudo chmod +x /usr/local/bin/fig
-    - mkdir -p ~/docker
-    - docker load -i ~/docker/postgres.tar || docker pull postgres:latest && docker save postgres     > ~/docker/postgres.tar
-    - docker load -i ~/docker/redis.tar    || docker pull redis:latest    && docker save redis        > ~/docker/redis.tar
-    - docker load -i ~/docker/cedar.tar    || docker pull heroku/cedar:14 && docker save heroku/cedar > ~/docker/cedar.tar
+    - fig build test
 
 database:
   override:

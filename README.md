@@ -2,7 +2,7 @@
 
 Rdio to Spotify playlist sync.
 
-[![Circle CI](https://circleci.com/gh/nzoschke/mixable-import.png?circle-token=49f4c711685f084fe5e93990001a0b2c9c5445f4)](https://circleci.com/gh/nzoschke/mixable-import)
+[![Circle CI](https://circleci.com/gh/nzoschke/mixable-import.svg?style=svg)](https://circleci.com/gh/nzoschke/mixable-import)
 
 ## Quick Start
 

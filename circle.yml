@@ -6,7 +6,9 @@ dependencies:
   override:
     - sudo curl -L https://github.com/docker/fig/releases/download/1.0.1/fig-`uname -s`-`uname -m` -o /usr/local/bin/fig
     - sudo chmod +x /usr/local/bin/fig
-    - fig build postgres redis test
+    - docker pull postgres:latest
+    - docker pull redis:latest
+    - fig build test
 
 database:
   override:

@@ -18,3 +18,9 @@ database:
 test:
   override:
     - fig run test
+
+deployment:
+  staging:
+    branch: master
+    heroku:
+      appname: mixable-staging

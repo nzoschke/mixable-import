@@ -27,8 +27,6 @@ Rdio
 
 Dev/Test
   Mount code in container /app directory
-  Integrate with CircleCI
-    https://blog.abevoelker.com/simple-free-continuous-integration-of-rails-docker-images-using-fig-make-and-circleci/
 
 Frontend
   Awesome phone demo

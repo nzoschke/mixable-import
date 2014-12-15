@@ -99,6 +99,14 @@ describe User do
 
       assert e.message =~ /JSON body contains an invalid track uri: spotify:local/
     end
+
+    xit "creates or updates a Spotify playlist 100 tracks at a time" do
+      uris = ["spotify:track:4iV5W9uYEdYUVa79Axb7Rh"] * 150
+      expect(SpotifyClient).to receive(:authorized_client) {}
+
+      SpotifyClient.create_or_update_playlist(@user, "Rdio / 150 tracks", uris)
+    end
+
   end
 
   context "Rdio and Spotify" do

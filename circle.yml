@@ -17,5 +17,6 @@ database:
 
 test:
   override:
+    - fig start
     - sleep 5
     - fig run test

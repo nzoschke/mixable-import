@@ -25,6 +25,9 @@ class Serializers::Playlist < Serializers::Base
     rdio_keys = rp["tracks"].map { |rt| rt["key"] }
     key_map   = Track.where(rdio_key: rdio_keys).to_hash(:rdio_key, :spotify_id)
 
+    matched   = 0
+    processed = 0
+
     items = rp["tracks"].map do |rt|
       {
         track: {
@@ -36,6 +39,8 @@ class Serializers::Playlist < Serializers::Base
           external_ids: { isrc: rt["isrcs"][0], rdio_key: rt["key"] }
         }
       }
+      processed += 1 if key_map.key? rt["key"]
+      matched   += 1 if key_map[rt["key"]]
     end
 
     {
@@ -49,8 +54,8 @@ class Serializers::Playlist < Serializers::Base
 
       tracks: {
         total:      items.count,
-        matched:    key_map.values.count { |v| v },
-        processed:  key_map.count,
+        matched:    matched,
+        processed:  processed,
         items:      items
       }
     }

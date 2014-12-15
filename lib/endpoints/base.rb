@@ -10,6 +10,16 @@ module Endpoints
     set :dump_errors, false
     set :raise_errors, true
     set :show_exceptions, false
+    set :public_folder, 'public'
+
+    use Rack::Session::Cookie, secret: ENV['SECURE_KEY'].split(',')[0], old_secret: ENV['SECURE_KEY'].split(',')[1]
+
+    use OmniAuth::Builder do
+      provider :rdio, ENV['RDIO_APP_KEY'], ENV['RDIO_APP_SECRET']
+      # TODO: state and CSRF protection?
+      # http://tools.ietf.org/html/rfc6749#section-10.10
+      provider :spotify, ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'], scope: 'playlist-read-private playlist-modify-private', authorize_params: { show_dialog: true }
+    end
 
     configure :development do
       register Sinatra::Reloader

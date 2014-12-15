@@ -48,7 +48,7 @@ class User < Sequel::Model
           t.rdio_album    = track['album']
           t.rdio_name     = track['name']
           t.rdio_duration = track['duration']
-          t.rdio_isrcs    = track['isrcs'] # TODO: why doesn't Sequel.pg_array work?!
+          t.rdio_isrcs    = track['isrcs'] - ["", nil] # remove empty-ish values before storing in text[] field
 
           t.match_spotify!
         end

@@ -125,7 +125,7 @@ describe User do
           "added"     => 4,
           "processed" => 4,
           "items"     => [
-            { :id => "75H3RlPLiL4or11N7oeJNJ", :name => "Rdio / Bugged Tracks?", :tracks => { :total => 1 } },
+            { :id => "75H3RlPLiL4or11N7oeJNJ", :name => "Rdio / Bugged Tracks?", :tracks => { :total => 2 } },
             { :id => "0OdRtoI4Sk4Ts1sALNuiWN", :name => "Rdio / Feist", :tracks => { :total => 13 } },
             { :id => "4BHE88Vl90BnQK17nG2qv4", :name => "Rdio / April Fools!", :tracks => { :total => 11 } },
             { :id => "5nkYmgsA1XkOHnlw1vEiNs", :name => "Rdio / Pitchfork Top 100 Tracks of 2013", :tracks => { :total => 30 } },

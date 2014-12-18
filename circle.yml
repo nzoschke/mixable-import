@@ -19,3 +19,10 @@ database:
 test:
   override:
     - fig run test
+
+deployment:
+  staging:
+    branch: master
+    commands:
+      - pwd && env
+      - intermodal release mixable-import/ mixable-staging

@@ -6,6 +6,7 @@ dependencies:
   override:
     - sudo curl -L https://github.com/docker/fig/releases/download/1.0.1/fig-`uname -s`-`uname -m` -o /usr/local/bin/fig
     - sudo chmod +x /usr/local/bin/fig
+    - git clone https://github.com/nzoschke/intermodal.git ; cd intermodal ; gem build intermodal.gemspec && gem install intermodal-0.0.1.gem
     - docker pull postgres:latest
     - docker pull redis:latest
     - docker pull heroku/cedar:14
@@ -17,6 +18,7 @@ database:
 
 test:
   override:
-    - fig start
-    - sleep 5
+    - fig start redis
+    - fig start postgres
+    - sleep 1
     - fig run test

@@ -25,4 +25,4 @@ deployment:
     branch: master
     commands:
       - pwd && env
-      - intermodal release mixable-import/ mixable-staging
+      - intermodal release . mixable-staging

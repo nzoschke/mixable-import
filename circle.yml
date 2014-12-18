@@ -18,7 +18,4 @@ database:
 
 test:
   override:
-    - fig start redis
-    - fig start postgres
-    - sleep 1
     - fig run test

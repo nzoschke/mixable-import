@@ -24,7 +24,7 @@ web:
     - FORCE_SSL=false
 test:
   build: .
-  command: bundle exec rake db:setup spec
+  command: bundle exec rake sleep db:setup spec
   volumes:
     - .:/myapp
   ports:

@@ -133,6 +133,31 @@ module SpotifyClient
     end.flatten
   end
 
+  def self.get_user(user_id)
+    SpotifyClient.unauthorized_client.get("users/#{user_id}").parsed
+  end
+
+  def self.get_public_playlists(user_id, params={})
+    params[:offset] = 0
+    params[:limit]  = params[:limit] || 50
+
+    playlists = SpotifyClient.unauthorized_client.get("users/#{user_id}/playlists", params: params).parsed
+    if playlists["next"]
+      while true
+        params[:offset] += params[:limit]
+        p = SpotifyClient.unauthorized_client.get("users/#{user_id}/playlists", params: params).parsed
+        playlists["items"] += p["items"]
+        break unless p["next"]
+      end
+    end
+
+    playlists["items"].each do |p|
+      p.merge! SpotifyClient.unauthorized_client.get("users/#{user_id}/playlists/#{p['id']}", params: { fields: "followers" }).parsed
+    end
+
+    playlists
+  end
+
   def self.get_playlists(user, params={})
     params[:offset] = 0
     params[:limit]  = params[:limit] || 50

@@ -9,14 +9,41 @@ module Endpoints
     end
 
     get "/health" do
-      # TODO: Parallelize w/ simple_pmap?
-      t = Track.new(rdio_key: "t2714517", spotify_id: "4nzyOwogJuWn1s6QuGFZ6w")
-      r = {
-        postgres: check { Sequel::DATABASES[0][:schema_migrations].count },
-        redis:    check { Sidekiq.redis { |r| r.keys } },
-        rdio:     check { RdioClient.get_track(t) },
-        spotify:  check { SpotifyClient.get_track(t) },
-      }
+      # Business and Service Health Checks
+
+      begin
+        # Business health check: Profile and playlist followers
+        user      = SpotifyClient.get_user("mixable.net")
+        playlists = SpotifyClient.get_public_playlists("mixable.net")
+
+        followers = 0
+        tracks    = 0
+        playlists["items"].each do |p|
+          followers += p["followers"]["total"]
+          tracks    += p["tracks"]["total"]
+        end
+
+        Pliny.log({
+          "measure#profile.followers" => followers,
+          "measure#profile.tracks"    => tracks,
+        })
+
+        # Business health check: Tracks processed
+        Pliny.log({
+          "measure#service.tracks" => Track.count,
+        })
+      ensure
+        # Service health checks
+        # TODO: Parallelize w/ simple_pmap?
+        t = Track.new(rdio_key: "t2714517", spotify_id: "4nzyOwogJuWn1s6QuGFZ6w")
+        r = {
+          postgres: check { Sequel::DATABASES[0][:schema_migrations].count },
+          redis:    check { Sidekiq.redis { |r| r.keys } },
+          rdio:     check { RdioClient.get_track(t) },
+          spotify:  check { SpotifyClient.get_track(t) },
+        }
+      end
+
       status 500 if r.values.include? :error
       encode r
     end

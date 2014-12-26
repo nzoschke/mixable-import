@@ -29,9 +29,10 @@ module Endpoints
           "sample#profile.playlists.tracks"    => tracks,
         })
 
-        # Business health check: Tracks processed
+        # Business health check: Users and Tracks processed
         Pliny.log({
           "sample#service.tracks" => Track.count,
+          "sample#service.users"  => User.count
         })
       ensure
         # Service health checks

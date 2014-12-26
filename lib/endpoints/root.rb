@@ -68,6 +68,10 @@ module Endpoints
       )
     end
 
+    get "/auth/github/callback" do
+      puts request.env.inspect
+    end
+
     get "/auth/rdio/callback" do
       auth = request.env["omniauth.auth"]
       key  = auth["extra"]["raw_info"]["key"]

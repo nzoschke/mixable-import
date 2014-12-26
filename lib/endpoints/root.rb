@@ -24,13 +24,14 @@ module Endpoints
         end
 
         Pliny.log({
-          "measure#profile.followers" => followers,
-          "measure#profile.tracks"    => tracks,
+          "sample#profile.followers"           => user["followers"]["total"],
+          "sample#profile.playlists.followers" => followers,
+          "sample#profile.playlists.tracks"    => tracks,
         })
 
         # Business health check: Tracks processed
         Pliny.log({
-          "measure#service.tracks" => Track.count,
+          "sample#service.tracks" => Track.count,
         })
       ensure
         # Service health checks

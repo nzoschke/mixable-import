@@ -67,6 +67,12 @@ GEM
     omniauth (1.2.2)
       hashie (>= 1.2, < 4)
       rack (~> 1.0)
+    omniauth-github (1.1.2)
+      omniauth (~> 1.0)
+      omniauth-oauth2 (~> 1.1)
+    omniauth-heroku (0.2.0)
+      omniauth (~> 1.2)
+      omniauth-oauth2 (~> 1.2)
     omniauth-oauth (1.0.1)
       oauth
       omniauth (~> 1.0)
@@ -167,6 +173,8 @@ DEPENDENCIES
   levenshtein
   multi_json
   oj
+  omniauth-github
+  omniauth-heroku
   omniauth-rdio
   omniauth-spotify
   pg

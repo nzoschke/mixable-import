@@ -20,6 +20,8 @@ gem "sinatra-router"
 gem "sucker_punch"
 
 gem "levenshtein"
+gem "omniauth-github"
+gem "omniauth-heroku"
 gem "omniauth-rdio"
 gem "omniauth-spotify"
 gem "sidekiq"

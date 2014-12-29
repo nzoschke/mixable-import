@@ -1,3 +1,5 @@
+require "active_support/core_ext"
+
 module Endpoints
   class Healths < Base
     namespace "/healths" do
@@ -61,27 +63,46 @@ module GithubClient
 
   def self.authorized_client
     consumer = OAuth2::Client.new(ENV["GITHUB_CLIENT_ID"], ENV["GITHUB_CLIENT_SECRET"], site: "https://api.github.com")
-    client = OAuth2AccessToken.new(consumer, ENV["GITHUB_USER_TOKEN"])
+    client = OAuth2AccessToken.new(consumer, ENV["GITHUB_TOKEN"])
   end
 end
 
-module SpotifyClient
-  def self.get_user_statistics(user_id)
-    user      = SpotifyClient.get_user(user_id)
-    playlists = SpotifyClient.get_public_playlists(user_id)
+module HerokuClient
+  @@token      = ENV["HEROKU_TOKEN"]
+  @@expires_at = Time.now - 10
 
-    followers = 0
-    tracks    = 0
-    playlists["items"].each do |p|
-      followers += p["followers"]["total"]
-      tracks    += p["tracks"]["total"]
-    end
+  def self.get_app_costs(app_name)
+    # TODO: Invoices API is useless. Collaborator doesn't get data.
+    invoices = HerokuClient.get_invoices
+
+    now = Time.now.to_f
+    month_start = Date.today.at_beginning_of_month.to_time.to_f
+    month_end   = Date.today.at_end_of_month.to_time.to_f
+    percent_of_month = (now - month_start) / (month_end - month_start)
 
     {
-      "sample#spotify.user.followers"           => user["followers"]["total"],
-      "sample#spotify.user.playlists.followers" => followers,
-      "sample#spotify.user.playlists.tracks"    => tracks,
+      "sample#heroku.cost"   => 87.00 * percent_of_month,
+      "sample#github.cost"   =>  7.00 * percent_of_month,
+      "sample#spotify.cost"  =>  9.99 * percent_of_month,
     }
+  end
+
+  def self.get_invoices
+    client = HerokuClient.authorized_client
+    invoices = client.get("account/invoices")
+  end
+
+  def self.authorized_client
+    if @@expires_at < Time.now
+      consumer = OAuth2::Client.new(ENV["HEROKU_CLIENT_ID"], ENV["HEROKU_CLIENT_SECRET"], site: "https://id.heroku.com")
+      client = OAuth2AccessToken.new(consumer, ENV["HEROKU_TOKEN"], { refresh_token: ENV["HEROKU_REFRESH_TOKEN"] }).refresh!
+      @@token      = client.token
+      @@expires_at = Time.at client.expires_at
+    end
+
+    puts @@token.inspect
+    consumer = OAuth2::Client.new(ENV["HEROKU_CLIENT_ID"], ENV["HEROKU_CLIENT_SECRET"], site: "https://api.heroku.com")
+    client = OAuth2AccessToken.new(consumer, @@token, { refresh_token: ENV["HEROKU_REFRESH_TOKEN"] })
   end
 end
 
@@ -113,6 +134,26 @@ module SidekiqClient
       "sample#sidekiq.retries"          => stats.retry_size,
       "sample#sidekiq.dead"             => stats.dead_size,
       "sample#sidekiq.default_latency"  => queue.latency,
+    }
+  end
+end
+
+module SpotifyClient
+  def self.get_user_statistics(user_id)
+    user      = SpotifyClient.get_user(user_id)
+    playlists = SpotifyClient.get_public_playlists(user_id)
+
+    followers = 0
+    tracks    = 0
+    playlists["items"].each do |p|
+      followers += p["followers"]["total"]
+      tracks    += p["tracks"]["total"]
+    end
+
+    {
+      "sample#spotify.user.followers"           => user["followers"]["total"],
+      "sample#spotify.user.playlists.followers" => followers,
+      "sample#spotify.user.playlists.tracks"    => tracks,
     }
   end
 end

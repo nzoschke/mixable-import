@@ -69,7 +69,13 @@ module Endpoints
     end
 
     get "/auth/github/callback" do
-      puts request.env.inspect
+      auth = request.env["omniauth.auth"]
+      puts auth.inspect
+    end
+
+    get "/auth/heroku/callback" do
+      auth = request.env["omniauth.auth"]
+      puts auth.inspect
     end
 
     get "/auth/rdio/callback" do

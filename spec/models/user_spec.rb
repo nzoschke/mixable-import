@@ -7,13 +7,13 @@ describe User do
 
     @user.update(
       rdio_username:          "nzoschke",
-      rdio_token:             ENV["RDIO_USER_TOKEN"],
-      rdio_secret:            ENV["RDIO_USER_SECRET"],
+      rdio_token:             ENV["RDIO_TOKEN"],
+      rdio_secret:            ENV["RDIO_SECRET"],
 
       spotify_id:             "mixable.net",
       spotify_username:       "Mixable Dot Net",
-      spotify_token:          ENV['SPOTIFY_USER_TOKEN'],
-      spotify_refresh_token:  ENV['SPOTIFY_USER_REFRESH_TOKEN'],
+      spotify_token:          ENV["SPOTIFY_TOKEN"],
+      spotify_refresh_token:  ENV["SPOTIFY_REFRESH_TOKEN"],
       spotify_expires_at:     Time.at(1416241913),
     )
   end
@@ -47,8 +47,8 @@ describe User do
       u = User[spotify_id: "mixable.net"]
 
       assert_equal "mixable.net", u.spotify_id
-      assert_equal ENV['SPOTIFY_USER_TOKEN'], u.spotify_token
-      assert_equal ENV['SPOTIFY_USER_REFRESH_TOKEN'], u.spotify_refresh_token
+      assert_equal ENV['SPOTIFY_TOKEN'], u.spotify_token
+      assert_equal ENV['SPOTIFY_REFRESH_TOKEN'], u.spotify_refresh_token
     end
 
     it "refreshes an access token" do
@@ -63,23 +63,23 @@ describe User do
       @user.save_spotify_playlists!
       playlists = @user.spotify_playlists
 
-      assert_equal 8, playlists["total"]
-      assert_equal 8, playlists["items"].length
+      assert_equal 12, playlists["total"]
+      assert_equal 12, playlists["items"].length
     end
 
     it "gets Spotify playlists with pagination" do
       @user.save_spotify_playlists!(limit: 1)
       playlists = @user.spotify_playlists
 
-      assert_equal 8, playlists["total"]
-      assert_equal 8, playlists["items"].length
+      assert_equal 12, playlists["total"]
+      assert_equal 12, playlists["items"].length
     end
 
     it "gets Spotify playlists and tracks with pagination" do
       @user.save_spotify_playlists!(limit: 1)
       @user.save_spotify_playlist_tracks!(limit: 1)
 
-      playlist = @user.spotify_playlists["items"][1]
+      playlist = @user.spotify_playlists["items"][5]
       assert_equal 12, playlist["tracks"]["total"]
       assert_equal 12, playlist["tracks"]["items"].length
     end

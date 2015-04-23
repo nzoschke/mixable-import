@@ -1,0 +1,6 @@
+#!/bin/bash
+
+while true; do sequel -c 'DB.inspect' $POSTGRES_URL 2>/dev/null && break || sleep 1; done
+bundle exec rake sleep db:setup spec
+bundle exec puma --config config/puma.rb config.ru
+

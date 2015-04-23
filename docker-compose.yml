@@ -8,33 +8,44 @@ redis:
     - "6379"
 web:
   build: .
-  command: bundle exec puma --config config/puma.rb config.ru
+  command: bin/web
   volumes:
     - .:/myapp
   ports:
-    - "5000:5000"
+    - "3000:3000"
   links:
     - postgres
     - redis
   environment:
     - DATABASE_URL=postgres://postgres@postgres/mixable-development
+    - REDIS_URL=redis://redis:6379/0
     - RACK_ENV=development
     - TZ=UTC
     - RAISE_ERRORS=true
     - FORCE_SSL=false
-test:
+    - TIMEOUT=false
+    - PRETTY_JSON=true
+    - SECURE_KEY=2fi9ugflsiscwcdv3g2aq2v2c2nwam2elripnkjbn1s6n5m6c4,6c7r6pz375bhltbvt57slj5waqj3fw1t7hc0u8bqwda0sqdth5
+    - RDIO_APP_KEY
+    - RDIO_APP_SECRET
+    - SPOTIFY_CLIENT_ID
+    - SPOTIFY_CLIENT_SECRET
+    - RDIO_USER_TOKEN
+    - RDIO_USER_SECRET
+    - SPOTIFY_USER_TOKEN
+    - SPOTIFY_USER_REFRESH_TOKEN
+worker:
   build: .
-  command: bundle exec rake sleep db:setup spec
+  command: bin/worker
   volumes:
     - .:/myapp
-  ports:
-    - "5000:5000"
   links:
     - postgres
     - redis
   environment:
-    - DATABASE_URL=postgres://postgres@postgres/mixable-test
-    - RACK_ENV=test
+    - DATABASE_URL=postgres://postgres@postgres/mixable-development
+    - REDIS_URL=redis://redis:6379/0
+    - RACK_ENV=development
     - TZ=UTC
     - RAISE_ERRORS=true
     - FORCE_SSL=false

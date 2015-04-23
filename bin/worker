@@ -1,0 +1,4 @@
+#!/bin/bash
+
+while true; do sequel -c 'DB.inspect' $POSTGRES_URL 2>/dev/null && break || sleep 1; done
+bundle exec sidekiq -r ./lib/application.rb

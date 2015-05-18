@@ -1,5 +1,8 @@
 require "pliny/config_helpers"
 
+ENV["DATABASE_URL"] = "postgres://#{ENV['POSTGRES_ENV_POSTGRES_USER']}:#{ENV['POSTGRES_ENV_POSTGRES_PASSWORD']}@#{ENV['POSTGRES_PORT_5432_TCP_ADDR']}:#{ENV['POSTGRES_PORT_5432_TCP_PORT']}/#{ENV['POSTGRES_ENV_POSTGRES_DATABASE']}"
+ENV["REDIS_URL"] = "redis://:#{ENV['REDIS_ENV_REDIS_PASSWORD']}@#{ENV['REDIS_PORT_6379_TCP_ADDR']}:#{ENV['REDIS_PORT_6379_TCP_PORT']}/#{ENV['REDIS_ENV_REDIS_DATABASE']}"
+
 # Access all config keys like the following:
 #
 #     Config.database_url
@@ -11,6 +14,7 @@ module Config
 
   # Mandatory -- exception is raised for these variables when missing.
   mandatory :database_url, string
+  mandatory :redis_url, string
 
   # Optional -- value is returned or `nil` if it wasn't present.
   optional :placeholder,         string

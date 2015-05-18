@@ -17,8 +17,6 @@ web:
     - postgres
     - redis
   environment:
-    - DATABASE_URL=postgres://postgres@postgres/mixable-development
-    - REDIS_URL=redis://redis:6379/0
     - RACK_ENV=development
     - TZ=UTC
     - RAISE_ERRORS=true
@@ -43,8 +41,6 @@ worker:
     - postgres
     - redis
   environment:
-    - DATABASE_URL=postgres://postgres@postgres/mixable-development
-    - REDIS_URL=redis://redis:6379/0
     - RACK_ENV=development
     - TZ=UTC
     - RAISE_ERRORS=true

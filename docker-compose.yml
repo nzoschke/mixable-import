@@ -1,9 +1,9 @@
 postgres:
-  image: postgres:latest
+  image: convox/postgres
   ports:
     - "5432"
 redis:
-  image: redis:latest
+  image: convox/redis
   ports:
     - "6379"
 web:

@@ -1,11 +1,7 @@
 postgres:
   image: convox/postgres
-  ports:
-    - "5432"
 redis:
   image: convox/redis
-  ports:
-    - "6379"
 web:
   build: .
   command: bin/web
